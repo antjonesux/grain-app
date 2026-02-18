@@ -1,0 +1,82 @@
+---
+description: Database schema and Supabase patterns for TIS
+globs: src/lib/**, src/hooks/**, src/types/**, supabase/**
+alwaysApply: false
+---
+
+# Database Schema & Data Patterns
+
+## Core Tables
+
+### journeys
+```sql
+id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
+user_id         UUID        REFERENCES auth.users(id) NOT NULL
+title           TEXT        NOT NULL CHECK (char_length(title) <= 60)
+why             TEXT        NOT NULL CHECK (char_length(why) <= 200)
+support_def     TEXT        NOT NULL CHECK (char_length(support_def) <= 200)
+weekly_hours    NUMERIC     NOT NULL CHECK (weekly_hours >= 0.5 AND weekly_hours <= 20)
+status          TEXT        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused', 'archived'))
+role            TEXT        NOT NULL DEFAULT 'primary' CHECK (role IN ('primary', 'secondary'))
+created_at      TIMESTAMPTZ DEFAULT now()
+paused_at       TIMESTAMPTZ
+archived_at     TIMESTAMPTZ
+```
+
+### daily_logs
+```sql
+id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
+journey_id      UUID        REFERENCES journeys(id) NOT NULL
+user_id         UUID        REFERENCES auth.users(id) NOT NULL
+log_date        DATE        NOT NULL
+time_invested   NUMERIC     NOT NULL CHECK (time_invested IN (0, 0.5, 1.0, 1.5, 2.0, 3.0))
+note            TEXT        CHECK (char_length(note) <= 140)
+logged_at       TIMESTAMPTZ DEFAULT now()
+UNIQUE(journey_id, log_date)
+```
+
+### weekly_summaries
+```sql
+id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
+journey_id      UUID        REFERENCES journeys(id) NOT NULL
+user_id         UUID        REFERENCES auth.users(id) NOT NULL
+week_start      DATE        NOT NULL
+commitment      NUMERIC     NOT NULL
+actual          NUMERIC     NOT NULL DEFAULT 0
+delta           NUMERIC     GENERATED ALWAYS AS (actual - commitment) STORED
+zero_days       INTEGER     NOT NULL DEFAULT 0
+needle_moved    BOOLEAN
+recalibrated    BOOLEAN     DEFAULT false
+skipped         BOOLEAN     DEFAULT false
+created_at      TIMESTAMPTZ DEFAULT now()
+UNIQUE(journey_id, week_start)
+```
+
+### recalibrations
+```sql
+id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
+journey_id      UUID        REFERENCES journeys(id) NOT NULL
+user_id         UUID        REFERENCES auth.users(id) NOT NULL
+action          TEXT        NOT NULL CHECK (action IN ('reduce_target', 'reallocate', 'adjust_strategy', 'change_primary', 'pause'))
+previous_value  TEXT
+new_value       TEXT
+reason          TEXT        CHECK (char_length(reason) <= 100)
+created_at      TIMESTAMPTZ DEFAULT now()
+```
+
+## Constraints to Enforce in Application Logic
+- Maximum 3 active journeys per user.
+- Only 1 journey with role = 'primary' per user at any time.
+- Paused journeys do not count toward the 3-journey cap.
+- Weekly commitment changes take effect the following Monday.
+- Daily logs: one per journey per day. Upserting overwrites previous value.
+
+## Row Level Security
+Every table must have RLS enabled with policies scoped to `auth.uid() = user_id`.
+Never use service_role key on the client.
+
+## Query Patterns
+- Use `.upsert()` for daily logs (handles create-or-update in one call).
+- Use `.select()` with explicit column lists — never `select('*')` in production.
+- Compute weekly summaries client-side from daily_logs until scale requires a database function.
+- Filter by date ranges using `.gte()` and `.lte()` on date columns.

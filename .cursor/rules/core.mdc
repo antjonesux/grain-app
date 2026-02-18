@@ -1,0 +1,69 @@
+---
+description: Core project rules for Trajectory Integrity System - always active
+globs:
+alwaysApply: true
+---
+
+# Trajectory Integrity System — Project Rules
+
+## Project Identity
+This is the Trajectory Integrity System (TIS) — a gentle guidance system that ensures weekly time investment supports declared long-term direction through steady, focused progress.
+
+The product protects long-term trajectory from short-term noise. It is NOT a sprint tool, hustle engine, habit tracker, time-logging app, or productivity dashboard. It is a steady progress alignment system.
+
+## Emotional Tone
+Every UI decision must reflect: familiar, grounded, personal, calm, direct, honest.
+Never: analytical, gamified, competitive, urgent, performative.
+When in doubt about copy or interaction design, choose the calmer option.
+
+## Tech Stack
+- Frontend: React 18+ with TypeScript, Vite
+- Styling: Tailwind CSS
+- Backend: Supabase (PostgreSQL, Auth, Row Level Security)
+- PWA: vite-plugin-pwa
+- Routing: React Router v7
+- State: React Context + useReducer for global state, useState for local
+- No Redux. No Zustand. Keep state management simple.
+
+## Code Standards
+- Functional components only. No class components.
+- Named exports only. No default exports.
+- Use `const` arrow functions for components: `export const MyComponent = () => {}`
+- Descriptive variable names with auxiliary verbs: isLoading, hasError, canSubmit
+- Keep files under 200 lines. Split when a file does more than one thing.
+- Co-locate related files: component, hook, types, and test in the same directory.
+- All TypeScript. No `any` type. Define interfaces for all props and data.
+- Use absolute imports via `@/` path alias mapped to `src/`.
+
+## File Naming
+- Components: PascalCase directories and files (`DailyLog/DailyLog.tsx`)
+- Hooks: camelCase with `use` prefix (`useDailyLog.ts`)
+- Types: PascalCase with `.types.ts` suffix (`Journey.types.ts`)
+- Utils: camelCase (`formatTime.ts`)
+- Supabase files: camelCase (`supabaseClient.ts`)
+
+## Component Patterns
+- Props interfaces defined above the component in the same file.
+- Destructure props in function signature.
+- Early returns for loading, error, and empty states — handle these FIRST, not last.
+- Separate data fetching (hooks) from presentation (components).
+- No inline styles. Use Tailwind utility classes.
+- Accessibility: all interactive elements need aria labels, minimum 44px touch targets.
+
+## Supabase Patterns
+- Single Supabase client instance exported from `src/lib/supabaseClient.ts`.
+- All database queries go through custom hooks in `src/hooks/`.
+- Row Level Security (RLS) enabled on ALL tables. Never bypass RLS.
+- Use Supabase generated types from `src/types/database.types.ts`.
+- Environment variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+
+## Error Handling
+- Wrap all Supabase calls in try/catch.
+- Surface user-friendly error messages — never expose raw database errors.
+- Use a consistent error state pattern: `{ error: string | null, isLoading: boolean }`.
+- Log errors to console in development only.
+
+## Testing
+- Test critical paths only: onboarding, daily log, weekly ritual, recalibration.
+- Use Vitest for unit tests, Testing Library for component tests.
+- Test file lives next to the file it tests: `DailyLog.test.tsx`.

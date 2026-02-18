@@ -1,0 +1,75 @@
+---
+description: Product domain knowledge — flows, drift logic, and business rules for TIS
+globs:
+alwaysApply: false
+---
+
+# Product Domain Context
+
+## Core Loop
+The app operates on a repeating cycle: Setup → Daily Log → Weekly Ritual → Recalibration.
+
+### Setup (One-Time Onboarding)
+- 6-step flow: welcome → destination → why → support definition → weekly hours → confirmation.
+- Character limits: title 60, why 200, support definition 200.
+- Weekly hours: stepper input, 0.5–20 hrs in 0.5 increments, default 5.
+- Secondary journeys are NOT available during onboarding. They unlock after first weekly ritual.
+
+### Daily Log
+- Completable in under 30 seconds from app open.
+- Preset time chips: 0, 30m, 1h, 1.5h, 2h, 3h+
+- One log per journey per day. New tap overwrites previous value.
+- Optional note: max 140 characters.
+- Unlogged days are distinct from zero-logged days. "Didn't log" ≠ "logged zero."
+- One daily push notification at user-configured time. Can be disabled.
+
+### Weekly Ritual (Sunday evening through Monday end-of-day)
+Flow:
+1. Summary card: commitment, actual, delta, zero-support days (primary journey).
+2. 4-week trend visualization (bar or line chart, last 4 weeks actual vs committed).
+3. Needle question: "Did this week move the needle?" — Yes/No tap.
+4. If Yes → positive acknowledgment, optional reflection note. Done.
+5. If No → trigger recalibration flow.
+
+Rules:
+- Available Sunday evening through Monday end-of-day.
+- After Monday EOD, week is marked "skipped." No retroactive completion.
+- Secondary journeys show summary but only primary triggers needle question.
+
+### Recalibration Options
+1. Reduce weekly target → requires reason from preset list.
+2. Reallocate time → only if 2+ active journeys.
+3. Adjust execution strategy → edit support definition.
+4. Change primary journey → only if 2+ active journeys, requires confirmation.
+5. Pause a journey → removes from active tracking.
+
+Recalibration is always optional and dismissible. No shaming language.
+
+## Drift Triggers
+| Trigger | Condition | Response |
+|---------|-----------|----------|
+| Midweek nudge | By Wednesday, <25% of commitment logged | Subtle in-app indicator. No push notification. |
+| Zero-support alert | 3 consecutive zero-support days | In-app nudge on next open. One-tap log or dismiss. |
+| Recurring miss | 2 of last 3 weeks = No on needle | Reflection prompt before next needle question. |
+| Sustained drift | 3 consecutive weeks missed | Primary reconsideration: recommit, recalibrate, pause, or archive. |
+
+Principles: No punishment. No streaks. No forced completion. Triggers escalate in depth, not pressure.
+
+## Core Metric
+Directional Integrity Rate = (weeks meeting commitment / total active weeks) × 100
+- Excludes paused weeks.
+- No target percentage. No benchmarks. No comparisons.
+
+## Journey Management
+- Hard cap: 3 active journeys (1 primary + up to 2 secondary).
+- Journeys cannot be deleted, only archived.
+- Paused journeys don't count toward cap.
+- Archived journeys are read-only.
+- Mid-week commitment changes take effect the following Monday.
+- Mid-week primary changes take effect immediately.
+
+## Copy Voice
+- Second person ("you"), not third ("the user").
+- Short sentences. Direct. Warm but not bubbly.
+- Never: "Great job!", "Keep it up!", "You're on fire!", "Don't break the streak!"
+- Instead: "Another week of steady progress.", "You showed up.", "Take a moment to reflect."

@@ -1,0 +1,70 @@
+---
+description: React and Tailwind component conventions for TIS frontend
+globs: src/components/**, src/pages/**
+alwaysApply: false
+---
+
+# Frontend Component Conventions
+
+## Component Structure
+Every component file follows this order:
+1. Imports
+2. TypeScript interface for props
+3. Component function (named export, arrow function)
+4. Helper functions (if small and component-specific)
+
+```tsx
+// Example pattern
+import { useState } from 'react';
+
+interface DailyLogProps {
+  journeyId: string;
+  date: string;
+}
+
+export const DailyLog = ({ journeyId, date }: DailyLogProps) => {
+  const [selectedTime, setSelectedTime] = useState<number | null>(null);
+
+  if (!journeyId) return <EmptyState />;
+
+  return (
+    <div className="p-4">
+      {/* component content */}
+    </div>
+  );
+};
+```
+
+## State Handling Pattern
+- Loading state: show skeleton or subtle spinner. Never block the full screen.
+- Error state: show inline message with retry action. Never show raw errors.
+- Empty state: show guidance copy with a clear next action. Never show a blank screen.
+- Handle these states FIRST with early returns before the main render.
+
+## Tailwind Usage
+- Use Tailwind utility classes directly. No custom CSS files unless absolutely necessary.
+- Design tokens via Tailwind config: colors, spacing, fonts, border radius.
+- Use `cn()` utility (clsx + tailwind-merge) for conditional classes.
+- Mobile-first: base styles are mobile, use `md:` and `lg:` for larger screens.
+- Minimum touch targets: `min-h-[44px] min-w-[44px]` on all interactive elements.
+
+## Visual Design Principles
+- Generous whitespace — the product should feel unhurried.
+- Muted, warm color palette. No bright saturated colors. No red for non-error states.
+- Typography: clear hierarchy. One serif or warm sans-serif for headings, clean sans for body.
+- No decorative animations. Motion is functional only (feedback, transitions).
+- Border radius: consistent and soft. Prefer rounded-xl for cards, rounded-lg for buttons.
+- Shadows: subtle and minimal. Use shadow-sm. Never shadow-2xl.
+
+## Page Layout
+- Max content width: 480px (mobile-optimized PWA).
+- Centered layout with horizontal padding.
+- Bottom navigation for primary screens (Home, Log, Review, Journey).
+- No hamburger menus.
+
+## Accessibility
+- All images need alt text.
+- All form inputs need associated labels.
+- Color is never the only indicator of state — pair with icons or text.
+- Focus styles must be visible.
+- Screen reader text for icon-only buttons using `sr-only` class.
