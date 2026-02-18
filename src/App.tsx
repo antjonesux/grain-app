@@ -1,9 +1,14 @@
+import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { ProtectedRoute } from '@/components/Layout/ProtectedRoute'
+import { AppShell } from '@/components/Layout/AppShell'
 import { LoginPage } from '@/pages/Auth/LoginPage'
 import { SignupPage } from '@/pages/Auth/SignupPage'
-import { HomePage } from '@/pages/HomePage'
+import { HomePage } from '@/pages/Home/HomePage'
+import { LogPage } from '@/pages/Log/LogPage'
+import { ReviewPage } from '@/pages/Review/ReviewPage'
+import { JourneyPage } from '@/pages/Journey/JourneyPage'
 
 const AuthLoadingScreen = () => (
   <div
@@ -13,6 +18,16 @@ const AuthLoadingScreen = () => (
   >
     <p className="text-stone-500 text-sm">Loading…</p>
   </div>
+)
+
+interface AuthenticatedLayoutProps {
+  children: ReactNode
+}
+
+const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => (
+  <ProtectedRoute>
+    <AppShell>{children}</AppShell>
+  </ProtectedRoute>
 )
 
 const AppRoutes = () => {
@@ -29,9 +44,33 @@ const AppRoutes = () => {
       <Route
         path="/"
         element={
-          <ProtectedRoute>
+          <AuthenticatedLayout>
             <HomePage />
-          </ProtectedRoute>
+          </AuthenticatedLayout>
+        }
+      />
+      <Route
+        path="/log"
+        element={
+          <AuthenticatedLayout>
+            <LogPage />
+          </AuthenticatedLayout>
+        }
+      />
+      <Route
+        path="/review"
+        element={
+          <AuthenticatedLayout>
+            <ReviewPage />
+          </AuthenticatedLayout>
+        }
+      />
+      <Route
+        path="/journey"
+        element={
+          <AuthenticatedLayout>
+            <JourneyPage />
+          </AuthenticatedLayout>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
