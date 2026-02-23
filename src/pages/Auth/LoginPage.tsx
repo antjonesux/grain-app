@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { cn } from '@/utils'
 
@@ -18,6 +18,7 @@ const validatePassword = (value: string): string | null => {
 
 export const LoginPage = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { signIn, error, clearError } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -38,7 +39,11 @@ export const LoginPage = () => {
     setIsSubmitting(true)
     try {
       await signIn(email.trim(), password)
-      navigate('/', { replace: true })
+      const from =
+        (location.state as any)?.from?.pathname && typeof (location.state as any)?.from?.pathname === 'string'
+          ? (location.state as any).from.pathname
+          : '/'
+      navigate(from, { replace: true })
     } catch {
       // Error surfaced via context
     } finally {

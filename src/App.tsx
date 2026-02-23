@@ -9,6 +9,7 @@ import { HomePage } from '@/pages/Home/HomePage'
 import { LogPage } from '@/pages/Log/LogPage'
 import { ReviewPage } from '@/pages/Review/ReviewPage'
 import { JourneyPage } from '@/pages/Journey/JourneyPage'
+import { SettingsPage } from '@/pages/Settings/SettingsPage'
 
 const AuthLoadingScreen = () => (
   <div
@@ -31,7 +32,8 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => (
 )
 
 const AppRoutes = () => {
-  const { isLoading } = useAuth()
+  const { isLoading, user, session } = useAuth()
+  const isAuthed = !!user && !!session
 
   if (isLoading) {
     return <AuthLoadingScreen />
@@ -39,8 +41,14 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route
+        path="/login"
+        element={isAuthed ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/signup"
+        element={isAuthed ? <Navigate to="/" replace /> : <SignupPage />}
+      />
       <Route
         path="/"
         element={
@@ -73,7 +81,18 @@ const AppRoutes = () => {
           </AuthenticatedLayout>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="/settings"
+        element={
+          <AuthenticatedLayout>
+            <SettingsPage />
+          </AuthenticatedLayout>
+        }
+      />
+      <Route
+        path="*"
+        element={<Navigate to={isAuthed ? '/' : '/login'} replace />}
+      />
     </Routes>
   )
 }

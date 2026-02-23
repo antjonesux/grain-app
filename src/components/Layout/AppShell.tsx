@@ -8,6 +8,7 @@ const PATH_TITLES: Record<string, string> = {
   '/log': 'Log',
   '/review': 'Review',
   '/journey': 'Journey',
+  '/settings': 'Settings',
 }
 
 interface AppShellProps {
