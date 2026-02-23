@@ -4,114 +4,129 @@ globs: src/lib/**, src/hooks/**, src/types/**, supabase/**
 alwaysApply: false
 ---
 
-# Database Schema & Data Patterns (v4)
+# DATA MODEL — Grain v6
 
-## Core Tables
+The database is action-based.
 
-### journeys
-```sql
-id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
-user_id         UUID        REFERENCES auth.users(id) NOT NULL
-title           TEXT        NOT NULL CHECK (char_length(title) <= 60)
-why             TEXT        NOT NULL CHECK (char_length(why) <= 200)
-category_id     UUID        REFERENCES journey_categories(id)
-weekly_hours    NUMERIC     NOT NULL CHECK (weekly_hours >= 0.5 AND weekly_hours <= 20)
-status          TEXT        NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused', 'archived'))
-role            TEXT        NOT NULL DEFAULT 'primary' CHECK (role IN ('primary', 'secondary'))
-created_at      TIMESTAMPTZ DEFAULT now()
-paused_at       TIMESTAMPTZ
-archived_at     TIMESTAMPTZ
-```
+Logging is event-driven.
 
-### journey_categories
-```sql
-id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
-key             TEXT        NOT NULL UNIQUE
-name            TEXT        NOT NULL
-created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-```
+---
 
-### actions
-User-owned, reusable across journeys. Linked to journeys via journey_actions.
-```sql
-id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
-user_id         UUID        REFERENCES auth.users(id) NOT NULL
-category_id     UUID        REFERENCES journey_categories(id)
-title           TEXT        NOT NULL CHECK (char_length(title) <= 80)
-is_active       BOOLEAN     NOT NULL DEFAULT true
-created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-```
+## journeys
 
-### journey_actions
-Junction: which actions are attached to which journey. Do not duplicate action rows; attach existing actions.
-```sql
-id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
-user_id         UUID        REFERENCES auth.users(id) NOT NULL
-journey_id      UUID        REFERENCES journeys(id) NOT NULL
-action_id       UUID        REFERENCES actions(id) NOT NULL
-source          TEXT        NOT NULL CHECK (source IN ('suggested', 'custom'))
-sort_order      INT         NOT NULL DEFAULT 0
-created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-UNIQUE(journey_id, action_id)
-```
+Represents a long-term declared direction.
 
-### action_logs
-Multiple rows per day per journey allowed (one per action log entry). Zero-log day = no row for that journey/date.
-```sql
-id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
-user_id         UUID        REFERENCES auth.users(id) NOT NULL
-journey_id      UUID        REFERENCES journeys(id) NOT NULL
-action_id       UUID        REFERENCES actions(id) NOT NULL
-log_date        DATE        NOT NULL
-duration        NUMERIC     NOT NULL CHECK (duration IN (0.5, 1.0, 1.5, 2.0, 3.0))
-note            TEXT        CHECK (char_length(note) <= 140)
-logged_at       TIMESTAMPTZ NOT NULL DEFAULT now()
-```
-Insert allowed only when the action is attached to the journey (journey_actions). Enforced by RLS and DB trigger.
+Fields:
+- id (uuid)
+- user_id (uuid)
+- title (string, max 60)
+- why (string, max 200)
+- category_id (uuid, nullable)
+- weekly_commitment (numeric: 0.5–20 in 0.5 increments)
+- role (primary | secondary)
+- status (active | paused | archived)
+- created_at
+- paused_at (nullable)
+- archived_at (nullable)
 
-### weekly_summaries
-```sql
-id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
-journey_id      UUID        REFERENCES journeys(id) NOT NULL
-user_id         UUID        REFERENCES auth.users(id) NOT NULL
-week_start      DATE        NOT NULL
-commitment      NUMERIC     NOT NULL
-actual          NUMERIC     NOT NULL DEFAULT 0
-delta           NUMERIC     GENERATED ALWAYS AS (actual - commitment) STORED
-zero_days       INTEGER     NOT NULL DEFAULT 0
-needle_moved    BOOLEAN
-recalibrated    BOOLEAN     DEFAULT false
-skipped         BOOLEAN     DEFAULT false
-created_at      TIMESTAMPTZ DEFAULT now()
-UNIQUE(journey_id, week_start)
-```
-Compute actual and zero_days from action_logs: actual = SUM(duration) for journey/week; zero_days = days in week with no action_logs for that journey.
+Constraints:
+- Max 3 active journeys per user.
+- Only one primary journey per user.
+- Paused journeys excluded from integrity rate.
 
-### recalibrations
-```sql
-id              UUID        PRIMARY KEY DEFAULT gen_random_uuid()
-journey_id      UUID        REFERENCES journeys(id) NOT NULL
-user_id         UUID        REFERENCES auth.users(id) NOT NULL
-action          TEXT        NOT NULL CHECK (action IN ('reduce_target', 'reallocate', 'adjust_strategy', 'change_primary', 'pause'))
-previous_value  TEXT
-new_value       TEXT
-reason          TEXT        CHECK (char_length(reason) <= 100)
-created_at      TIMESTAMPTZ DEFAULT now()
-```
+---
 
-## Constraints to Enforce in Application Logic
-- Maximum 3 active journeys per user.
-- Only 1 journey with role = 'primary' per user at any time.
-- Paused journeys do not count toward the 3-journey cap.
-- Weekly commitment changes take effect the following Monday.
-- Actions are user-owned; reuse by attaching to journeys via journey_actions. Do not duplicate action records.
-- action_logs: only insert when (journey_id, action_id) exists in journey_actions (enforced by RLS and trigger).
+## journey_categories
 
-## Row Level Security
-Every table must have RLS enabled with policies scoped to `auth.uid() = user_id` (or appropriate check). journey_categories: SELECT for authenticated users only. Never use service_role key on the client.
+Static reference table for onboarding filtering.
 
-## Query Patterns
-- Use `.select()` with explicit column lists — never `select('*')` in production.
-- All inserts must include user_id from auth (e.g. auth.uid() or session.user.id in client).
-- Weekly summaries: derive actual from SUM(action_logs.duration) grouped by journey_id and week; zero_days = count of week days with no action_logs for that journey.
-- Filter by date ranges using `.gte()` and `.lte()` on date columns.
+Fields:
+- id
+- key
+- name
+
+---
+
+## actions
+
+User-owned reusable actions.
+
+Fields:
+- id
+- user_id
+- category_id (nullable)
+- title (max 80)
+- is_active
+- created_at
+
+Actions can be reused across journeys.
+
+---
+
+## journey_actions
+
+Many-to-many join between journeys and actions.
+
+Fields:
+- id
+- user_id
+- journey_id
+- action_id
+- source (suggested | custom)
+- sort_order
+- created_at
+
+Constraint:
+- unique (journey_id, action_id)
+
+---
+
+## action_logs
+
+Event-based logging.
+
+Each row = one action session.
+
+Fields:
+- id
+- user_id
+- journey_id
+- action_id
+- log_date (date)
+- duration (0.5 | 1.0 | 1.5 | 2.0 | 3.0)
+- note (optional, max 140)
+- logged_at
+
+Rules:
+- Multiple logs per day allowed.
+- Same action can be logged multiple times per day.
+- No unique constraint on date.
+- Unlogged days have no rows.
+
+---
+
+## weekly_summaries (computed)
+
+Fields:
+- week_start
+- journey_id
+- commitment
+- actual
+- delta
+- zero_log_days
+- needle_moved (boolean)
+- recalibrated (boolean)
+
+actual = SUM(action_logs.duration) grouped by week.
+
+---
+
+## Enforcement
+
+action_logs inserts must only succeed if:
+
+- action.user_id = auth.uid()
+- journey.user_id = auth.uid()
+- journey_actions contains matching journey_id + action_id + user_id
+
+Never bypass RLS.

@@ -1,122 +1,117 @@
 ---
-description: React, Tailwind, and UI/UX conventions for TIS frontend
+description: React, Tailwind, and UI/UX conventions for Grain frontend
 globs: src/components/**, src/pages/**
 alwaysApply: false
 ---
 
-# Frontend Component Conventions
+# FRONTEND RULES — Grain v6
 
-## Component Structure
-Every component file follows this order:
-1. Imports
-2. TypeScript interface for props
-3. Component function (named export, arrow function)
-4. Helper functions (if small and component-specific)
+Mobile-first PWA.
 
-```tsx
-// Example pattern
-import { useState } from 'react';
+Minimal. Calm. Intentional.
 
-interface DailyLogProps {
-  journeyId: string;
-  date: string;
-}
+---
 
-export const DailyLog = ({ journeyId, date }: DailyLogProps) => {
-  const [selectedTime, setSelectedTime] = useState<number | null>(null);
+## Routing
 
-  if (!journeyId) return <EmptyState />;
+Public:
+- /login
+- /signup
 
-  return (
-    <div className="p-4">
-      {/* component content */}
-    </div>
-  );
-};
-```
+Protected:
+- /
+- /log
+- /review
+- /journey
+- /settings
 
-## State Handling Pattern
-- Loading state: show skeleton or subtle spinner. Never block the full screen.
-- Error state: show inline message with retry action. Never show raw errors.
-- Empty state: show guidance copy with a clear next action. Never show a blank screen.
-- Handle these states FIRST with early returns before the main render.
+Protected routes require auth.
 
-## User Feedback
-- Every interactive action needs immediate visual feedback (tap states, selection highlights).
-- Use subtle loading indicators for async operations — prefer inline spinners over full-screen overlays.
-- Provide clear, human-readable error messages with a recovery path (retry button, corrective instruction).
-- Success states should be acknowledged briefly and calmly — no celebrations, no confetti.
-- Form validation should be inline and appear on blur, not on every keystroke.
+AppShell renders only when authenticated.
 
-## Tailwind Usage
-- Use Tailwind utility classes directly. No custom CSS files unless absolutely necessary.
-- Design tokens via Tailwind config: colors, spacing, fonts, border radius.
-- Use `cn()` utility (clsx + tailwind-merge) for conditional classes.
-- Mobile-first: base styles are mobile, use `md:` and `lg:` for larger screens.
-- Minimum touch targets: `min-h-[44px] min-w-[44px]` on all interactive elements.
-- Use relative units (rem) for font sizes. Avoid fixed pixel values for text.
+---
 
-## Fluid Layouts
-- Use CSS Flexbox and Grid for layouts — never absolute positioning for page structure.
-- Use relative units (%, rem) instead of fixed pixel widths for content areas.
-- The max-w-[480px] container is the only fixed-width constraint. Everything inside it is fluid.
-- Content should reflow naturally — never horizontally scroll.
+## Onboarding (v4)
 
-## Visual Design Principles
-- Establish clear visual hierarchy: the most important element on each screen should be immediately obvious.
-- Generous whitespace — the product should feel unhurried.
-- Muted, warm color palette. No bright saturated colors. No red for non-error states.
-- Typography: clear hierarchy. One serif or warm sans-serif for headings, clean sans for body.
-- Use a consistent type scale: headings, subheadings, body, captions. Adjust line height for readability (1.5 for body, 1.2 for headings).
-- Maintain WCAG 2.1 AA contrast ratios: 4.5:1 minimum for body text, 3:1 for large text.
-- No decorative animations. Motion is functional only (feedback, transitions).
-- Prefer CSS transitions over JavaScript animations for performance.
-- Border radius: consistent and soft. Prefer rounded-xl for cards, rounded-lg for buttons.
-- Shadows: subtle and minimal. Use shadow-sm. Never shadow-2xl.
+7 steps:
 
-## Page Layout
-- Max content width: 480px (mobile-optimized PWA).
-- Centered layout with horizontal padding (px-4 minimum).
-- Bottom navigation for primary screens (Home, Log, Review, Journey).
-- No hamburger menus.
-- Consider thumb zones: primary actions belong in the bottom two-thirds of the screen where thumbs naturally reach.
-- Use sticky headers only for navigation — never for decorative content.
+1. Welcome
+2. Destination
+3. Why
+4. Category + Actions
+5. Commitment
+6. Summary + Auth
+7. Welcome + First Log
 
-## Content Prioritization
-- Show the most important information first — don't make users scroll to find what they came for.
-- Use progressive disclosure: show essential data upfront, reveal details on interaction.
-- Secondary content (notes, history, settings) can live behind a tap. Primary content (today's log, this week's progress) must be immediately visible.
+Rules:
+- No database writes before authentication.
+- Actions created in `actions`.
+- Attach via `journey_actions`.
+- Save journey only after auth confirmed.
 
-## Forms
-- Use appropriate input types for mobile: `type="email"`, `type="number"`, `inputMode="numeric"`.
-- Inline validation on blur with clear, specific error messages (not just "Invalid input").
-- Labels above inputs, not as placeholders. Placeholder text is for examples, not labels.
-- Adequate spacing between form fields — minimum 16px (1rem) vertical gap.
-- Submit buttons should indicate loading state and disable during submission to prevent double-taps.
+---
 
-## Images and Media
-- Use responsive images with appropriate sizing.
-- Implement lazy loading for images below the fold.
-- All images require meaningful alt text — not "image" or "icon", but what it represents.
+## Logging Pattern
 
-## Performance
-- Implement lazy loading (React.lazy + Suspense) for route-level page components.
-- Optimize and compress images before including them.
-- Minimize re-renders: memoize expensive computations, avoid inline object/array creation in JSX props.
-- Keep bundle size small: import only what you need from libraries (tree-shake).
+Logging is action-first.
 
-## Accessibility
-- Use semantic HTML: `<nav>`, `<main>`, `<section>`, `<article>`, `<button>` — not divs with click handlers.
-- All images need alt text.
-- All form inputs need associated labels (using `htmlFor` or wrapping).
-- Color is never the only indicator of state — pair with icons or text.
-- Focus styles must be visible — use `focus-visible:ring-2` pattern.
-- Screen reader text for icon-only buttons using `sr-only` class.
-- Ensure all interactive elements are keyboard navigable (tab order, enter/space activation).
-- Test with screen reader (VoiceOver on Mac, NVDA on Windows) before shipping.
+1. Select action
+2. Select duration
+3. Optional note
+4. Insert into action_logs
 
-## Consistency
-- Use components from `src/components/ui/` for all recurring elements — never one-off styled divs.
-- Maintain consistent terminology: "journey" not "goal" or "project", "log" not "track" or "record".
-- Recurring elements (headers, cards, buttons) should appear in the same position across screens.
-- Spacing, color, and typography should come from Tailwind config tokens — never magic numbers.
+Never upsert.
+Never overwrite.
+Each tap creates a new event.
+
+---
+
+## Home Dashboard
+
+Derived data only.
+
+- Weekly actual = SUM(action_logs.duration)
+- Delta = commitment − actual
+- Zero-log days = days with no rows
+- 4-week trend derived at query time
+
+Do not store aggregates in frontend state beyond display.
+
+---
+
+## Weekly Review
+
+Available Sunday evening → Monday EOD.
+
+- Pull weekly aggregate from action_logs
+- Store result in weekly_summaries
+- Yes path: optional reflection
+- No path: recalibration
+
+No retroactive edits.
+
+---
+
+## Recalibration
+
+Options:
+- Reduce weekly commitment
+- Reallocate hours
+- Update actions (edit journey_actions)
+- Change primary
+- Pause journey
+
+Never refer to support_definition.
+
+---
+
+## Drift Nudges
+
+Triggers evaluate historical action_logs + weekly_summaries.
+
+All nudges:
+- Dismissible
+- Non-blocking
+- Contextual
+
+No intrusive modals.
