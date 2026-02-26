@@ -16,6 +16,12 @@ const validatePassword = (value: string): string | null => {
   return null
 }
 
+const BackArrow = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
 export const LoginPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -54,6 +60,14 @@ export const LoginPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-[#faf9f7]">
       <div className="w-full max-w-[480px]">
+        <Link
+          to="/welcome"
+          className="inline-flex items-center gap-1 text-sm text-stone-600 hover:text-stone-800 mb-6"
+          aria-label="Back to welcome"
+        >
+          <BackArrow />
+          <span>Back</span>
+        </Link>
         <h1 className="text-xl font-medium text-stone-800 mb-1">Sign in</h1>
         <p className="text-stone-600 text-sm mb-6">
           Use your email and password to continue.

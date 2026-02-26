@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { ProtectedRoute } from '@/components/Layout/ProtectedRoute'
 import { AppShell } from '@/components/Layout/AppShell'
+import { WelcomeScreen } from '@/pages/Onboarding/WelcomeScreen'
 import { LoginPage } from '@/pages/Auth/LoginPage'
 import { SignupPage } from '@/pages/Auth/SignupPage'
 import { HomePage } from '@/pages/Home/HomePage'
@@ -31,6 +32,16 @@ const AuthenticatedLayout = ({ children }: AuthenticatedLayoutProps) => (
   </ProtectedRoute>
 )
 
+const WelcomeRoute = () => {
+  const navigate = useNavigate()
+  return (
+    <WelcomeScreen
+      onNext={() => navigate('/onboarding')}
+      onSignIn={() => navigate('/login')}
+    />
+  )
+}
+
 const AppRoutes = () => {
   const { isLoading, user, session } = useAuth()
   const isAuthed = !!user && !!session
@@ -42,6 +53,10 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route
+        path="/welcome"
+        element={isAuthed ? <Navigate to="/" replace /> : <WelcomeRoute />}
+      />
+      <Route
         path="/login"
         element={isAuthed ? <Navigate to="/" replace /> : <LoginPage />}
       />
@@ -52,9 +67,13 @@ const AppRoutes = () => {
       <Route
         path="/"
         element={
-          <AuthenticatedLayout>
-            <HomePage />
-          </AuthenticatedLayout>
+          isAuthed ? (
+            <AuthenticatedLayout>
+              <HomePage />
+            </AuthenticatedLayout>
+          ) : (
+            <Navigate to="/welcome" replace />
+          )
         }
       />
       <Route
@@ -91,7 +110,7 @@ const AppRoutes = () => {
       />
       <Route
         path="*"
-        element={<Navigate to={isAuthed ? '/' : '/login'} replace />}
+        element={<Navigate to={isAuthed ? '/' : '/welcome'} replace />}
       />
     </Routes>
   )
