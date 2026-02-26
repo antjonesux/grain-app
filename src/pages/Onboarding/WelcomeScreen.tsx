@@ -75,7 +75,7 @@ export const WelcomeScreen = ({ onNext, onSignIn }: WelcomeScreenProps) => (
   <div style={screen}>
     <div style={topSection}>
       <div style={logoArea}>
-        <img src={appIconCircle} alt="Grain" width={142} height={142} />
+        <img src={appIconCircle} alt="Grain" width={150} height={150} />
         <p style={wordmark}>Grain</p>
       </div>
       <h1 style={headline}>Your time tells the truth.</h1>
