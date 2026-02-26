@@ -5,7 +5,6 @@ import { useCreateJourneyWithActions, useInsertActionLog } from '@/hooks'
 import { supabase } from '@/lib/supabaseClient'
 import type { ActionLogDuration } from '@/types/database.types'
 
-import { WelcomeScreen } from './WelcomeScreen'
 import { DestinationScreen } from './DestinationScreen'
 import { WhyScreen } from './WhyScreen'
 import { ActionsScreen } from './ActionsScreen'
@@ -26,7 +25,7 @@ interface FlowState {
 }
 
 const initialState: FlowState = {
-  step: 0,
+  step: 1,
   destination: '',
   why: '',
   category: null,
@@ -155,14 +154,6 @@ export const OnboardingFlow = () => {
   }, [navigate])
 
   switch (state.step) {
-    case 0:
-      return (
-        <WelcomeScreen
-          onNext={() => goTo(1)}
-          onSignIn={() => navigate('/login')}
-        />
-      )
-
     case 1:
       return (
         <DestinationScreen
@@ -171,7 +162,14 @@ export const OnboardingFlow = () => {
             update({ destination: val })
             advanceOrReturn(2)
           }}
-          onBack={() => backOrReturn(0)}
+          onBack={() => {
+            if (returnToSummaryRef.current) {
+              returnToSummaryRef.current = false
+              goTo(5)
+            } else {
+              navigate('/welcome')
+            }
+          }}
         />
       )
 

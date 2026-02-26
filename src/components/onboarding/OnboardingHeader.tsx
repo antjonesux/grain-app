@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import LogoIcon from '@/assets/logo_icon.svg?react'
 
 interface OnboardingHeaderProps {
   onBack: (() => void) | null
@@ -6,6 +7,7 @@ interface OnboardingHeaderProps {
 
 const containerStyle: CSSProperties = {
   width: '100%',
+  paddingTop: '28px',
   paddingBottom: '8px',
   display: 'inline-flex',
   justifyContent: 'space-between',
@@ -22,11 +24,11 @@ const logoGroupStyle: CSSProperties = {
 
 const logoTextStyle: CSSProperties = {
   fontFamily: "var(--grain-font-serif)",
-  fontSize: '18px',
+  fontSize: '22px',
   fontWeight: 400,
   color: 'var(--text-primary)',
   letterSpacing: '0.09px',
-  textShadow: '0 0 24px rgba(16, 185, 129, 0.5)',
+  textShadow: '0 0 24px rgba(16, 185, 129, 0.3)',
 }
 
 const backButtonStyle: CSSProperties = {
@@ -48,19 +50,15 @@ const spacerStyle: CSSProperties = {
 }
 
 const GrainLogo = () => (
-  <svg
-    width="18"
-    height="17"
-    viewBox="0 0 18 17"
-    fill="none"
+  <LogoIcon
+    width={20}
+    height={19}
     aria-hidden="true"
-    style={{ filter: 'drop-shadow(0 0 24px rgba(16, 185, 129, 0.6))' }}
-  >
-    <path
-      d="M9 0C9 0 3.5 3.5 2 8.5C0.5 13.5 4 16.5 9 16.5C14 16.5 17.5 13.5 16 8.5C14.5 3.5 9 0 9 0ZM9 13C7 13 5.5 11.5 6 9.5C6.5 7.5 9 5 9 5C9 5 11.5 7.5 12 9.5C12.5 11.5 11 13 9 13Z"
-      fill="var(--text-primary)"
-    />
-  </svg>
+    style={{
+      color: 'var(--text-primary)',
+      filter: 'drop-shadow(0 0 24px rgba(16, 185, 129, 0.6))',
+    }}
+  />
 )
 
 const ChevronLeft = () => (

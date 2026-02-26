@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { ProtectedRoute } from '@/components/Layout/ProtectedRoute'
 import { AppShell } from '@/components/Layout/AppShell'
 import { WelcomeScreen } from '@/pages/Onboarding/WelcomeScreen'
+import { OnboardingFlow } from '@/pages/Onboarding/OnboardingFlow'
 import { LoginPage } from '@/pages/Auth/LoginPage'
 import { SignupPage } from '@/pages/Auth/SignupPage'
 import { HomePage } from '@/pages/Home/HomePage'
@@ -55,6 +56,10 @@ const AppRoutes = () => {
       <Route
         path="/welcome"
         element={isAuthed ? <Navigate to="/" replace /> : <WelcomeRoute />}
+      />
+      <Route
+        path="/onboarding/*"
+        element={isAuthed ? <Navigate to="/" replace /> : <OnboardingFlow />}
       />
       <Route
         path="/login"

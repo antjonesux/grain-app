@@ -11,9 +11,10 @@ const wrapperStyle: CSSProperties = {
 }
 
 const containerStyle: CSSProperties = {
-  display: 'inline-flex',
+  display: 'flex',
   gap: '8px',
-  alignItems: 'flex-start',
+  alignItems: 'center',
+  justifyContent: 'center',
 }
 
 const activeDotStyle: CSSProperties = {
