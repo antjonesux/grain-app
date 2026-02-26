@@ -12,6 +12,98 @@ Minimal. Calm. Intentional.
 
 ---
 
+## Design Tokens
+
+All styles reference CSS custom properties from `grain-tokens.css`.
+Never hardcode colors, spacing, or font values.
+
+### Colors
+- Background: `--bg` (#0D0F14), `--bg-card` (#161921), `--bg-input` (#1C1F2A), `--bg-elevated` (#1E2130)
+- Border: `--border` (#2A2D3A)
+- Accent: `--accent` (#10B981), `--accent-soft` (#1A2421), `--accent-glow` (focused input border)
+- Text: `--text-primary` (#F0F0F5), `--text-secondary` (#8B8FA3), `--text-muted` (#7D8093)
+- Status: `--status-aligned` (#6EDCB1), `--status-aligned-soft` (#192827)
+- Status: `--status-drift` (#D9B86C), `--status-drift-soft` (#25231F)
+
+### Typography
+- Logo: DM Serif Text 400
+- All UI: DM Sans
+- Screen headline: 22px/28.6px Bold
+- Welcome headline: 26px/33.8px Bold
+- Card title: 15px/24px SemiBold (600)
+- Body/subhead: 13px/19.5px Regular
+- Button: 13px/19.5px Medium (500)
+- Chip: 13px/19.5px Regular
+- Section label: 10px SemiBold (600) uppercase, letter-spacing 0.12px
+- Caption: 11px/16.5px Regular
+- Hour display: 64px/64px Bold
+- Commitment value: 16px/16px Bold
+
+### Spacing
+- Content padding: 24px horizontal
+- Headline top: 32px padding-top
+- Headline bottom: 8px padding-bottom
+- Subhead to content: 20px
+- Between cards: 8px
+- CTA zone: 28px padding-top, 56px padding-bottom, 12px gap between buttons
+
+### Radius
+- Buttons/inputs/cards: 14px
+- Chips: 22px
+- Hour blocks: 8px
+- Progress dots: 2px
+- Drawer top corners: 22px
+- Full circle: 999px
+
+---
+
+## Shared Components
+
+Build these first. Every onboarding screen reuses them.
+
+### Button (4 states)
+Width 100%, radius 14px, font 13px/19.5px DM Sans, inline-flex center, gap 8px.
+- Primary: bg `--accent`, text `--bg`, weight 500, padding 16px h / 14px v
+- Disabled: bg `--bg-input`, text `--text-muted`, weight 500, padding 16px h / 14px v
+- Outline: bg `--bg-input`, border 1px `--border`, text `--text-secondary`, weight 500, padding 16px h / 14px v
+- Ghost: transparent, text `--text-muted`, weight 400, padding 16px h / 4px v
+
+### OnboardingHeader
+Width 100%, padding-bottom 8px, space-between center.
+Logo group centered: 18×17 icon (fill --text-primary, glow shadow) + "Grain" DM Serif Text 18px, gap 8px.
+- header-logo: logo centered, no back arrow
+- header-logo-back: 20×20 chevron left (stroke 2px --text-secondary) + centered logo
+
+### ProgressBar
+Separate from header. 24px padding-top, 8px padding-bottom.
+Active: 24×4px --accent, radius 2px. Inactive: 8×4px --border, radius 2px. Gap 8px.
+
+### Chip (4 variants)
+Radius 22px, font 13px/19.5px DM Sans.
+- Unselected: bg --bg-card, border 1px --border, text --text-secondary 400, padding 16px h / 10px v
+- Selected: bg --accent-soft, border 1.5px --accent, text --accent 400, padding 16px h / 10px v
+- Static: bg --bg-elevated, no border, text --text-secondary 400, padding 12px h / 4px v
+- ChipButton: transparent, border 1.5px --border, text --text-secondary 400, padding 12px h / 10px v, plus icon
+
+### HourBlock
+Padding 14px h / 8px v, radius 8px, font 13px/19.5px 500.
+- Unselected: transparent, border 1px --border, text --text-muted
+- Selected: transparent, border 1px --accent, text --accent
+
+### SummaryCard
+Bg --bg-card, border 1px --border, radius 14px, padding 16px h / 18px v.
+Header: label 10px 600 uppercase --text-muted (ls 0.12px) + Edit 10px 600 uppercase --accent. Gap 12px to content.
+
+### Drawer
+Bg --bg-card, top-radius 22px, border 1px --border, 24px horizontal padding.
+Close: right-aligned X icon, 24px top / 8px bottom padding. Slide-up animation.
+
+### TextInput / TextArea
+Width 100%, padding 16px, bg --bg-input, radius 14px, font 13px/19.5px 400.
+Focus: border 1px --accent-glow. TextArea min-height 120px.
+
+---
+
 ## Routing
 
 Public:
@@ -33,15 +125,16 @@ AppShell renders only when authenticated.
 
 ## Onboarding (v4)
 
-7 steps:
+8 screens + 2 drawers:
 
-1. Welcome
-2. Destination
-3. Why
-4. Category + Actions
-5. Commitment
-6. Summary + Auth
-7. Welcome + First Log
+1. Welcome (no header, no progress)
+2. Destination (header-back, step 1/5)
+3. Why (header-back, step 2/5)
+4. Category + Actions (header-back, step 3/5) + Add Action drawer
+5. Commitment (header-back, step 4/5)
+6. Summary (header-back, step 5/5) + Auth drawer
+7. Welcome + First Log (header-logo only, no progress)
+8. Post-Log Success (no header, no progress, auto-nav)
 
 Rules:
 - No database writes before authentication.
