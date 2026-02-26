@@ -237,9 +237,12 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
     setIsSubmitting(true)
     try {
       await signIn(email.trim(), password)
-      const from =
-        (location.state as { from?: { pathname?: string } })?.from?.pathname ?? '/'
-      navigate(from, { replace: true })
+      const stateData = location.state as
+        | { from?: string; resume?: string }
+        | null
+      const from = stateData?.from ?? '/'
+      const resume = stateData?.resume
+      navigate(from, { replace: true, state: resume ? { resume } : undefined })
     } catch {
       // Error surfaced via AuthContext
     } finally {

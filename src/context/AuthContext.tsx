@@ -18,6 +18,7 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
+  resendConfirmationEmail: (email: string) => Promise<void>
   clearError: () => void
 }
 
@@ -62,6 +63,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     await supabase.auth.signOut()
   }, [])
 
+  const resendConfirmationEmail = useCallback(async (email: string) => {
+    setError(null)
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    })
+    if (resendError) {
+      setError(resendError.message)
+      throw resendError
+    }
+  }, [])
+
   useEffect(() => {
     const getInitialSession = async () => {
       try {
@@ -94,9 +107,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       signIn,
       signUp,
       signOut,
+      resendConfirmationEmail,
       clearError,
     }),
-    [session, user, isLoading, error, signIn, signUp, signOut, clearError]
+    [session, user, isLoading, error, signIn, signUp, signOut, resendConfirmationEmail, clearError]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

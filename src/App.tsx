@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { ProtectedRoute } from '@/components/Layout/ProtectedRoute'
 import { AppShell } from '@/components/Layout/AppShell'
 import { WelcomeScreen } from '@/pages/Onboarding/WelcomeScreen'
-import { OnboardingFlow } from '@/pages/Onboarding/OnboardingFlow'
+import { DRAFT_KEY, OnboardingPage } from '@/pages/Onboarding/OnboardingPage'
 import { LoginPage } from '@/pages/Auth/LoginPage'
 import { SignupPage } from '@/pages/Auth/SignupPage'
 import { HomePage } from '@/pages/Home/HomePage'
@@ -43,6 +43,20 @@ const WelcomeRoute = () => {
   )
 }
 
+const OnboardingRoute = () => {
+  const { user, session } = useAuth()
+  const location = useLocation()
+  const isAuthed = !!user && !!session
+  const hasResume = !!(location.state as { resume?: string } | null)?.resume
+  const hasDraft = !!localStorage.getItem(DRAFT_KEY)
+
+  if (isAuthed && !hasResume && !hasDraft) {
+    return <Navigate to="/" replace />
+  }
+
+  return <OnboardingPage />
+}
+
 const AppRoutes = () => {
   const { isLoading, user, session } = useAuth()
   const isAuthed = !!user && !!session
@@ -59,7 +73,7 @@ const AppRoutes = () => {
       />
       <Route
         path="/onboarding/*"
-        element={isAuthed ? <Navigate to="/" replace /> : <OnboardingFlow />}
+        element={<OnboardingRoute />}
       />
       <Route
         path="/login"

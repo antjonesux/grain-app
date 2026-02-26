@@ -1,17 +1,18 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useCreateJourneyWithActions } from '@/hooks'
 import { DEFAULT_WEEKLY_HOURS, type OnboardingState } from './Onboarding.types'
-import { WelcomeScreen } from './WelcomeScreen'
 import { DestinationScreen } from './DestinationScreen'
 import { WhyScreen } from './WhyScreen'
 import { ActionsScreen } from './ActionsScreen'
 import { CommitmentScreen } from './CommitmentScreen'
 import { SummaryScreen } from './SummaryScreen'
 
+export const DRAFT_KEY = 'grain.onboarding.draft.v1'
+
 const initialState: OnboardingState = {
-  step: 0,
+  step: 1,
   title: '',
   why: '',
   categoryId: '',
@@ -19,11 +20,39 @@ const initialState: OnboardingState = {
   weeklyHours: DEFAULT_WEEKLY_HOURS,
 }
 
+function loadDraft(): OnboardingState {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    if (raw) {
+      const saved = { ...initialState, ...JSON.parse(raw) }
+      if (saved.step < 1) saved.step = 1
+      return saved
+    }
+  } catch {
+    /* corrupted draft — start fresh */
+  }
+  return initialState
+}
+
 export const OnboardingPage = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const location = useLocation()
+  const { user, signUp } = useAuth()
   const { createJourneyWithActions } = useCreateJourneyWithActions(user?.id)
-  const [state, setState] = useState<OnboardingState>(initialState)
+  const [state, setState] = useState<OnboardingState>(loadDraft)
+  const resumeApplied = useRef(false)
+
+  useEffect(() => {
+    const resume = (location.state as { resume?: string } | null)?.resume
+    if (resume === 'summary' && !resumeApplied.current) {
+      resumeApplied.current = true
+      setState((s) => ({ ...s, step: 5 }))
+    }
+  }, [location.state])
+
+  useEffect(() => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(state))
+  }, [state])
 
   const update = (patch: Partial<OnboardingState>) =>
     setState((s) => ({ ...s, ...patch }))
@@ -31,29 +60,31 @@ export const OnboardingPage = () => {
   const goTo = (step: number) => update({ step })
 
   const handleBack = () => {
-    if (state.step > 0) update({ step: state.step - 1 })
+    if (state.step > 1) update({ step: state.step - 1 })
+    else navigate('/welcome')
   }
 
-  const handleSaveJourney = () => {
-    createJourneyWithActions({
+  const handleCreateAccount = async (
+    _name: string,
+    email: string,
+    password: string,
+  ) => {
+    await signUp(email, password)
+  }
+
+  const handleSaveJourney = async () => {
+    const { error } = await createJourneyWithActions({
       title: state.title.trim(),
       why: state.why.trim(),
       categoryId: state.categoryId,
       weeklyHours: state.weeklyHours,
       actionTitles: state.actionTitles.filter(Boolean),
-    }).then(({ error }) => {
-      if (!error) navigate('/', { replace: true })
     })
+    if (error) throw new Error('Failed to save journey')
+    localStorage.removeItem(DRAFT_KEY)
   }
 
   switch (state.step) {
-    case 0:
-      return (
-        <WelcomeScreen
-          onNext={() => goTo(1)}
-          onSignIn={() => navigate('/login')}
-        />
-      )
     case 1:
       return (
         <DestinationScreen
@@ -100,6 +131,7 @@ export const OnboardingPage = () => {
           onEdit={goTo}
           onBack={handleBack}
           onSaveJourney={handleSaveJourney}
+          onCreateAccount={handleCreateAccount}
         />
       )
     default:

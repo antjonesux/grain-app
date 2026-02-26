@@ -1,4 +1,6 @@
-import { type CSSProperties, useState } from 'react'
+import { type CSSProperties, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader'
 import { ProgressBar } from '@/components/onboarding/ProgressBar'
 import { SummaryCard } from '@/components/onboarding/SummaryCard'
@@ -6,6 +8,8 @@ import { Chip } from '@/components/onboarding/Chip'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { Drawer } from '@/components/onboarding/Drawer'
 import { TextInput } from '@/components/onboarding/TextInput'
+
+type SignupStatus = 'idle' | 'pendingConfirmation'
 
 interface SummaryScreenProps {
   destination: string
@@ -15,7 +19,7 @@ interface SummaryScreenProps {
   hours: number
   onEdit: (screen: number) => void
   onBack: () => void
-  onSaveJourney?: () => void
+  onSaveJourney?: () => Promise<void>
   onCreateAccount?: (name: string, email: string, password: string) => Promise<void>
   showOAuth?: boolean
 }
@@ -151,6 +155,34 @@ const oauthStack: CSSProperties = {
   gap: '8px',
 }
 
+const errorText: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  lineHeight: '16.5px',
+  color: 'var(--status-drift)',
+  margin: 0,
+  paddingBottom: '8px',
+}
+
+const resendHelperText: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  lineHeight: '16.5px',
+  color: 'var(--status-aligned)',
+  margin: 0,
+  paddingTop: '8px',
+}
+
+const confirmationText: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 400,
+  lineHeight: '19.5px',
+  color: 'var(--text-secondary)',
+  margin: 0,
+  paddingBottom: '20px',
+}
+
 export const SummaryScreen = ({
   destination,
   why: _why,
@@ -163,32 +195,93 @@ export const SummaryScreen = ({
   onCreateAccount,
   showOAuth = false,
 }: SummaryScreenProps) => {
+  const navigate = useNavigate()
+  const { user, error: authCtxError, resendConfirmationEmail } = useAuth()
+
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [firstName, setFirstName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [signupStatus, setSignupStatus] = useState<SignupStatus>('idle')
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current)
+    }
+  }, [])
 
   const dailyHours = Math.round((hours / 7) * 10) / 10
 
   const handleCreateAccount = async () => {
     setAuthError(null)
-    if (onCreateAccount) {
-      setIsSubmitting(true)
-      try {
-        await onCreateAccount(firstName, email, password)
-        setDrawerOpen(false)
-      } catch (err) {
-        setAuthError(
-          err instanceof Error ? err.message : 'Something went wrong',
-        )
-      } finally {
-        setIsSubmitting(false)
-      }
-    } else if (onSaveJourney) {
-      setDrawerOpen(false)
-      onSaveJourney()
+
+    if (!firstName.trim() || !email.trim() || !password) {
+      setAuthError('Please fill out all fields.')
+      return
+    }
+
+    if (!onCreateAccount) return
+
+    setIsSubmitting(true)
+    try {
+      await onCreateAccount(firstName, email, password)
+      setSignupStatus('pendingConfirmation')
+    } catch (err) {
+      setAuthError(
+        err instanceof Error ? err.message : 'Something went wrong',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleSaveJourney = async () => {
+    if (!onSaveJourney) return
+    setSaveError(null)
+    setIsSaving(true)
+    try {
+      await onSaveJourney()
+      navigate('/', { replace: true })
+    } catch (err) {
+      setSaveError(
+        err instanceof Error ? err.message : 'Failed to save journey',
+      )
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleSignInRedirect = () => {
+    navigate('/login', { state: { from: '/onboarding', resume: 'summary' } })
+  }
+
+  const handleResend = async () => {
+    if (resendCooldown > 0) return
+    setResendStatus('sending')
+    try {
+      await resendConfirmationEmail(email)
+      setResendStatus('sent')
+      setResendCooldown(45)
+      cooldownRef.current = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            if (cooldownRef.current) clearInterval(cooldownRef.current)
+            cooldownRef.current = null
+            setResendStatus('idle')
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    } catch {
+      setResendStatus('error')
     }
   }
 
@@ -228,72 +321,105 @@ export const SummaryScreen = ({
       </div>
 
       <div style={ctaZone}>
-        <PrimaryButton onClick={() => setDrawerOpen(true)}>
-          Save your journey
-        </PrimaryButton>
+        {user ? (
+          <>
+            {saveError && <p style={errorText}>{saveError}</p>}
+            <PrimaryButton disabled={isSaving} onClick={handleSaveJourney}>
+              {isSaving ? 'Saving\u2026' : 'Save Journey'}
+            </PrimaryButton>
+          </>
+        ) : (
+          <>
+            <PrimaryButton onClick={() => setDrawerOpen(true)}>
+              Save your journey
+            </PrimaryButton>
+          </>
+        )}
       </div>
 
       <Drawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title="Save your journey."
-        subtitle="Create an account so your setup is waiting each week."
+        title={signupStatus === 'pendingConfirmation' ? 'Confirm your email' : 'Save your journey.'}
+        subtitle={signupStatus === 'pendingConfirmation' ? undefined : 'Create an account so your setup is waiting each week.'}
       >
         <div style={formSection}>
-          <div style={inputStack}>
-            <TextInput
-              value={firstName}
-              onChange={setFirstName}
-              placeholder="First name"
-            />
-            <TextInput
-              value={email}
-              onChange={setEmail}
-              placeholder="Email address"
-            />
-            <TextInput
-              value={password}
-              onChange={setPassword}
-              placeholder="Password"
-              type="password"
-            />
-          </div>
-          {authError && (
-            <p
-              style={{
-                fontFamily: 'var(--grain-font-sans)',
-                fontSize: '11px',
-                lineHeight: '16.5px',
-                color: 'var(--status-drift)',
-                margin: 0,
-                paddingBottom: '8px',
-              }}
-            >
-              {authError}
-            </p>
-          )}
-          <PrimaryButton
-            disabled={isSubmitting}
-            onClick={handleCreateAccount}
-          >
-            {isSubmitting ? 'Creating...' : 'Create Account'}
-          </PrimaryButton>
-
-          {showOAuth && (
+          {signupStatus === 'pendingConfirmation' ? (
             <>
-              <div style={dividerRow}>
-                <div style={dividerLine} />
-                <span style={dividerText}>or</span>
-                <div style={dividerLine} />
+              <p style={confirmationText}>
+                Check your email to confirm your account. Then sign in to
+                finish saving your journey.
+              </p>
+              <PrimaryButton
+                variant="ghost"
+                disabled={resendStatus === 'sending' || resendCooldown > 0}
+                onClick={handleResend}
+              >
+                {resendStatus === 'sending'
+                  ? 'Sending\u2026'
+                  : resendCooldown > 0
+                    ? `Resend in ${resendCooldown}s`
+                    : 'Resend confirmation email'}
+              </PrimaryButton>
+              {resendStatus === 'sent' && resendCooldown > 0 && (
+                <p style={resendHelperText}>
+                  Confirmation email sent. Check your inbox (and spam).
+                </p>
+              )}
+              {resendStatus === 'error' && authCtxError && (
+                <p style={errorText}>{authCtxError}</p>
+              )}
+              <PrimaryButton onClick={handleSignInRedirect}>
+                Go to Sign In
+              </PrimaryButton>
+            </>
+          ) : (
+            <>
+              <div style={inputStack}>
+                <TextInput
+                  value={firstName}
+                  onChange={setFirstName}
+                  placeholder="First name"
+                />
+                <TextInput
+                  value={email}
+                  onChange={setEmail}
+                  placeholder="Email address"
+                />
+                <TextInput
+                  value={password}
+                  onChange={setPassword}
+                  placeholder="Password"
+                  type="password"
+                />
               </div>
-              <div style={oauthStack}>
-                <PrimaryButton variant="outline">
-                  Continue with Google
-                </PrimaryButton>
-                <PrimaryButton variant="outline">
-                  Continue with Apple
-                </PrimaryButton>
-              </div>
+              {authError && (
+                <p style={errorText}>{authError}</p>
+              )}
+              <PrimaryButton
+                disabled={isSubmitting}
+                onClick={handleCreateAccount}
+              >
+                {isSubmitting ? 'Creating...' : 'Create Account'}
+              </PrimaryButton>
+
+              {showOAuth && (
+                <>
+                  <div style={dividerRow}>
+                    <div style={dividerLine} />
+                    <span style={dividerText}>or</span>
+                    <div style={dividerLine} />
+                  </div>
+                  <div style={oauthStack}>
+                    <PrimaryButton variant="outline">
+                      Continue with Google
+                    </PrimaryButton>
+                    <PrimaryButton variant="outline">
+                      Continue with Apple
+                    </PrimaryButton>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
