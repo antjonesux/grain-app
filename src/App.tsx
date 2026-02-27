@@ -49,12 +49,30 @@ const OnboardingRoute = () => {
   const isAuthed = !!user && !!session
   const hasResume = !!(location.state as { resume?: string } | null)?.resume
   const hasDraft = !!localStorage.getItem(DRAFT_KEY)
+  console.log('[OnboardingRoute]', { isAuthed, hasResume, hasDraft })
 
   if (isAuthed && !hasResume && !hasDraft) {
     return <Navigate to="/" replace />
   }
 
   return <OnboardingPage />
+}
+
+const LoginRoute = () => {
+  const { user, session } = useAuth()
+  const location = useLocation()
+  const isAuthed = !!user && !!session
+  console.log('[LoginRoute]', { isAuthed, state: location.state })
+
+  if (isAuthed) {
+    const state = location.state as { from?: string; resume?: string } | null
+    if (state?.from) {
+      return <Navigate to={state.from} state={{ resume: state.resume }} replace />
+    }
+    return <Navigate to="/" replace />
+  }
+
+  return <LoginPage />
 }
 
 const AppRoutes = () => {
@@ -77,7 +95,7 @@ const AppRoutes = () => {
       />
       <Route
         path="/login"
-        element={isAuthed ? <Navigate to="/" replace /> : <LoginPage />}
+        element={<LoginRoute />}
       />
       <Route
         path="/signup"
@@ -129,7 +147,7 @@ const AppRoutes = () => {
       />
       <Route
         path="*"
-        element={<Navigate to={isAuthed ? '/' : '/welcome'} replace />}
+        element={<Navigate to="/welcome" replace />}
       />
     </Routes>
   )

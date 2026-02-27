@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader'
 import { TextInput } from '@/components/onboarding/TextInput'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
+import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
 
 interface LoginPageProps {
   showOAuth?: boolean
@@ -190,19 +191,6 @@ const bottomTextStyle: CSSProperties = {
   margin: 0,
 }
 
-const signUpLinkStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '19.5px',
-  color: 'var(--text-secondary)',
-  textDecoration: 'underline',
-  background: 'none',
-  border: 'none',
-  padding: 0,
-  cursor: 'pointer',
-}
-
 const errorStyle: CSSProperties = {
   background: 'rgba(239, 68, 68, 0.1)',
   border: '1px solid rgba(239, 68, 68, 0.3)',
@@ -242,6 +230,7 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
         | null
       const from = stateData?.from ?? '/'
       const resume = stateData?.resume
+      console.log('[LoginPage] signIn complete, navigating to:', from, { resume })
       navigate(from, { replace: true, state: resume ? { resume } : undefined })
     } catch {
       // Error surfaced via AuthContext
@@ -323,13 +312,9 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
       <div style={bottomLinkStyle}>
         <p style={bottomTextStyle}>
           Don't have an account?{' '}
-          <button
-            type="button"
-            style={signUpLinkStyle}
-            onClick={() => navigate('/welcome')}
-          >
+          <InlineLinkButton underline onClick={() => navigate('/welcome')}>
             Sign Up
-          </button>
+          </InlineLinkButton>
         </p>
       </div>
     </div>

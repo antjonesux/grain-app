@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'react'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
+import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
+import { InlineLinkRow } from '@/components/onboarding/InlineLinkRow'
 import appIconCircle from '@/assets/app_icon_circle.svg'
 
 interface WelcomeScreenProps {
@@ -86,9 +88,10 @@ export const WelcomeScreen = ({ onNext, onSignIn }: WelcomeScreenProps) => (
 
     <div style={ctaZone}>
       <PrimaryButton onClick={onNext}>Begin My Journey</PrimaryButton>
-      <PrimaryButton variant="ghost" onClick={onSignIn}>
-        I already have an account
-      </PrimaryButton>
+      <InlineLinkRow>
+        Already have an account?{' '}
+        <InlineLinkButton underline onClick={onSignIn}>Sign in</InlineLinkButton>
+      </InlineLinkRow>
     </div>
   </div>
 )

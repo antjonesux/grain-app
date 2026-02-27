@@ -41,7 +41,7 @@ export const useCreateJourneyWithActions = (
           user_id: userId,
           title: params.title.trim(),
           why: params.why.trim(),
-          category_id: params.categoryId,
+          category_id: null,
           weekly_hours: params.weeklyHours,
           status: 'active',
           role: 'primary',
@@ -67,7 +67,6 @@ export const useCreateJourneyWithActions = (
             .select('id')
             .eq('user_id', userId)
             .eq('title', title)
-            .eq('category_id', params.categoryId)
             .eq('is_active', true)
             .limit(1)
 
@@ -77,7 +76,7 @@ export const useCreateJourneyWithActions = (
           } else {
             const actionInsert: ActionInsert = {
               user_id: userId,
-              category_id: params.categoryId,
+              category_id: null,
               title,
               is_active: true,
             }

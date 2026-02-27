@@ -8,6 +8,8 @@ import { Chip } from '@/components/onboarding/Chip'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { Drawer } from '@/components/onboarding/Drawer'
 import { TextInput } from '@/components/onboarding/TextInput'
+import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
+import { InlineLinkRow } from '@/components/onboarding/InlineLinkRow'
 
 type SignupStatus = 'idle' | 'pendingConfirmation'
 
@@ -21,6 +23,7 @@ interface SummaryScreenProps {
   onBack: () => void
   onSaveJourney?: () => Promise<void>
   onCreateAccount?: (name: string, email: string, password: string) => Promise<void>
+  onContinue?: () => void
   showOAuth?: boolean
 }
 
@@ -113,6 +116,13 @@ const ctaZone: CSSProperties = {
   flexDirection: 'column',
   paddingTop: '28px',
   paddingBottom: '56px',
+  gap: '16px',
+}
+
+const drawerCtaZone: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  paddingTop: '16px',
   gap: '12px',
 }
 
@@ -159,7 +169,7 @@ const errorText: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '11px',
   lineHeight: '16.5px',
-  color: 'var(--status-drift)',
+  color: 'var(--status-misaligned)',
   margin: 0,
   paddingBottom: '8px',
 }
@@ -168,7 +178,7 @@ const resendHelperText: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '11px',
   lineHeight: '16.5px',
-  color: 'var(--status-aligned)',
+  color: 'var(--status-drift)',
   margin: 0,
   paddingTop: '8px',
 }
@@ -193,6 +203,7 @@ export const SummaryScreen = ({
   onBack,
   onSaveJourney,
   onCreateAccount,
+  onContinue,
   showOAuth = false,
 }: SummaryScreenProps) => {
   const navigate = useNavigate()
@@ -205,6 +216,7 @@ export const SummaryScreen = ({
   const [authError, setAuthError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [signupStatus, setSignupStatus] = useState<SignupStatus>('idle')
+  const [pendingEmail, setPendingEmail] = useState<string>('')
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
@@ -232,6 +244,7 @@ export const SummaryScreen = ({
     setIsSubmitting(true)
     try {
       await onCreateAccount(firstName, email, password)
+      setPendingEmail(email.trim())
       setSignupStatus('pendingConfirmation')
     } catch (err) {
       setAuthError(
@@ -242,14 +255,15 @@ export const SummaryScreen = ({
     }
   }
 
-  const handleSaveJourney = async () => {
+  const handleSaveAndContinue = async () => {
     if (!onSaveJourney) return
     setSaveError(null)
     setIsSaving(true)
     try {
       await onSaveJourney()
-      navigate('/', { replace: true })
+      onContinue?.()
     } catch (err) {
+      console.error('[Grain] saveJourney error:', err)
       setSaveError(
         err instanceof Error ? err.message : 'Failed to save journey',
       )
@@ -259,6 +273,7 @@ export const SummaryScreen = ({
   }
 
   const handleSignInRedirect = () => {
+    console.log('[Summary] redirecting to login with state:', { from: '/onboarding', resume: 'summary' })
     navigate('/login', { state: { from: '/onboarding', resume: 'summary' } })
   }
 
@@ -321,26 +336,32 @@ export const SummaryScreen = ({
       </div>
 
       <div style={ctaZone}>
-        {user ? (
-          <>
-            {saveError && <p style={errorText}>{saveError}</p>}
-            <PrimaryButton disabled={isSaving} onClick={handleSaveJourney}>
-              {isSaving ? 'Saving\u2026' : 'Save Journey'}
-            </PrimaryButton>
-          </>
-        ) : (
-          <>
+        {signupStatus !== 'pendingConfirmation' && (
+          user ? (
+            <>
+              {saveError && <p style={errorText}>{saveError}</p>}
+              <PrimaryButton disabled={isSaving} onClick={handleSaveAndContinue}>
+                {isSaving ? 'Saving\u2026' : 'Continue'}
+              </PrimaryButton>
+            </>
+          ) : (
             <PrimaryButton onClick={() => setDrawerOpen(true)}>
-              Save your journey
+              Save Journey
             </PrimaryButton>
-          </>
+          )
+        )}
+
+        {signupStatus === 'pendingConfirmation' && !drawerOpen && (
+          <PrimaryButton onClick={() => setDrawerOpen(true)}>
+            Confirm email
+          </PrimaryButton>
         )}
       </div>
 
       <Drawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title={signupStatus === 'pendingConfirmation' ? 'Confirm your email' : 'Save your journey.'}
+        title={signupStatus === 'pendingConfirmation' ? `We sent a confirmation link to ${pendingEmail || email.trim()}` : 'Save your journey.'}
         subtitle={signupStatus === 'pendingConfirmation' ? undefined : 'Create an account so your setup is waiting each week.'}
       >
         <div style={formSection}>
@@ -350,28 +371,33 @@ export const SummaryScreen = ({
                 Check your email to confirm your account. Then sign in to
                 finish saving your journey.
               </p>
-              <PrimaryButton
-                variant="ghost"
-                disabled={resendStatus === 'sending' || resendCooldown > 0}
-                onClick={handleResend}
-              >
-                {resendStatus === 'sending'
-                  ? 'Sending\u2026'
-                  : resendCooldown > 0
-                    ? `Resend in ${resendCooldown}s`
-                    : 'Resend confirmation email'}
-              </PrimaryButton>
               {resendStatus === 'sent' && resendCooldown > 0 && (
                 <p style={resendHelperText}>
-                  Confirmation email sent. Check your inbox (and spam).
+                  Confirmation email sent. Check your inbox and spam.
                 </p>
               )}
               {resendStatus === 'error' && authCtxError && (
                 <p style={errorText}>{authCtxError}</p>
               )}
-              <PrimaryButton onClick={handleSignInRedirect}>
-                Go to Sign In
-              </PrimaryButton>
+              <div style={drawerCtaZone}>
+                <PrimaryButton onClick={handleSignInRedirect}>
+                  Sign In
+                </PrimaryButton>
+                <InlineLinkRow>
+                  {resendStatus === 'sending'
+                    ? 'Sending\u2026'
+                    : resendCooldown > 0
+                      ? `Resend in ${resendCooldown}s`
+                      : (
+                          <>
+                            Didn&rsquo;t get it?{' '}
+                            <InlineLinkButton underline onClick={handleResend}>
+                              Resend
+                            </InlineLinkButton>
+                          </>
+                        )}
+                </InlineLinkRow>
+              </div>
             </>
           ) : (
             <>

@@ -7,6 +7,7 @@ interface PrimaryButtonProps {
   onClick?: () => void
   disabled?: boolean
   variant?: ButtonVariant
+  type?: 'button' | 'submit' | 'reset'
 }
 
 const baseStyle: CSSProperties = {
@@ -61,6 +62,7 @@ export const PrimaryButton = ({
   onClick,
   disabled = false,
   variant = 'primary',
+  type = 'button',
 }: PrimaryButtonProps) => {
   const resolvedStyle = disabled
     ? { ...baseStyle, ...disabledStyle }
@@ -68,7 +70,7 @@ export const PrimaryButton = ({
 
   return (
     <button
-      type="button"
+      type={type}
       style={resolvedStyle}
       disabled={disabled}
       onClick={onClick}

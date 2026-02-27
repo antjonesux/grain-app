@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, type CSSProperties } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { cn } from '@/utils'
+import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
+import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 6
@@ -18,6 +19,120 @@ const validatePassword = (value: string): string | null => {
   return null
 }
 
+/* ── Styles ── */
+
+const pageStyle: CSSProperties = {
+  minHeight: '100dvh',
+  background: 'var(--bg)',
+  padding: '0 24px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
+const containerStyle: CSSProperties = {
+  width: '100%',
+  maxWidth: '480px',
+
+}
+
+const headlineStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '22px',
+  fontWeight: 700,
+  lineHeight: '28.6px',
+  color: 'var(--text-primary)',
+  margin: 0,
+  paddingBottom: '4px',
+}
+
+const subheadStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 400,
+  lineHeight: '19.5px',
+  color: 'var(--text-secondary)',
+  margin: 0,
+  paddingBottom: '24px',
+}
+
+const formStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+}
+
+const errorBannerStyle: CSSProperties = {
+  background: 'var(--grain-misaligned-soft)',
+  border: '1px solid var(--grain-misaligned)',
+  borderRadius: '14px',
+  padding: '12px 16px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  lineHeight: '19.5px',
+  color: 'var(--grain-misaligned)',
+}
+
+const labelStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 500,
+  lineHeight: '19.5px',
+  color: 'var(--text-secondary)',
+  display: 'block',
+  paddingBottom: '6px',
+}
+
+const inputStyle = (focused: boolean, hasError: boolean): CSSProperties => ({
+  width: '100%',
+  padding: '16px',
+  background: 'var(--bg-input)',
+  borderRadius: '14px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  lineHeight: '19.5px',
+  fontWeight: 400,
+  color: 'var(--text-primary)',
+  outline: 'none',
+  boxSizing: 'border-box' as const,
+  transition: 'border-color 150ms ease',
+  border: hasError
+    ? '1px solid var(--grain-misaligned)'
+    : focused
+      ? '1px solid var(--accent-glow)'
+      : '1px solid var(--border)',
+})
+
+const fieldErrorStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  fontWeight: 400,
+  lineHeight: '16.5px',
+  color: 'var(--grain-misaligned)',
+  margin: 0,
+  paddingTop: '4px',
+}
+
+const bottomLinkStyle: CSSProperties = {
+  paddingTop: '24px',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '4px',
+}
+
+const bottomTextStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 400,
+  lineHeight: '19.5px',
+  color: 'var(--text-secondary)',
+  margin: 0,
+}
+
+/* ── Component ── */
+
 export const SignupPage = () => {
   const navigate = useNavigate()
   const { signUp, error, clearError } = useAuth()
@@ -25,6 +140,8 @@ export const SignupPage = () => {
   const [password, setPassword] = useState('')
   const [touched, setTouched] = useState({ email: false, password: false })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [emailFocused, setEmailFocused] = useState(false)
+  const [passwordFocused, setPasswordFocused] = useState(false)
 
   const emailError = touched.email ? validateEmail(email) : null
   const passwordError = touched.password ? validatePassword(password) : null
@@ -49,25 +166,20 @@ export const SignupPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-[#faf9f7]">
-      <div className="w-full max-w-[480px]">
-        <h1 className="text-xl font-medium text-stone-800 mb-1">Create an account</h1>
-        <p className="text-stone-600 text-sm mb-6">
-          Enter your email and choose a password.
-        </p>
+    <div style={pageStyle}>
+      <div style={containerStyle}>
+        <h1 style={headlineStyle}>Create an account</h1>
+        <p style={subheadStyle}>Enter your email and choose a password.</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={formStyle}>
           {error && (
-            <div
-              className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800"
-              role="alert"
-            >
+            <div style={errorBannerStyle} role="alert">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="signup-email" className="block text-sm font-medium text-stone-700 mb-1">
+            <label htmlFor="signup-email" style={labelStyle}>
               Email
             </label>
             <input
@@ -76,25 +188,25 @@ export const SignupPage = () => {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-              className={cn(
-                'w-full min-h-[44px] rounded-lg border px-3 text-stone-900 placeholder-stone-400',
-                'focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-stone-400',
-                emailError ? 'border-red-400 bg-red-50/50' : 'border-stone-300 bg-white'
-              )}
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => {
+                setEmailFocused(false)
+                setTouched((t) => ({ ...t, email: true }))
+              }}
+              style={inputStyle(emailFocused, !!emailError)}
               placeholder="you@example.com"
               aria-invalid={!!emailError}
               aria-describedby={emailError ? 'signup-email-error' : undefined}
             />
             {emailError && (
-              <p id="signup-email-error" className="mt-1 text-sm text-red-600">
+              <p id="signup-email-error" style={fieldErrorStyle}>
                 {emailError}
               </p>
             )}
           </div>
 
           <div>
-            <label htmlFor="signup-password" className="block text-sm font-medium text-stone-700 mb-1">
+            <label htmlFor="signup-password" style={labelStyle}>
               Password
             </label>
             <input
@@ -103,47 +215,37 @@ export const SignupPage = () => {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-              className={cn(
-                'w-full min-h-[44px] rounded-lg border px-3 text-stone-900 placeholder-stone-400',
-                'focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-stone-400',
-                passwordError ? 'border-red-400 bg-red-50/50' : 'border-stone-300 bg-white'
-              )}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => {
+                setPasswordFocused(false)
+                setTouched((t) => ({ ...t, password: true }))
+              }}
+              style={inputStyle(passwordFocused, !!passwordError)}
               placeholder="At least 6 characters"
               aria-invalid={!!passwordError}
               aria-describedby={passwordError ? 'signup-password-error' : undefined}
             />
             {passwordError && (
-              <p id="signup-password-error" className="mt-1 text-sm text-red-600">
+              <p id="signup-password-error" style={fieldErrorStyle}>
                 {passwordError}
               </p>
             )}
           </div>
 
-          <button
+          <PrimaryButton
             type="submit"
             disabled={!canSubmit || isSubmitting}
-            className={cn(
-              'w-full min-h-[44px] rounded-lg font-medium text-white',
-              'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-500',
-              canSubmit && !isSubmitting
-                ? 'bg-stone-700 hover:bg-stone-800'
-                : 'bg-stone-400 cursor-not-allowed'
-            )}
           >
             {isSubmitting ? 'Creating account…' : 'Sign up'}
-          </button>
+          </PrimaryButton>
         </form>
 
-        <p className="mt-6 text-center text-sm text-stone-600">
-          Already have an account?{' '}
-          <Link
-            to="/login"
-            className="font-medium text-stone-800 underline underline-offset-2 hover:text-stone-900"
-          >
+        <div style={bottomLinkStyle}>
+          <p style={bottomTextStyle}>Already have an account?</p>
+          <InlineLinkButton underline onClick={() => navigate('/login')}>
             Sign in
-          </Link>
-        </p>
+          </InlineLinkButton>
+        </div>
       </div>
     </div>
   )

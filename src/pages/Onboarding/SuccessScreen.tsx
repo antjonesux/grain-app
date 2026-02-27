@@ -1,7 +1,8 @@
 import { type CSSProperties, useEffect, useState } from 'react'
+import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 
 interface SuccessScreenProps {
-  onContinue: () => void
+  onFinish: () => void
 }
 
 const screen: CSSProperties = {
@@ -12,6 +13,7 @@ const screen: CSSProperties = {
   minHeight: '100dvh',
   padding: '0 24px',
   background: 'var(--bg)',
+  position: 'relative',
 }
 
 const content: CSSProperties = {
@@ -53,16 +55,24 @@ const subheadStyle: CSSProperties = {
   margin: 0,
 }
 
-const AUTO_NAV_DELAY = 2500
+const ctaZone: CSSProperties = {
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  padding: '28px 24px 56px',
+}
 
-export const SuccessScreen = ({ onContinue }: SuccessScreenProps) => {
+const AUTO_NAV_DELAY = 4000
+
+export const SuccessScreen = ({ onFinish }: SuccessScreenProps) => {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
-    const timer = setTimeout(onContinue, AUTO_NAV_DELAY)
+    const timer = setTimeout(onFinish, AUTO_NAV_DELAY)
     return () => clearTimeout(timer)
-  }, [onContinue])
+  }, [onFinish])
 
   return (
     <div
@@ -93,6 +103,10 @@ export const SuccessScreen = ({ onContinue }: SuccessScreenProps) => {
 
         <h1 style={headingStyle}>First log saved.</h1>
         <p style={subheadStyle}>Your journey has begun.</p>
+      </div>
+
+      <div style={ctaZone}>
+        <PrimaryButton onClick={onFinish}>Go to Home</PrimaryButton>
       </div>
     </div>
   )

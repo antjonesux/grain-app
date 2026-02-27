@@ -8,6 +8,8 @@ import { WhyScreen } from './WhyScreen'
 import { ActionsScreen } from './ActionsScreen'
 import { CommitmentScreen } from './CommitmentScreen'
 import { SummaryScreen } from './SummaryScreen'
+import { FirstLogScreen } from './FirstLogScreen'
+import { SuccessScreen } from './SuccessScreen'
 
 export const DRAFT_KEY = 'grain.onboarding.draft.v1'
 
@@ -47,6 +49,7 @@ export const OnboardingPage = () => {
     if (resume === 'summary' && !resumeApplied.current) {
       resumeApplied.current = true
       setState((s) => ({ ...s, step: 5 }))
+      navigate('/onboarding', { replace: true })
     }
   }, [location.state])
 
@@ -80,8 +83,10 @@ export const OnboardingPage = () => {
       weeklyHours: state.weeklyHours,
       actionTitles: state.actionTitles.filter(Boolean),
     })
-    if (error) throw new Error('Failed to save journey')
-    localStorage.removeItem(DRAFT_KEY)
+    if (error) {
+      console.error('[Grain] saveJourney failed:', error)
+      throw new Error(typeof error === 'string' ? error : (error as { message?: string }).message ?? 'Failed to save journey')
+    }
   }
 
   switch (state.step) {
@@ -132,6 +137,23 @@ export const OnboardingPage = () => {
           onBack={handleBack}
           onSaveJourney={handleSaveJourney}
           onCreateAccount={handleCreateAccount}
+          onContinue={() => goTo(6)}
+        />
+      )
+    case 6:
+      return (
+        <FirstLogScreen
+          actions={state.actionTitles.filter(Boolean)}
+          onNext={() => goTo(7)}
+        />
+      )
+    case 7:
+      return (
+        <SuccessScreen
+          onFinish={() => {
+            localStorage.removeItem(DRAFT_KEY)
+            navigate('/', { replace: true })
+          }}
         />
       )
     default:

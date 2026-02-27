@@ -5,10 +5,10 @@ import { TextArea } from '@/components/onboarding/TextInput'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 
 interface FirstLogScreenProps {
-  name: string
-  actions: string[]
-  onSave: (action: string, duration: string, note?: string) => void
-  onSkip: () => void
+  name?: string
+  actions?: string[]
+  onNext: () => void
+  onSave?: (action: string, duration: string, note?: string) => void
 }
 
 const DURATIONS = ['30m', '1h', '1.5h', '2h', '2.5h', '3h', 'Custom']
@@ -107,21 +107,22 @@ const ctaZone: CSSProperties = {
 }
 
 export const FirstLogScreen = ({
-  name,
-  actions,
+  name = '',
+  actions = [],
+  onNext,
   onSave,
-  onSkip,
 }: FirstLogScreenProps) => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null)
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null)
   const [note, setNote] = useState('')
 
-  const greeting = name.trim() ? `Welcome, ${name.trim()}!` : 'Welcome!'
+  const greeting = name.trim() ? `Welcome, ${name.trim()}.` : 'Welcome.'
   const canSave = selectedAction !== null && selectedDuration !== null
 
   const handleSave = () => {
     if (!canSave) return
-    onSave(selectedAction, selectedDuration, note.trim() || undefined)
+    onSave?.(selectedAction, selectedDuration, note.trim() || undefined)
+    onNext()
   }
 
   return (
@@ -183,8 +184,8 @@ export const FirstLogScreen = ({
         <PrimaryButton disabled={!canSave} onClick={handleSave}>
           Save Entry
         </PrimaryButton>
-        <PrimaryButton variant="ghost" onClick={onSkip}>
-          Skip - go to dashboard
+        <PrimaryButton variant="ghost" onClick={onNext}>
+          Skip for now
         </PrimaryButton>
       </div>
     </div>
