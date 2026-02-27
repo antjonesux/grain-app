@@ -192,14 +192,14 @@ const bottomTextStyle: CSSProperties = {
 }
 
 const errorStyle: CSSProperties = {
-  background: 'rgba(239, 68, 68, 0.1)',
-  border: '1px solid rgba(239, 68, 68, 0.3)',
+  background: 'var(--status-misaligned-soft)',
+  border: '1px solid var(--status-misaligned)',
   borderRadius: '14px',
   padding: '12px 16px',
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '13px',
   lineHeight: '19.5px',
-  color: '#ef4444',
+  color: 'var(--status-misaligned)',
   marginBottom: '8px',
 }
 

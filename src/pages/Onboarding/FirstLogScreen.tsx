@@ -136,8 +136,8 @@ export const FirstLogScreen = ({
         </p>
 
         <div style={cardStyle}>
-          <p style={cardTitleStyle}>Log your first entry</p>
-          <p style={cardCaptionStyle}>What did you invest time in today?</p>
+          <p style={cardTitleStyle}>Make your first entry</p>
+          <p style={cardCaptionStyle}>What did you work on today?</p>
 
           <div style={{ paddingBottom: '16px' }}>
             <p style={sectionLabelStyle}>ACTION</p>
@@ -174,7 +174,7 @@ export const FirstLogScreen = ({
             <TextArea
               value={note}
               onChange={setNote}
-              placeholder="Add a reflective note"
+              placeholder="Reflect on it"
             />
           </div>
         </div>
@@ -185,7 +185,7 @@ export const FirstLogScreen = ({
           Save Entry
         </PrimaryButton>
         <PrimaryButton variant="ghost" onClick={onNext}>
-          Skip for now
+          I'll log later
         </PrimaryButton>
       </div>
     </div>

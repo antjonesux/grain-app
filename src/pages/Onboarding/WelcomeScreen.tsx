@@ -87,7 +87,7 @@ export const WelcomeScreen = ({ onNext, onSignIn }: WelcomeScreenProps) => (
     </div>
 
     <div style={ctaZone}>
-      <PrimaryButton onClick={onNext}>Begin My Journey</PrimaryButton>
+      <PrimaryButton onClick={onNext}>Get started</PrimaryButton>
       <InlineLinkRow>
         Already have an account?{' '}
         <InlineLinkButton underline onClick={onSignIn}>Sign in</InlineLinkButton>

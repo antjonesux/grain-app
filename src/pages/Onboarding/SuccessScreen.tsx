@@ -101,8 +101,8 @@ export const SuccessScreen = ({ onFinish }: SuccessScreenProps) => {
           </svg>
         </div>
 
-        <h1 style={headingStyle}>First log saved.</h1>
-        <p style={subheadStyle}>Your journey has begun.</p>
+        <h1 style={headingStyle}>You're in.</h1>
+        <p style={subheadStyle}>Week one starts now. Come back tomorrow and keep it going.</p>
       </div>
 
       <div style={ctaZone}>

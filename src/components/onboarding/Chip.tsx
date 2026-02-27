@@ -6,6 +6,7 @@ interface ChipProps {
   label: string
   variant?: ChipVariant
   onClick?: () => void
+  onRemove?: () => void
   icon?: string
 }
 
@@ -47,7 +48,7 @@ const variantStyles: Record<ChipVariant, CSSProperties> = {
   },
   'chip-button': {
     background: 'transparent',
-    border: '1.5px solid var(--border)',
+    border: '1.5px dashed var(--border)',
     color: 'var(--text-secondary)',
     padding: '10px 12px',
     gap: '4px',
@@ -71,19 +72,71 @@ const PlusIcon = () => (
   </svg>
 )
 
+const removeButton: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  marginLeft: '4px',
+  cursor: 'pointer',
+  borderRadius: '999px',
+}
+
+const CloseIcon = ({ color }: { color: string }) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    stroke={color}
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <line x1="4" y1="4" x2="10" y2="10" />
+    <line x1="10" y1="4" x2="4" y2="10" />
+  </svg>
+)
+
 export const Chip = ({
   label,
   variant = 'unselected',
   onClick,
+  onRemove,
   icon,
 }: ChipProps) => {
   const style = { ...baseStyle, ...variantStyles[variant] }
+  const iconColor = variant === 'selected' ? 'var(--accent)' : 'var(--text-secondary)'
 
   return (
     <button type="button" style={style} onClick={onClick}>
       {variant === 'chip-button' && <PlusIcon />}
       {icon && <span>{icon}</span>}
       {label}
+      {onRemove && (
+        <span
+          role="button"
+          tabIndex={-1}
+          aria-label={`Remove ${label}`}
+          style={removeButton}
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.stopPropagation()
+              e.preventDefault()
+              onRemove()
+            }
+          }}
+        >
+          <CloseIcon color={iconColor} />
+        </span>
+      )}
     </button>
   )
 }

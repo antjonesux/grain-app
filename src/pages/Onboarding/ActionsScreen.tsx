@@ -112,6 +112,7 @@ export const ActionsScreen = ({
 }: ActionsScreenProps) => {
   const [category, setCategory] = useState<string | null>(initialCategory ?? null)
   const [selected, setSelected] = useState<string[]>(initialActions)
+  const [customActions, setCustomActions] = useState<string[]>([])
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [customAction, setCustomAction] = useState('')
   const [suggestionsVisible, setSuggestionsVisible] = useState(!!initialCategory)
@@ -130,6 +131,7 @@ export const ActionsScreen = ({
     if (cat === category) return
     setCategory(cat)
     setSelected([])
+    setCustomActions([])
   }
 
   const toggleAction = (action: string) => {
@@ -141,11 +143,19 @@ export const ActionsScreen = ({
   const handleSaveCustom = () => {
     const trimmed = customAction.trim()
     if (!trimmed) return
+    if (!customActions.includes(trimmed)) {
+      setCustomActions((prev) => [...prev, trimmed])
+    }
     if (!selected.includes(trimmed)) {
       setSelected((prev) => [...prev, trimmed])
     }
     setCustomAction('')
     setDrawerOpen(false)
+  }
+
+  const handleRemoveCustom = (action: string) => {
+    setCustomActions((prev) => prev.filter((a) => a !== action))
+    setSelected((prev) => prev.filter((a) => a !== action))
   }
 
   const categoryLabel = category === 'Skip' ? 'general' : category
@@ -156,7 +166,7 @@ export const ActionsScreen = ({
         <OnboardingHeader onBack={onBack} />
         <ProgressBar step={3} total={5} />
 
-        <h1 style={headingStyle}>What does progress look like?</h1>
+        <h1 style={headingStyle}>What moves the needle?</h1>
         <p style={subheadStyle}>
           Choose a focus area to get tailored suggestions, or add your own.
         </p>
@@ -193,8 +203,17 @@ export const ActionsScreen = ({
                   onClick={() => toggleAction(action)}
                 />
               ))}
+              {customActions.map((action) => (
+                <Chip
+                  key={`custom-${action}`}
+                  label={action}
+                  variant={selected.includes(action) ? 'selected' : 'unselected'}
+                  onClick={() => toggleAction(action)}
+                  onRemove={() => handleRemoveCustom(action)}
+                />
+              ))}
               <Chip
-                label="Add my own"
+                label="Custom"
                 variant="chip-button"
                 onClick={() => setDrawerOpen(true)}
               />
@@ -228,7 +247,7 @@ export const ActionsScreen = ({
             disabled={customAction.trim().length === 0}
             onClick={handleSaveCustom}
           >
-            Save
+            Add action
           </PrimaryButton>
         </div>
       </Drawer>

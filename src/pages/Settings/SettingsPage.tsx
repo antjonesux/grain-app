@@ -36,7 +36,7 @@ export const SettingsPage = () => {
 
           {error && (
             <div
-              className="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800"
+              className="mb-4 rounded-lg bg-[var(--status-misaligned-soft)] border border-[var(--status-misaligned)] px-3 py-2 text-sm text-[var(--status-misaligned)]"
               role="alert"
             >
               {error}

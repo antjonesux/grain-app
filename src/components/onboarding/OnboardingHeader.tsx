@@ -61,7 +61,7 @@ const GrainLogo = () => (
   />
 )
 
-const ChevronLeft = () => (
+const ArrowLeft = () => (
   <svg
     width="20"
     height="20"
@@ -73,7 +73,8 @@ const ChevronLeft = () => (
     strokeLinejoin="round"
     aria-hidden="true"
   >
-    <polyline points="13 15 8 10 13 5" />
+    <line x1="16" y1="10" x2="4" y2="10" />
+    <polyline points="10 4 4 10 10 16" />
   </svg>
 )
 
@@ -86,7 +87,7 @@ export const OnboardingHeader = ({ onBack }: OnboardingHeaderProps) => (
         onClick={onBack}
         aria-label="Go back"
       >
-        <ChevronLeft />
+        <ArrowLeft />
       </button>
     ) : (
       <span style={spacerStyle} />

@@ -306,7 +306,7 @@ export const SummaryScreen = ({
         <OnboardingHeader onBack={onBack} />
         <ProgressBar step={5} total={5} />
 
-        <h1 style={headingStyle}>Your journey.</h1>
+        <h1 style={headingStyle}>Here's your plan.</h1>
         <p style={subheadStyle}>
           Here's what you're about to commit to.
         </p>
@@ -346,7 +346,7 @@ export const SummaryScreen = ({
             </>
           ) : (
             <PrimaryButton onClick={() => setDrawerOpen(true)}>
-              Save Journey
+              Save my progress
             </PrimaryButton>
           )
         )}

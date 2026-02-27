@@ -55,7 +55,7 @@ export const LogPage = () => {
     return (
       <div className="px-4 py-6">
         <p className="text-stone-500 text-sm">
-          {journeysLoading ? 'Loading…' : 'Create a journey first.'}
+          {journeysLoading ? 'Loading…' : 'Set up your journey to start logging.'}
         </p>
       </div>
     )
@@ -64,14 +64,14 @@ export const LogPage = () => {
   if (actionsError) {
     return (
       <div className="px-4 py-6">
-        <p className="text-red-600 text-sm" role="alert">{actionsError}</p>
+        <p className="text-[var(--status-misaligned)] text-sm" role="alert">{actionsError}</p>
       </div>
     )
   }
 
   return (
     <div className="px-4 py-6 max-w-[480px] mx-auto">
-      <h2 className="text-xl font-medium text-stone-800 mb-4">Log</h2>
+      <h2 className="text-xl font-medium text-stone-800 mb-4">Today</h2>
 
       <label htmlFor="log-date" className="block text-stone-600 text-sm mb-1">
         Date
@@ -86,9 +86,9 @@ export const LogPage = () => {
       />
 
       {actionsLoading ? (
-        <p className="text-stone-500 text-sm">Loading actions…</p>
+        <p className="text-stone-500 text-sm">Loading…</p>
       ) : actions.length === 0 ? (
-        <p className="text-stone-500 text-sm">No actions for this journey. Add some in Journey settings.</p>
+        <p className="text-stone-500 text-sm">No actions yet. Add some in Journey settings.</p>
       ) : (
         <>
           <p className="text-stone-600 text-sm mb-2">Action</p>
@@ -145,7 +145,7 @@ export const LogPage = () => {
                 maxLength={NOTE_MAX}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="Brief note"
+                placeholder="Reflect on it"
                 className="w-full border border-stone-300 rounded-lg px-3 py-2 text-stone-800 mb-4"
                 aria-describedby="note-count"
               />
@@ -154,7 +154,7 @@ export const LogPage = () => {
               </p>
 
               {lastError && (
-                <p className="text-red-600 text-sm mb-2" role="alert">
+                <p className="text-[var(--status-misaligned)] text-sm mb-2" role="alert">
                   {lastError}
                 </p>
               )}
@@ -173,7 +173,6 @@ export const LogPage = () => {
           {logs.length > 0 && (
             <section className="mt-8" aria-labelledby="today-logs-heading">
               <h3 id="today-logs-heading" className="text-sm font-medium text-stone-700 mb-2">
-                Logs for this day
               </h3>
               <ul className="list-none space-y-2">
                 {logs.map((log) => {

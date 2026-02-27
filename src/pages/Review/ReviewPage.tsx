@@ -12,7 +12,7 @@ export const ReviewPage = () => {
     return (
       <div className="px-4 py-6">
         <p className="text-stone-500 text-sm">
-          {journeysLoading ? 'Loading…' : 'Create a journey first.'}
+          {journeysLoading ? 'Loading…' : 'Set up your journey to start logging.'}
         </p>
       </div>
     )
@@ -21,7 +21,7 @@ export const ReviewPage = () => {
   if (error) {
     return (
       <div className="px-4 py-6">
-        <p className="text-red-600 text-sm" role="alert">{error}</p>
+        <p className="text-[var(--status-misaligned)] text-sm" role="alert">{error}</p>
       </div>
     )
   }
@@ -42,7 +42,7 @@ export const ReviewPage = () => {
           <p className="text-stone-600 text-sm">
             Commitment: {commitment}h · Actual: {actual}h · Delta: {delta >= 0 ? '+' : ''}{delta}h
           </p>
-          <p className="text-stone-600 text-sm">Zero-log days: {zeroDays}</p>
+          <p className="text-stone-600 text-sm">Days without a log: {zeroDays}</p>
         </section>
       )}
     </div>

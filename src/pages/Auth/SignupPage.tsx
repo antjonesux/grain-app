@@ -64,14 +64,14 @@ const formStyle: CSSProperties = {
 }
 
 const errorBannerStyle: CSSProperties = {
-  background: 'var(--grain-misaligned-soft)',
-  border: '1px solid var(--grain-misaligned)',
+  background: 'var(--status-misaligned-soft)',
+  border: '1px solid var(--status-misaligned)',
   borderRadius: '14px',
   padding: '12px 16px',
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '13px',
   lineHeight: '19.5px',
-  color: 'var(--grain-misaligned)',
+  color: 'var(--status-misaligned)',
 }
 
 const labelStyle: CSSProperties = {
@@ -98,7 +98,7 @@ const inputStyle = (focused: boolean, hasError: boolean): CSSProperties => ({
   boxSizing: 'border-box' as const,
   transition: 'border-color 150ms ease',
   border: hasError
-    ? '1px solid var(--grain-misaligned)'
+    ? '1px solid var(--status-misaligned)'
     : focused
       ? '1px solid var(--accent-glow)'
       : '1px solid var(--border)',
@@ -109,7 +109,7 @@ const fieldErrorStyle: CSSProperties = {
   fontSize: '11px',
   fontWeight: 400,
   lineHeight: '16.5px',
-  color: 'var(--grain-misaligned)',
+  color: 'var(--status-misaligned)',
   margin: 0,
   paddingTop: '4px',
 }

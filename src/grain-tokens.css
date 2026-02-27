@@ -53,6 +53,8 @@
   --status-aligned-soft: var(--grain-aligned-soft);
   --status-drift: var(--grain-drift);
   --status-drift-soft: var(--grain-drift-soft);
+  --status-misaligned: var(--grain-misaligned);
+  --status-misaligned-soft: var(--grain-misaligned-soft);
 }
 
 /* Typography */
