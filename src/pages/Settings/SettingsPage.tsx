@@ -1,63 +1,277 @@
-import { useState } from 'react'
+/**
+ * Deployment:
+ *   supabase functions deploy delete-account
+ *
+ * Required secrets (set via supabase secrets set):
+ *   SUPABASE_URL
+ *   SUPABASE_ANON_KEY
+ *   SUPABASE_SERVICE_ROLE_KEY
+ */
+
+import { type CSSProperties, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { cn } from '@/utils'
+import { supabase } from '@/lib/supabaseClient'
+import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
+import { TextInput } from '@/components/onboarding/TextInput'
+import { Drawer } from '@/components/onboarding/Drawer'
+
+const screen: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: '100dvh',
+  padding: '0 24px',
+  background: 'var(--bg)',
+}
+
+const headerStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  paddingTop: '28px',
+  paddingBottom: '8px',
+  position: 'relative',
+}
+
+const backButtonStyle: CSSProperties = {
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '20px',
+  height: '20px',
+  flexShrink: 0,
+}
+
+const headerTitleStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '22px',
+  fontWeight: 700,
+  lineHeight: '28.6px',
+  color: 'var(--text-primary)',
+  margin: 0,
+  flex: 1,
+  textAlign: 'center',
+  paddingRight: '20px',
+}
+
+const sectionLabelStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '10px',
+  fontWeight: 600,
+  lineHeight: '12px',
+  letterSpacing: '0.12px',
+  textTransform: 'uppercase',
+  color: 'var(--text-muted)',
+  paddingTop: '32px',
+  margin: 0,
+}
+
+const emailStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 400,
+  lineHeight: '19.5px',
+  color: 'var(--text-secondary)',
+  paddingTop: '8px',
+  margin: 0,
+}
+
+const actionsZone: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  paddingTop: '28px',
+  gap: '12px',
+}
+
+const destructiveLinkStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 500,
+  lineHeight: '19.5px',
+  color: 'var(--status-misaligned)',
+  background: 'none',
+  border: 'none',
+  padding: '4px 0 0 0',
+  cursor: 'pointer',
+  transition: 'opacity 150ms ease',
+}
+
+const drawerBody: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  paddingBottom: '32px',
+}
+
+const drawerActions: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+}
+
+const destructiveButtonStyle: CSSProperties = {
+  width: '100%',
+  borderRadius: '14px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  lineHeight: '19.5px',
+  fontWeight: 500,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '14px 16px',
+  background: 'var(--status-misaligned)',
+  color: 'var(--bg)',
+  border: 'none',
+  cursor: 'pointer',
+  transition: 'opacity 150ms ease',
+}
+
+const destructiveButtonDisabledStyle: CSSProperties = {
+  ...destructiveButtonStyle,
+  background: 'var(--bg-input)',
+  color: 'var(--text-muted)',
+  cursor: 'not-allowed',
+}
+
+const errorStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 400,
+  lineHeight: '19.5px',
+  color: 'var(--status-misaligned)',
+  margin: 0,
+}
+
+const ArrowLeft = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    stroke="var(--text-secondary)"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <line x1="16" y1="10" x2="4" y2="10" />
+    <polyline points="10 4 4 10 10 16" />
+  </svg>
+)
 
 export const SettingsPage = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
-  const [isSigningOut, setIsSigningOut] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [confirmText, setConfirmText] = useState('')
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  const canDelete = confirmText === 'DELETE'
 
   const handleSignOut = async () => {
-    setError(null)
-    setIsSigningOut(true)
-    try {
-      await signOut()
-      navigate('/login', { replace: true })
-    } catch (err) {
-      setError('Something went wrong while signing out. Please try again.')
-    } finally {
-      setIsSigningOut(false)
+    await signOut()
+    navigate('/welcome', { replace: true })
+  }
+
+  const openDeleteDrawer = () => {
+    setConfirmText('')
+    setDeleteError(null)
+    setShowDeleteConfirm(true)
+  }
+
+  const closeDeleteDrawer = () => {
+    if (deleting) return
+    setShowDeleteConfirm(false)
+  }
+
+  const deleteAccount = async () => {
+    if (!canDelete || deleting) return
+
+    setDeleting(true)
+    setDeleteError(null)
+
+    const { error } = await supabase.functions.invoke('delete-account', {
+      method: 'POST',
+    })
+
+    if (error) {
+      setDeleteError(error.message || 'Something went wrong. Try again.')
+      setDeleting(false)
+      return
     }
+
+    await signOut()
+    navigate('/welcome', { replace: true })
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center px-4 py-6 bg-[#faf9f7]">
-      <div className="w-full max-w-[480px]">
-        <div className="rounded-2xl border border-stone-200 bg-white px-4 py-5 shadow-sm">
-          <h1 className="text-lg font-medium text-stone-900 mb-3">Settings</h1>
-          <p className="text-sm text-stone-600 mb-4">
-            Signed in as{' '}
-            <span className="font-medium text-stone-800">
-              {user?.email ?? 'Unknown'}
-            </span>
-          </p>
+    <div style={screen}>
+      <header style={headerStyle}>
+        <button
+          type="button"
+          style={backButtonStyle}
+          onClick={() => navigate(-1)}
+          aria-label="Go back"
+        >
+          <ArrowLeft />
+        </button>
+        <h1 style={headerTitleStyle}>Settings</h1>
+      </header>
 
-          {error && (
-            <div
-              className="mb-4 rounded-lg bg-[var(--status-misaligned-soft)] border border-[var(--status-misaligned)] px-3 py-2 text-sm text-[var(--status-misaligned)]"
-              role="alert"
-            >
-              {error}
-            </div>
-          )}
+      <p style={sectionLabelStyle}>Account</p>
+      <p style={emailStyle}>{user?.email ?? 'Unknown'}</p>
 
-          <button
-            type="button"
-            onClick={handleSignOut}
-            disabled={isSigningOut}
-            className={cn(
-              'w-full min-h-[44px] rounded-lg text-sm font-medium text-white',
-              'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-500',
-              isSigningOut ? 'bg-stone-400 cursor-not-allowed' : 'bg-stone-800 hover:bg-stone-900'
-            )}
-          >
-            {isSigningOut ? 'Logging out…' : 'Log out'}
-          </button>
-        </div>
+      <div style={actionsZone}>
+        <PrimaryButton onClick={handleSignOut}>Sign out</PrimaryButton>
+        <button
+          type="button"
+          style={destructiveLinkStyle}
+          onClick={openDeleteDrawer}
+        >
+          Delete account
+        </button>
       </div>
+
+      <Drawer
+        isOpen={showDeleteConfirm}
+        onClose={closeDeleteDrawer}
+        title="Delete your account?"
+        subtitle="This action cannot be undone."
+      >
+        <div style={drawerBody}>
+          <TextInput
+            value={confirmText}
+            onChange={setConfirmText}
+            placeholder="Type DELETE to confirm"
+          />
+
+          {deleteError && <p style={errorStyle}>{deleteError}</p>}
+
+          <div style={drawerActions}>
+            <button
+              type="button"
+              style={canDelete ? destructiveButtonStyle : destructiveButtonDisabledStyle}
+              disabled={!canDelete || deleting}
+              onClick={deleteAccount}
+            >
+              {deleting ? 'Deleting…' : 'Delete account'}
+            </button>
+            <PrimaryButton
+              variant="outline"
+              onClick={closeDeleteDrawer}
+              disabled={deleting}
+            >
+              Cancel
+            </PrimaryButton>
+          </div>
+        </div>
+      </Drawer>
     </div>
   )
 }
-
