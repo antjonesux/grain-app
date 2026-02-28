@@ -1,68 +1,60 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+/// <reference path="../deno.d.ts" />
+import { createClient } from "@supabase/supabase-js";
 
-Deno.serve(async (req: Request) => {
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    });
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const json = (status: number, body: Record<string, unknown>) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+Deno.serve(async (req) => {
+  console.log("delete-account: method", req.method);
+
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders, status: 200 });
   }
+
+  if (req.method !== "POST") return json(405, { error: "Method not allowed" });
+
+  console.log("delete-account: start");
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader) {
-    return new Response(JSON.stringify({ error: "Missing authorization" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+  if (!serviceKey) return json(500, { error: "Missing SUPABASE_SERVICE_ROLE_KEY" });
 
-  const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+  const authHeader = req.headers.get("Authorization") ?? "";
+
+  const userClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   });
 
-  const {
-    data: { user },
-    error: authError,
-  } = await userClient.auth.getUser();
-
-  if (authError || !user) {
-    return new Response(
-      JSON.stringify({ error: authError?.message ?? "Unauthorized" }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
-    );
+  const { data: userData, error: userErr } = await userClient.auth.getUser();
+  if (userErr || !userData?.user) {
+    console.log("delete-account: unauthorized");
+    return json(401, { error: "Unauthorized" });
   }
 
-  const userId = user.id;
+  const userId = userData.user.id;
 
-  const adminClient = createClient(supabaseUrl, serviceRoleKey);
+  const adminClient = createClient(supabaseUrl, serviceKey);
 
-  const { error: rpcError } = await adminClient.rpc("delete_account_data", {
+  const { error: purgeErr } = await adminClient.rpc("delete_account_data", {
     p_user_id: userId,
   });
+  if (purgeErr) return json(500, { error: "Failed to delete user data", details: purgeErr.message });
 
-  if (rpcError) {
-    return new Response(
-      JSON.stringify({ error: rpcError.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
-  }
+  const { error: authDeleteErr } = await adminClient.auth.admin.deleteUser(userId);
+  if (authDeleteErr) return json(500, { error: "Failed to delete auth user", details: authDeleteErr.message });
 
-  const { error: deleteError } =
-    await adminClient.auth.admin.deleteUser(userId);
-
-  if (deleteError) {
-    return new Response(
-      JSON.stringify({ error: deleteError.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
-  }
-
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  console.log("delete-account: ok");
+  return json(200, { ok: true });
 });

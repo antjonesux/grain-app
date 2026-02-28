@@ -13,7 +13,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
-import { TextInput } from '@/components/onboarding/TextInput'
 import { Drawer } from '@/components/onboarding/Drawer'
 
 const screen: CSSProperties = {
@@ -131,13 +130,6 @@ const destructiveButtonStyle: CSSProperties = {
   transition: 'opacity 150ms ease',
 }
 
-const destructiveButtonDisabledStyle: CSSProperties = {
-  ...destructiveButtonStyle,
-  background: 'var(--bg-input)',
-  color: 'var(--text-muted)',
-  cursor: 'not-allowed',
-}
-
 const errorStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '13px',
@@ -168,11 +160,8 @@ export const SettingsPage = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [confirmText, setConfirmText] = useState('')
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
-
-  const canDelete = confirmText === 'DELETE'
 
   const handleSignOut = async () => {
     await signOut()
@@ -180,7 +169,6 @@ export const SettingsPage = () => {
   }
 
   const openDeleteDrawer = () => {
-    setConfirmText('')
     setDeleteError(null)
     setShowDeleteConfirm(true)
   }
@@ -191,17 +179,33 @@ export const SettingsPage = () => {
   }
 
   const deleteAccount = async () => {
-    if (!canDelete || deleting) return
+    if (deleting) return
 
     setDeleting(true)
     setDeleteError(null)
 
-    const { error } = await supabase.functions.invoke('delete-account', {
-      method: 'POST',
-    })
+    const { error, response } = await supabase.functions.invoke(
+      'delete-account',
+      { method: 'POST' },
+    )
 
     if (error) {
-      setDeleteError(error.message || 'Something went wrong. Try again.')
+      let msg = 'Something went wrong. Try again.'
+      const res = response ?? error.context
+      if (res && typeof res.json === 'function') {
+        try {
+          const body = await res.clone().json()
+          msg = body?.error ?? body?.message ?? msg
+        } catch {
+          try {
+            msg = await res.clone().text()
+          } catch { /* exhausted */ }
+        }
+      } else if (error.message) {
+        msg = error.message
+      }
+      console.error('delete-account error', { status: res?.status, msg, error })
+      setDeleteError(msg)
       setDeleting(false)
       return
     }
@@ -245,19 +249,13 @@ export const SettingsPage = () => {
         subtitle="This action cannot be undone."
       >
         <div style={drawerBody}>
-          <TextInput
-            value={confirmText}
-            onChange={setConfirmText}
-            placeholder="Type DELETE to confirm"
-          />
-
           {deleteError && <p style={errorStyle}>{deleteError}</p>}
 
           <div style={drawerActions}>
             <button
               type="button"
-              style={canDelete ? destructiveButtonStyle : destructiveButtonDisabledStyle}
-              disabled={!canDelete || deleting}
+              style={destructiveButtonStyle}
+              disabled={deleting}
               onClick={deleteAccount}
             >
               {deleting ? 'Deleting…' : 'Delete account'}
