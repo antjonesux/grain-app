@@ -19,3 +19,9 @@ export {
   type WeeklySummaryComputed,
 } from './useWeeklySummaryFromActionLogs'
 export { useCreateJourneyWithActions } from './useCreateJourneyWithActions'
+export {
+  useHomeWeekData,
+  type HomeState,
+  type DayRollup,
+  type HomeWeekData,
+} from './useHomeWeekData'

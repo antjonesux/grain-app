@@ -166,6 +166,41 @@ export interface Database {
           logged_at?: string
         }
       }
+      action_log_items: {
+        Row: {
+          id: string
+          log_id: string
+          user_id: string
+          journey_id: string
+          action_id: string
+          duration: number
+          log_date: string
+          logged_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          log_id: string
+          user_id: string
+          journey_id: string
+          action_id: string
+          duration: number
+          log_date: string
+          logged_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          log_id?: string
+          user_id?: string
+          journey_id?: string
+          action_id?: string
+          duration?: number
+          log_date?: string
+          logged_at?: string
+          created_at?: string
+        }
+      }
       weekly_summaries: {
         Row: {
           id: string
@@ -256,4 +291,6 @@ export type JourneyActionRow = Database['public']['Tables']['journey_actions']['
 export type JourneyActionInsert = Database['public']['Tables']['journey_actions']['Insert']
 export type ActionLogRow = Database['public']['Tables']['action_logs']['Row']
 export type ActionLogInsert = Database['public']['Tables']['action_logs']['Insert']
+export type ActionLogItemRow = Database['public']['Tables']['action_log_items']['Row']
+export type ActionLogItemInsert = Database['public']['Tables']['action_log_items']['Insert']
 export type WeeklySummaryRow = Database['public']['Tables']['weekly_summaries']['Row']
