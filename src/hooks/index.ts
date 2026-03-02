@@ -25,3 +25,7 @@ export {
   type DayRollup,
   type HomeWeekData,
 } from './useHomeWeekData'
+export {
+  useActiveJourney,
+  type ActiveJourney,
+} from './useActiveJourney'

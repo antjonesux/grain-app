@@ -68,11 +68,11 @@ export const OnboardingPage = () => {
   }
 
   const handleCreateAccount = async (
-    _name: string,
+    name: string,
     email: string,
     password: string,
   ) => {
-    await signUp(email, password)
+    await signUp(email, password, { first_name: name.trim() })
   }
 
   const handleSaveJourney = async () => {

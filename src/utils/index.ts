@@ -34,6 +34,7 @@ export const getWeekDays = (weekStart: string): { date: string; label: string }[
   return DAY_LABELS.map((label, i) => {
     const d = new Date(start)
     d.setDate(d.getDate() + i)
-    return { date: d.toISOString().slice(0, 10), label }
+    const formatted = `${label} ${d.getMonth() + 1}/${d.getDate()}`
+    return { date: d.toISOString().slice(0, 10), label: formatted }
   })
 }

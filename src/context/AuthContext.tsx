@@ -16,7 +16,7 @@ interface AuthContextValue {
   isLoading: boolean
   error: string | null
   signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<void>
   signOut: () => Promise<void>
   resendConfirmationEmail: (email: string) => Promise<void>
   clearError: () => void
@@ -49,9 +49,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [])
 
-  const signUp = useCallback(async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string, metadata?: Record<string, unknown>) => {
     setError(null)
-    const { error: signUpError } = await supabase.auth.signUp({ email, password })
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: metadata ? { data: metadata } : undefined,
+    })
     if (signUpError) {
       setError(signUpError.message)
       throw signUpError
