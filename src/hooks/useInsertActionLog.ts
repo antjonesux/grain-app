@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
-import type { ActionLogInsert } from '@/types/database.types'
+import { createLogEntry } from '@/lib/logging/createLogEntry'
 import type { ActionLogDuration } from '@/types/database.types'
 
 interface InsertActionLogParams {
@@ -26,20 +25,15 @@ export const useInsertActionLog = (userId: string | undefined): UseInsertActionL
       }
       setIsSubmitting(true)
       try {
-        const row: ActionLogInsert = {
-          user_id: userId,
-          journey_id: params.journeyId,
-          action_id: params.actionId,
-          log_date: params.logDate,
-          duration: params.duration,
+        const { error } = await createLogEntry({
+          userId,
+          journeyId: params.journeyId,
+          logDate: params.logDate,
+          loggedAt: new Date().toISOString(),
           note: params.note ?? null,
-        }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client inferrence with custom Database type
-        const { error: insertError } = await (supabase as any).from('action_logs').insert(row)
-        if (insertError) {
-          return { error: insertError.message }
-        }
-        return { error: null }
+          items: [{ actionId: params.actionId, duration: params.duration }],
+        })
+        return { error }
       } catch (err) {
         return {
           error: err instanceof Error ? err.message : 'Failed to save log',

@@ -139,9 +139,9 @@ export interface Database {
           id: string
           user_id: string
           journey_id: string
-          action_id: string
+          action_id: string | null
           log_date: string
-          duration: number
+          duration: number | null
           note: string | null
           logged_at: string
         }
@@ -149,9 +149,9 @@ export interface Database {
           id?: string
           user_id: string
           journey_id: string
-          action_id: string
+          action_id?: string | null
           log_date: string
-          duration: ActionLogDuration
+          duration?: ActionLogDuration | null
           note?: string | null
           logged_at?: string
         }
@@ -159,9 +159,9 @@ export interface Database {
           id?: string
           user_id?: string
           journey_id?: string
-          action_id?: string
+          action_id?: string | null
           log_date?: string
-          duration?: ActionLogDuration
+          duration?: ActionLogDuration | null
           note?: string | null
           logged_at?: string
         }

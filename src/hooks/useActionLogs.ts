@@ -10,8 +10,8 @@ interface UseActionLogsResult {
 }
 
 /**
- * Fetches action_logs for a journey on a given date.
- * Multiple rows per day are allowed (one per log entry).
+ * Fetches log items for a journey on a given date via action_log_items,
+ * joining the parent note from action_logs.
  */
 export const useActionLogsForDate = (
   journeyId: string | null,
@@ -30,9 +30,10 @@ export const useActionLogsForDate = (
     setError(null)
     setIsLoading(true)
     try {
-      const { data, error: fetchError } = await supabase
-        .from('action_logs')
-        .select('id, user_id, journey_id, action_id, log_date, duration, note, logged_at')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error: fetchError } = await (supabase as any)
+        .from('action_log_items')
+        .select('id, log_id, user_id, journey_id, action_id, duration, log_date, logged_at, action_logs(note)')
         .eq('journey_id', journeyId)
         .eq('log_date', logDate)
         .order('logged_at', { ascending: false })
@@ -43,7 +44,20 @@ export const useActionLogsForDate = (
         setIsLoading(false)
         return
       }
-      setLogs((data ?? []) as ActionLogRow[])
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mapped: ActionLogRow[] = (data ?? []).map((item: any) => ({
+        id: item.id,
+        user_id: item.user_id,
+        journey_id: item.journey_id,
+        action_id: item.action_id,
+        log_date: item.log_date,
+        duration: Number(item.duration),
+        note: item.action_logs?.note ?? null,
+        logged_at: item.logged_at,
+      }))
+
+      setLogs(mapped)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load logs')
       setLogs([])
@@ -60,8 +74,8 @@ export const useActionLogsForDate = (
 }
 
 /**
- * Fetches action_logs for a journey in a date range (inclusive).
- * Used for weekly summary: actual = SUM(duration), zero_days = days with no rows.
+ * Fetches log items for a journey in a date range (inclusive) via action_log_items.
+ * Used for weekly summary aggregation.
  */
 export const useActionLogsForRange = (
   journeyId: string | null,
@@ -81,9 +95,10 @@ export const useActionLogsForRange = (
     setError(null)
     setIsLoading(true)
     try {
-      const { data, error: fetchError } = await supabase
-        .from('action_logs')
-        .select('id, user_id, journey_id, action_id, log_date, duration, note, logged_at')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error: fetchError } = await (supabase as any)
+        .from('action_log_items')
+        .select('id, log_id, user_id, journey_id, action_id, duration, log_date, logged_at, action_logs(note)')
         .eq('journey_id', journeyId)
         .gte('log_date', startDate)
         .lte('log_date', endDate)
@@ -96,7 +111,20 @@ export const useActionLogsForRange = (
         setIsLoading(false)
         return
       }
-      setLogs((data ?? []) as ActionLogRow[])
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mapped: ActionLogRow[] = (data ?? []).map((item: any) => ({
+        id: item.id,
+        user_id: item.user_id,
+        journey_id: item.journey_id,
+        action_id: item.action_id,
+        log_date: item.log_date,
+        duration: Number(item.duration),
+        note: item.action_logs?.note ?? null,
+        logged_at: item.logged_at,
+      }))
+
+      setLogs(mapped)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load logs')
       setLogs([])
