@@ -12,6 +12,7 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
 
   const ratio = invested / commitment
   const isBonus = invested > commitment + 0.01
+  const isComplete = !isBonus && Math.abs(invested - commitment) <= 0.01
 
   if (isBonus) {
     const overflowPct = Math.min(
@@ -44,10 +45,14 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
     )
   }
 
+  const resolvedTrack: CSSProperties = isComplete
+    ? { ...trackStyle, backgroundColor: 'var(--accent, #10B981)' }
+    : trackStyle
+
   const widthPct = Math.min(ratio * 100, 100)
 
   return (
-    <div style={trackStyle}>
+    <div style={resolvedTrack}>
       <div
         style={{
           ...fillBase,
@@ -64,7 +69,7 @@ const trackStyle: CSSProperties = {
   width: '100%',
   height: 8,
   borderRadius: 4,
-  backgroundColor: 'var(--bg-elevated, #1E2130)',
+  backgroundColor: 'var(--accent-glow, #1F3D35)',
   display: 'flex',
   overflow: 'hidden',
 }

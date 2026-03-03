@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { DayRollup } from '@/hooks'
 import { getTodayStr } from '@/utils'
-import { DayCard } from './DayCard'
+import { DayCard, type DayCardProps } from './DayCard'
 
 interface WeekSectionProps {
   days: DayRollup[]
@@ -20,19 +20,20 @@ export const WeekSection = ({ days }: WeekSectionProps) => {
 
   return (
     <div style={containerStyle}>
-      <h3 style={headingStyle}>This week</h3>
+      <h3 style={headingStyle}>This Week</h3>
       <div style={listStyle}>
-        {sorted.map((day) => (
-          <DayCard
-            key={day.date}
-            label={day.label}
-            hours={day.hours}
-            logged={day.logged}
-            isToday={day.isToday}
-            isFuture={day.date > today}
-            onLog={() => navigate('/log')}
-          />
-        ))}
+        {sorted.map((day) => {
+          const cardProps: DayCardProps = {
+            label: day.label,
+            hours: day.hours,
+            actionCount: day.actionCount,
+            logged: day.logged,
+            isToday: day.isToday,
+            isFuture: day.date > today,
+            onLog: () => navigate('/log'),
+          }
+          return <DayCard key={day.date} {...cardProps} />
+        })}
       </div>
     </div>
   )
@@ -44,13 +45,11 @@ const containerStyle: CSSProperties = {
 
 const headingStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '10px',
+  fontSize: 'var(--grain-h2)',
   fontWeight: 600,
   lineHeight: '12px',
-  letterSpacing: '0.12em',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-  margin: '0 0 12px',
+  color: 'var(--text-primary)',
+  margin: '0 0 16px',
 }
 
 const listStyle: CSSProperties = {

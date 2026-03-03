@@ -14,6 +14,7 @@ export interface DayRollup {
   date: string
   label: string
   hours: number
+  actionCount: number
   logged: boolean
   isToday: boolean
 }
@@ -106,8 +107,12 @@ export const useHomeWeekData = (
     const distinctActions = new Set(items.map((i) => i.action_id)).size
 
     const hoursByDate = new Map<string, number>()
+    const actionsByDate = new Map<string, Set<string>>()
     for (const item of items) {
       hoursByDate.set(item.log_date, (hoursByDate.get(item.log_date) ?? 0) + Number(item.duration))
+      const set = actionsByDate.get(item.log_date) ?? new Set<string>()
+      set.add(item.action_id)
+      actionsByDate.set(item.log_date, set)
     }
 
     const weekDays = getWeekDays(weekStart)
@@ -115,6 +120,7 @@ export const useHomeWeekData = (
       date,
       label,
       hours: hoursByDate.get(date) ?? 0,
+      actionCount: actionsByDate.get(date)?.size ?? 0,
       logged: hoursByDate.has(date),
       isToday: date === today,
     }))

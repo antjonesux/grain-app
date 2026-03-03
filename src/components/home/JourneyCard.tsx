@@ -55,34 +55,26 @@ export const JourneyCard = ({
   bonusHours,
   createdAt,
 }: JourneyCardProps) => {
+  const navigate = useNavigate()
+
   if (state === 'no-journey') return <InactiveCard />
 
   const daysActive = getDaysActive(createdAt)
 
   return (
     <div style={cardStyle}>
-      {/* Meta row */}
+      {/* 1. Meta row */}
       <div style={metaRowStyle}>
         <span style={metaLabelStyle}>YOUR JOURNEY</span>
-        <div style={metaRightStyle}>
-          <div style={checkCircleStyle}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path
-                d="M2.5 6L5 8.5L9.5 3.5"
-                stroke="var(--status-aligned, #6EDCB1)"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <span style={daysActiveStyle}>{daysActive} days active</span>
+        <div style={pillBadgeStyle}>
+          <span style={pillBadgeTextStyle}>🔥 {daysActive} days active</span>
         </div>
       </div>
 
+      {/* 2. Destination */}
       <p style={destinationStyle}>{destination}</p>
 
-      {/* Stats — vertical stack, inline per row */}
+      {/* 3. Stats — hours invested only */}
       <div style={statsColumnStyle}>
         <div>
           <span style={statValueStyle}>{fmt(invested)}h</span>
@@ -93,28 +85,63 @@ export const JourneyCard = ({
             {fmt(bonusHours)}h beyond your commitment
           </p>
         )}
-        <div>
-          <span style={statValueStyle}>{distinctActions}</span>
-          <span style={statInlineLabelStyle}> actions logged</span>
-        </div>
       </div>
 
+      {/* 4. Progress bar */}
       <div style={barWrapStyle}>
         <ProgressBar invested={invested} commitment={commitment} />
       </div>
 
-      {state === 'bonus' ? (
-        <div style={bonusPillStyle}>
-          <span style={bonusPillTextStyle}>
-            You've reached your weekly commitment. Everything beyond this is bonus.
-          </span>
+      {/* 5. Actions logged + commitment row */}
+      <div style={belowBarRowStyle}>
+        <span style={belowBarTextStyle}>{distinctActions} actions logged</span>
+        <span style={{ ...belowBarTextStyle, flex: '1 1 0', textAlign: 'right' as const }}>
+          {commitment}h commitment
+        </span>
+      </div>
+
+      {/* 6. Warning banner */}
+      {(state === 'zero' || state === 'progress') && (
+        <div style={warningWrapStyle}>
+          <div style={warningMutedStyle}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6" stroke="var(--text-secondary, #8B8FA3)" strokeWidth="1.2"/>
+              <path d="M8 5v3.5M8 11h.01" stroke="var(--text-secondary, #8B8FA3)" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+            <span style={warningMutedTextStyle}>Nothing invested today</span>
+          </div>
         </div>
-      ) : (
-        <span style={commitmentLabelStyle}>{commitment}h commitment</span>
       )}
+
+      {(state === 'complete' || state === 'bonus') && (
+        <div style={warningWrapStyle}>
+          <div style={warningGoldStyle}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6" stroke="var(--status-drift, #D9B86C)" strokeWidth="1.2"/>
+              <path d="M8 5v3.5M8 11h.01" stroke="var(--status-drift, #D9B86C)" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+            <span style={warningGoldTextStyle}>
+              You&#39;ve reached your weekly commitment. Everything beyond this is bonus.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 7. Log your time button */}
+      <div style={{ alignSelf: 'stretch', display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+        <button
+          type="button"
+          onClick={() => navigate('/log')}
+          style={logBtnStyle}
+        >
+          <span style={logBtnTextStyle}>Log your time</span>
+        </button>
+      </div>
     </div>
   )
 }
+
+/* ── Styles ── */
 
 const cardStyle: CSSProperties = {
   backgroundColor: 'var(--bg-card)',
@@ -141,28 +168,26 @@ const metaLabelStyle: CSSProperties = {
   color: 'var(--text-muted, #7D8093)',
 }
 
-const metaRightStyle: CSSProperties = {
+const pillBadgeStyle: CSSProperties = {
+  paddingLeft: 12,
+  paddingRight: 12,
+  paddingTop: 4,
+  paddingBottom: 4,
+  background: 'var(--bg-elevated, #1E2130)',
+  borderRadius: 22,
   display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-}
-
-const checkCircleStyle: CSSProperties = {
-  width: 16,
-  height: 16,
-  borderRadius: 999,
-  background: 'var(--status-aligned-soft, #192827)',
-  display: 'flex',
-  alignItems: 'center',
   justifyContent: 'center',
+  alignItems: 'center',
+  gap: 4,
 }
 
-const daysActiveStyle: CSSProperties = {
+const pillBadgeTextStyle: CSSProperties = {
+  color: 'var(--text-secondary, #8B8FA3)',
+  fontSize: '10px',
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '19.5px',
-  color: 'var(--text-muted, #7D8093)',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.12px',
 }
 
 const destinationStyle: CSSProperties = {
@@ -173,20 +198,6 @@ const destinationStyle: CSSProperties = {
   color: 'var(--text-primary, #F0F0F5)',
   margin: 0,
   paddingBottom: 24,
-}
-
-const barWrapStyle: CSSProperties = {
-  paddingBottom: 20,
-}
-
-const commitmentLabelStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '19.5px',
-  color: 'var(--text-secondary, #8B8FA3)',
-  display: 'block',
-  paddingBottom: 8,
 }
 
 const statsColumnStyle: CSSProperties = {
@@ -217,22 +228,108 @@ const bonusBeyondStyle: CSSProperties = {
   fontSize: '13px',
   fontWeight: 400,
   lineHeight: '19.5px',
-  color: 'var(--status-drift, #D9B86C)',
+  color: 'var(--text-muted, #7D8093)',
   margin: 0,
 }
 
-const bonusPillStyle: CSSProperties = {
-  backgroundColor: 'var(--accent-soft, #1A2421)',
-  borderRadius: 22,
-  padding: '10px 16px',
+const barWrapStyle: CSSProperties = {
+  paddingBottom: 20,
 }
 
-const bonusPillTextStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
+const belowBarRowStyle: CSSProperties = {
+  alignSelf: 'stretch',
+  paddingBottom: 16,
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  gap: 8,
+}
+
+const belowBarTextStyle: CSSProperties = {
+  flex: '1 1 0',
+  color: 'var(--text-secondary, #8B8FA3)',
   fontSize: '13px',
+  fontFamily: 'var(--grain-font-sans)',
   fontWeight: 400,
   lineHeight: '19.5px',
+}
+
+const warningWrapStyle: CSSProperties = {
+  alignSelf: 'stretch',
+  paddingBottom: 16,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+}
+
+const warningMutedStyle: CSSProperties = {
+  alignSelf: 'stretch',
+  paddingLeft: 14,
+  paddingRight: 14,
+  paddingTop: 10,
+  paddingBottom: 10,
+  background: 'var(--bg-elevated, #1E2130)',
+  borderRadius: 14,
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  gap: 8,
+}
+
+const warningMutedTextStyle: CSSProperties = {
+  flex: '1 1 0',
+  color: 'var(--text-secondary, #8B8FA3)',
+  fontSize: '11px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontWeight: 400,
+  lineHeight: '16.5px',
+}
+
+const warningGoldStyle: CSSProperties = {
+  alignSelf: 'stretch',
+  paddingLeft: 14,
+  paddingRight: 14,
+  paddingTop: 10,
+  paddingBottom: 10,
+  background: 'var(--status-drift-soft, #25231F)',
+  borderRadius: 14,
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  gap: 8,
+}
+
+const warningGoldTextStyle: CSSProperties = {
+  flex: '1 1 0',
+  color: 'var(--status-drift, #D9B86C)',
+  fontSize: '11px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontWeight: 400,
+  lineHeight: '16.5px',
+}
+
+const logBtnStyle: CSSProperties = {
+  alignSelf: 'stretch',
+  paddingLeft: 12,
+  paddingRight: 12,
+  paddingTop: 4,
+  paddingBottom: 4,
+  background: 'var(--accent-soft, #1A2421)',
+  borderRadius: 22,
+  border: 'none',
+  cursor: 'pointer',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 4,
+}
+
+const logBtnTextStyle: CSSProperties = {
   color: 'var(--accent, #10B981)',
+  fontSize: '15px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontWeight: 600,
+  lineHeight: '24px',
 }
 
 const inactiveTitleStyle: CSSProperties = {
