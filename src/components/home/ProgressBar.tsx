@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'react'
 
+const COMPLETE_TOLERANCE = 0.01
+
 interface ProgressBarProps {
   invested: number
   commitment: number
@@ -11,8 +13,7 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
   }
 
   const ratio = invested / commitment
-  const isBonus = invested > commitment + 0.01
-  const isComplete = !isBonus && Math.abs(invested - commitment) <= 0.01
+  const isBonus = invested > commitment + COMPLETE_TOLERANCE
 
   if (isBonus) {
     const overflowPct = Math.min(
@@ -20,45 +21,39 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
       50,
     )
     const totalPct = 100 + overflowPct
-    const greenFrac = (100 / totalPct) * 100
-    const goldFrac = (overflowPct / totalPct) * 100
+    const greenWidthPct = (100 / totalPct) * 100
+    const goldWidthPct = (overflowPct / totalPct) * 100
 
     return (
       <div style={trackStyle}>
         <div
           style={{
-            ...fillBase,
-            width: `${greenFrac}%`,
-            backgroundColor: 'var(--accent, #10B981)',
+            ...fillStyle,
+            width: `${greenWidthPct}%`,
             borderRadius: '4px 0 0 4px',
           }}
         />
         <div
           style={{
-            ...fillBase,
-            width: `${goldFrac}%`,
-            backgroundColor: 'var(--status-drift)',
+            ...fillStyle,
+            width: `${goldWidthPct}%`,
+            backgroundColor: 'var(--accent-amber)',
             borderRadius: '0 4px 4px 0',
+            transition: 'width 240ms ease-out',
           }}
         />
       </div>
     )
   }
 
-  const resolvedTrack: CSSProperties = isComplete
-    ? { ...trackStyle, backgroundColor: 'var(--accent, #10B981)' }
-    : trackStyle
-
-  const widthPct = Math.min(ratio * 100, 100)
+  const widthPct = Math.min(Math.max(ratio * 100, 0), 100)
 
   return (
-    <div style={resolvedTrack}>
+    <div style={trackStyle}>
       <div
         style={{
-          ...fillBase,
+          ...fillStyle,
           width: `${widthPct}%`,
-          backgroundColor: 'var(--accent, #10B981)',
-          borderRadius: 4,
         }}
       />
     </div>
@@ -69,11 +64,14 @@ const trackStyle: CSSProperties = {
   width: '100%',
   height: 8,
   borderRadius: 4,
-  backgroundColor: 'var(--accent-glow, #1F3D35)',
-  display: 'flex',
+  backgroundColor: 'var(--progress-track-bg, var(--bg-elevated))',
   overflow: 'hidden',
+  display: 'flex',
 }
 
-const fillBase: CSSProperties = {
+const fillStyle: CSSProperties = {
   height: '100%',
+  borderRadius: 4,
+  backgroundColor: 'var(--accent-blue)',
+  transition: 'width 240ms ease-out',
 }

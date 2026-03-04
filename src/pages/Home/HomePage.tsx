@@ -40,34 +40,43 @@ export const HomePage = () => {
       <HomeHeader weekStart={weekStart} weekEnd={weekEnd} />
 
       {!hasJourney ? (
-        <JourneyCard
-          state="no-journey"
-          destination=""
-          invested={0}
-          commitment={0}
-          distinctActions={0}
-          bonusHours={0}
-        />
+        <div style={cardWrapStyle}>
+          <JourneyCard
+            state="no-journey"
+            destination=""
+            invested={0}
+            commitment={0}
+            distinctActions={0}
+            bonusHours={0}
+          />
+        </div>
       ) : weekLoading ? (
         <div style={loadingWrapStyle}>
           <p style={loadingTextStyle}>Loading week…</p>
         </div>
       ) : (
         <>
-          <JourneyCard
-            state={homeState}
-            destination={activeJourney!.destination}
-            invested={investedHours}
-            commitment={activeJourney!.weeklyCommitment}
-            distinctActions={distinctActions}
-            bonusHours={bonusHours}
-            createdAt={activeJourney!.createdAt}
-          />
+          <div style={cardWrapStyle}>
+            <JourneyCard
+              state={homeState}
+              destination={activeJourney!.destination}
+              invested={investedHours}
+              commitment={activeJourney!.weeklyCommitment}
+              distinctActions={distinctActions}
+              bonusHours={bonusHours}
+              createdAt={activeJourney!.createdAt}
+            />
+          </div>
           <WeekSection days={days} />
         </>
       )}
     </div>
   )
+}
+
+const cardWrapStyle: CSSProperties = {
+  paddingLeft: 24,
+  paddingRight: 24,
 }
 
 const pageStyle: CSSProperties = {

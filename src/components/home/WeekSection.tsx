@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { DayRollup } from '@/hooks'
-import { getTodayStr } from '@/utils'
 import { DayCard, type DayCardProps } from './DayCard'
 
 interface WeekSectionProps {
@@ -10,7 +9,12 @@ interface WeekSectionProps {
 
 export const WeekSection = ({ days }: WeekSectionProps) => {
   const navigate = useNavigate()
-  const today = getTodayStr()
+
+  const handleDayTap = (date: string) => {
+    const d = days.find((x) => x.date === date)
+    if (!d || d.isFuture) return
+    navigate(`/log-details/${date}`)
+  }
 
   const sorted = [...days].sort((a, b) => {
     if (a.isToday) return -1
@@ -24,13 +28,14 @@ export const WeekSection = ({ days }: WeekSectionProps) => {
       <div style={listStyle}>
         {sorted.map((day) => {
           const cardProps: DayCardProps = {
+            date: day.date,
             label: day.label,
             hours: day.hours,
             actionCount: day.actionCount,
             logged: day.logged,
             isToday: day.isToday,
-            isFuture: day.date > today,
-            onLog: () => navigate('/log'),
+            isFuture: day.isFuture,
+            onLog: handleDayTap,
           }
           return <DayCard key={day.date} {...cardProps} />
         })}

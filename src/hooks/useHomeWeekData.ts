@@ -17,6 +17,7 @@ export interface DayRollup {
   actionCount: number
   logged: boolean
   isToday: boolean
+  isFuture: boolean
 }
 
 export interface HomeWeekData {
@@ -123,6 +124,7 @@ export const useHomeWeekData = (
       actionCount: actionsByDate.get(date)?.size ?? 0,
       logged: hoursByDate.has(date),
       isToday: date === today,
+      isFuture: date > today,
     }))
 
     let homeState: HomeState

@@ -18,7 +18,13 @@ interface AppShellProps {
 export const AppShell = ({ children }: AppShellProps) => {
   const { pathname } = useLocation()
   const title = PATH_TITLES[pathname] ?? 'Home'
-  const hideHeader = ['/', '/log', '/review', '/journey'].includes(pathname)
+  const hideHeader =
+    pathname === '/' ||
+    pathname === '/log' ||
+    pathname === '/review' ||
+    pathname === '/journey' ||
+    pathname === '/settings' ||
+    pathname.startsWith('/log-details/')
 
   return (
     <div className="mx-auto flex h-dvh max-h-dvh max-w-[480px] flex-col bg-[#faf9f7]">

@@ -1,13 +1,14 @@
 import type { CSSProperties } from 'react'
 
 export interface DayCardProps {
+  date: string
   label: string
   hours: number
   actionCount: number
   logged: boolean
   isToday: boolean
   isFuture: boolean
-  onLog: () => void | Promise<void>
+  onLog: (date: string) => void | Promise<void>
 }
 
 const fmt = (h: number): string => {
@@ -16,21 +17,29 @@ const fmt = (h: number): string => {
   return h.toFixed(1)
 }
 
-const CheckIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <path d="M3.33 8l2.67 2.67 6.67-5.34" stroke="var(--accent, #10B981)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
-
 const ChevronRight = () => (
   <div style={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M6 4l4 4-4 4" stroke="var(--text-muted, #7D8093)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6 4l4 4-4 4" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   </div>
 )
 
+const ClockIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2"/>
+    <path d="M8 5v3l2 2" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+const ActionsIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <path d="M4 5h8M4 8h8M4 11h5" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round"/>
+  </svg>
+)
+
 export const DayCard = ({
+  date,
   label,
   hours,
   actionCount,
@@ -39,11 +48,9 @@ export const DayCard = ({
   isFuture,
   onLog,
 }: DayCardProps) => {
-  const labelColor = isToday
-    ? 'var(--accent, #10B981)'
-    : isFuture
-      ? 'var(--text-muted, #7D8093)'
-      : 'var(--text-secondary, #8B8FA3)'
+  const labelColor = isFuture
+    ? 'var(--text-muted)'
+    : 'var(--text-primary)'
 
   const showChevron = !isFuture
   const showPills = logged && (isToday || !isFuture)
@@ -66,11 +73,11 @@ export const DayCard = ({
       {showPills && (
         <div style={pillsRowStyle}>
           <div style={pillStyle}>
-            <CheckIcon />
+            <ClockIcon />
             <span style={pillTextStyle}>{fmt(hours)}h invested</span>
           </div>
           <div style={pillStyle}>
-            <CheckIcon />
+            <ActionsIcon />
             <span style={pillTextStyle}>{actionCount} actions logged</span>
           </div>
         </div>
@@ -81,26 +88,24 @@ export const DayCard = ({
   if (isFuture) return <div style={cardStyle}>{content}</div>
 
   return (
-    <button type="button" onClick={onLog} style={cardButtonStyle}>
+    <button type="button" onClick={() => onLog(date)} style={cardButtonStyle}>
       {content}
     </button>
   )
 }
 
 const cardStyle: CSSProperties = {
-  backgroundColor: 'var(--bg-card, #161921)',
+  backgroundColor: 'var(--bg-card)',
   borderRadius: 14,
-  border: '1px solid var(--border, #2A2D3A)',
+  border: '1px solid var(--border)',
   padding: '18px 16px',
 }
 
 const cardButtonStyle: CSSProperties = {
-  ...{
-    backgroundColor: 'var(--bg-card, #161921)',
-    borderRadius: 14,
-    border: '1px solid var(--border, #2A2D3A)',
-    padding: '18px 16px',
-  },
+  backgroundColor: 'var(--bg-card)',
+  borderRadius: 14,
+  border: '1px solid var(--border)',
+  padding: '18px 16px',
   width: '100%',
   cursor: 'pointer',
   textAlign: 'left' as const,
@@ -130,7 +135,7 @@ const goldDotStyle: CSSProperties = {
   width: 4,
   height: 4,
   borderRadius: 9999,
-  background: 'var(--status-drift, #D9B86C)',
+  background: 'var(--status-drift)',
 }
 
 const emptyTextStyle: CSSProperties = {
@@ -138,7 +143,7 @@ const emptyTextStyle: CSSProperties = {
   fontSize: '13px',
   fontWeight: 400,
   lineHeight: '19.5px',
-  color: 'var(--text-secondary, #8B8FA3)',
+  color: 'var(--text-secondary)',
 }
 
 const pillsRowStyle: CSSProperties = {
@@ -153,16 +158,16 @@ const pillStyle: CSSProperties = {
   paddingRight: 12,
   paddingTop: 4,
   paddingBottom: 4,
-  background: 'var(--bg-elevated, #1E2130)',
+  background: 'var(--bg-elevated)',
   borderRadius: 22,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: 4,
+  gap: 6,
 }
 
 const pillTextStyle: CSSProperties = {
-  color: 'var(--text-secondary, #8B8FA3)',
+  color: 'var(--text-secondary)',
   fontSize: '13px',
   fontFamily: 'var(--grain-font-sans)',
   fontWeight: 400,

@@ -17,13 +17,51 @@ Minimal. Calm. Intentional.
 All styles reference CSS custom properties from `grain-tokens.css`.
 Never hardcode colors, spacing, or font values.
 
-### Colors
-- Background: `--bg` (#0D0F14), `--bg-card` (#161921), `--bg-input` (#1C1F2A), `--bg-elevated` (#1E2130)
-- Border: `--border` (#2A2D3A)
-- Accent: `--accent` (#10B981), `--accent-soft` (#1A2421), `--accent-glow` (focused input border)
-- Text: `--text-primary` (#F0F0F5), `--text-secondary` (#8B8FA3), `--text-muted` (#7D8093)
-- Status: `--status-aligned` (#6EDCB1), `--status-aligned-soft` (#192827)
-- Status: `--status-drift` (#D9B86C), `--status-drift-soft` (#25231F)
+### Colors (Authoritative)
+
+Source of truth: **Grain — Final Color System (03/03/2026)**
+
+Base tokens:
+- Background: `--bg`, `--bg-card`, `--bg-input`, `--bg-elevated`
+- Border: `--border`, `--border-subtle`
+- Accent (Meridian): `--accent`, `--accent-soft`, `--accent-glow`
+- Text: `--text-primary`, `--text-secondary`, `--text-muted`
+- Status: `--status-aligned`, `--status-aligned-soft`, `--status-drift`, `--status-drift-soft`, `--status-misaligned`, `--status-misaligned-soft`
+
+Extended accents (semantic-only):
+- Blue (activity/data): `--accent-blue`, `--accent-blue-soft`, `--accent-blue-glow`, `--accent-blue-text`, `--accent-blue-emphasis`
+- Amber (milestones/urgency): `--accent-amber`, `--accent-amber-soft`, `--accent-amber-glow`, `--accent-amber-text`, `--accent-amber-emphasis`
+- Violet (categories/insights): `--accent-violet`, `--accent-violet-soft`, `--accent-violet-glow`, `--accent-violet-text`, `--accent-violet-emphasis`
+
+Shadows:
+- `--shadow-card`, `--shadow-elevated`, `--shadow-glow` (dark), `--shadow-input-focus` (light)
+
+### Color Usage Rules (Enforced)
+
+**Accent (`--accent`)**
+Use ONLY for elements the user should interact with or data the user should notice.
+- Use for: primary buttons, selected chips/toggles, selected hour blocks, progress arc, key metrics, active input borders, links
+- Do not use for: decorative backgrounds, non-interactive icons, body text, card backgrounds (use `--accent-soft`), status indicators
+
+**Status colors**
+Status colors appear only in data contexts (Home trajectory cards, Review, Journey). Never decorative.
+- Never on buttons
+- Never used as general text color (only inside badges/data labels)
+- Never used in onboarding
+- Use soft variants as badge/tag backgrounds
+
+**Extended accents**
+Blue/Amber/Violet are semantic-only. Never interchangeable with `--accent`.
+- Never for primary interactive elements (use `--accent`)
+- Never for status indicators
+- Never for decoration
+
+**Text hierarchy (3 levels only)**
+- `--text-primary`: headlines, body text, key data
+- `--text-secondary`: supporting descriptions, secondary data
+- `--text-muted`: labels, timestamps, placeholders, metadata
+
+No fourth text level.
 
 ### Typography
 - Logo: DM Serif Text 400
@@ -63,7 +101,7 @@ Build these first. Every onboarding screen reuses them.
 
 ### Button (4 states)
 Width 100%, radius 14px, font 13px/19.5px DM Sans, inline-flex center, gap 8px.
-- Primary: bg `--accent`, text `--bg`, weight 500, padding 16px h / 14px v
+- Primary: bg `--accent`, text `--white`, weight 500, padding 16px h / 14px v
 - Disabled: bg `--bg-input`, text `--text-muted`, weight 500, padding 16px h / 14px v
 - Outline: bg `--bg-input`, border 1px `--border`, text `--text-secondary`, weight 500, padding 16px h / 14px v
 - Ghost: transparent, text `--text-muted`, weight 400, padding 16px h / 4px v
@@ -72,7 +110,7 @@ Width 100%, radius 14px, font 13px/19.5px DM Sans, inline-flex center, gap 8px.
 Width 100%, padding-bottom 8px, space-between center.
 Logo group centered: 18×17 icon (fill --text-primary, glow shadow) + "Grain" DM Serif Text 18px, gap 8px.
 - header-logo: logo centered, no back arrow
-- header-logo-back: 20×20 chevron left (stroke 2px --text-secondary) + centered logo
+- header-logo-back: 20×20 back arrow (stroke 2px --text-secondary) + centered logo
 
 ### ProgressBar
 Separate from header. 24px padding-top, 8px padding-bottom.
@@ -84,6 +122,7 @@ Radius 22px, font 13px/19.5px DM Sans.
 - Selected: bg --accent-soft, border 1.5px --accent, text --accent 400, padding 16px h / 10px v
 - Static: bg --bg-elevated, no border, text --text-secondary 400, padding 12px h / 4px v
 - ChipButton: transparent, border 1.5px --border, text --text-secondary 400, padding 12px h / 10px v, plus icon
+  - “Custom” chip in Log/Onboarding uses dashed outline when specified by design
 
 ### HourBlock
 Padding 14px h / 8px v, radius 8px, font 13px/19.5px 500.
@@ -97,10 +136,12 @@ Header: label 10px 600 uppercase --text-muted (ls 0.12px) + Edit 10px 600 upperc
 ### Drawer
 Bg --bg-card, top-radius 22px, border 1px --border, 24px horizontal padding.
 Close: right-aligned X icon, 24px top / 8px bottom padding. Slide-up animation.
+Elevated surfaces in light mode may use `--shadow-elevated` instead of heavy borders.
 
 ### TextInput / TextArea
 Width 100%, padding 16px, bg --bg-input, radius 14px, font 13px/19.5px 400.
-Focus: border 1px --accent-glow. TextArea min-height 120px.
+Focus: border 1px or ring using `--accent-glow` (and in light mode may use `--shadow-input-focus`).
+TextArea min-height 120px.
 
 ---
 
@@ -118,8 +159,8 @@ Protected:
 - /settings
 
 Protected routes require auth.
-
 AppShell renders only when authenticated.
+(Onboarding routes may be protected but must NOT show AppShell.)
 
 ---
 
@@ -144,18 +185,22 @@ Rules:
 
 ---
 
-## Logging Pattern
+## Logging Pattern (Parent/Child Model)
 
 Logging is action-first.
 
 1. Select action
 2. Select duration
 3. Optional note
-4. Insert into action_logs
+4. Create a parent log row in `action_logs` (the “envelope”)
+5. Create one or more child rows in `action_log_items` (each action + duration)
 
 Never upsert.
 Never overwrite.
 Each tap creates a new event.
+
+Membership enforcement:
+- `journey_actions` membership MUST be enforced on inserted items.
 
 ---
 
@@ -163,10 +208,10 @@ Each tap creates a new event.
 
 Derived data only.
 
-- Weekly actual = SUM(action_logs.duration)
-- Delta = commitment − actual
-- Zero-log days = days with no rows
-- 4-week trend derived at query time
+Weekly rollups are computed from `action_log_items.duration` for the current Mon–Sun window.
+- Weekly actual = SUM(action_log_items.duration)
+- Zero-log days = days with no child rows
+- Trend windows derived at query time
 
 Do not store aggregates in frontend state beyond display.
 
@@ -176,8 +221,8 @@ Do not store aggregates in frontend state beyond display.
 
 Available Sunday evening → Monday EOD.
 
-- Pull weekly aggregate from action_logs
-- Store result in weekly_summaries
+- Pull weekly aggregate from `action_log_items` (+ join parent `action_logs` for notes when needed)
+- Store result in `weekly_summaries`
 - Yes path: optional reflection
 - No path: recalibration
 
@@ -200,7 +245,7 @@ Never refer to support_definition.
 
 ## Drift Nudges
 
-Triggers evaluate historical action_logs + weekly_summaries.
+Triggers evaluate historical `action_log_items` + `weekly_summaries`.
 
 All nudges:
 - Dismissible

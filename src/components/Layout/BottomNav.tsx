@@ -16,7 +16,11 @@ export const BottomNav = () => {
     <nav style={navStyle} role="navigation" aria-label="Primary">
       {tabs.map(tab => {
         const isActive =
-          tab.path === '/' ? pathname === '/' : pathname.startsWith(tab.path)
+          tab.path === '/'
+            ? pathname === '/' || pathname.startsWith('/log-details/')
+            : tab.path === '/log'
+              ? pathname === '/log'
+              : pathname.startsWith(tab.path)
         const color = isActive
           ? 'var(--accent, #10B981)'
           : 'var(--text-muted, #7D8093)'

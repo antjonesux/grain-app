@@ -1,10 +1,16 @@
-/* Grain Design Tokens */
+/* Grain Design Tokens
+   - Theme switching via: <html data-theme="dark"> or <html data-theme="light">
+   - App code should reference short aliases: var(--bg), var(--text-primary), var(--accent), etc.
+*/
 
 :root {
   --grain-font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
   --grain-font-serif: 'DM Serif Text', Georgia, serif;
 }
 
+/* ----------------------------- */
+/* DARK THEME                     */
+/* ----------------------------- */
 [data-theme="dark"] {
   /* Background */
   --grain-bg: #0D0F14;
@@ -16,7 +22,7 @@
   --grain-border: #2A2D3A;
   --grain-border-subtle: #222533;
 
-  /* Accent */
+  /* Brand Accent */
   --grain-accent: #10B981;
   --grain-accent-soft: #1A2421;
   --grain-accent-glow: #1F3D35;
@@ -24,68 +30,196 @@
   /* Text */
   --grain-text-primary: #F0F0F5;
   --grain-text-secondary: #8B8FA3;
-  --grain-text-muted: #7D8093;
+  --grain-text-muted: #5C6078;
 
   /* Status */
-  --grain-aligned: #6EDCB1;
-  --grain-aligned-soft: #192827;
-  --grain-drift: #D9B86C;
-  --grain-drift-soft: #25231F;
-  --grain-misaligned: #D47B7B;
-  --grain-misaligned-soft: #251C20;
+  --grain-status-aligned: #6EDCB1;
+  --grain-status-aligned-soft: rgba(110, 220, 177, 0.12);
+  --grain-status-drift: #D9B86C;
+  --grain-status-drift-soft: rgba(217, 184, 108, 0.12);
+  --grain-status-misaligned: #D47B7B;
+  --grain-status-misaligned-soft: rgba(212, 123, 123, 0.12);
+
+  /* Extended Accents (semantic-only) */
+  --grain-accent-blue: #3B82F6;
+  --grain-accent-blue-soft: #0F1E38;
+  --grain-accent-blue-glow: #1E3A5F;
+  --grain-accent-blue-text: #60A5FA;
+  --grain-accent-blue-emphasis: #93C5FD;
+
+  --grain-accent-amber: #F59E0B;
+  --grain-accent-amber-soft: #1A1205;
+  --grain-accent-amber-glow: #3D2E10;
+  --grain-accent-amber-text: #FCD34D;
+  --grain-accent-amber-emphasis: #FDE68A;
+
+  --grain-accent-violet: #8B5CF6;
+  --grain-accent-violet-soft: #120929;
+  --grain-accent-violet-glow: #2E1F5E;
+  --grain-accent-violet-text: #A78BFA;
+  --grain-accent-violet-emphasis: #C4B5FD;
+
+  /* Shadows */
+  --grain-shadow-card: none;
+  --grain-shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --grain-shadow-glow: 0 0 60px rgba(110, 128, 216, 0.06);
 
   /* White */
   --grain-white: #FFFFFF;
 
-  /* Short-form aliases (referenced by frontend rules) */
+  /* Short-form aliases (used across the app) */
   --bg: var(--grain-bg);
   --bg-card: var(--grain-bg-card);
   --bg-input: var(--grain-bg-input);
   --bg-elevated: var(--grain-bg-elevated);
+
   --border: var(--grain-border);
+  --border-subtle: var(--grain-border-subtle);
+
   --accent: var(--grain-accent);
   --accent-soft: var(--grain-accent-soft);
   --accent-glow: var(--grain-accent-glow);
+
   --text-primary: var(--grain-text-primary);
   --text-secondary: var(--grain-text-secondary);
   --text-muted: var(--grain-text-muted);
-  --status-aligned: var(--grain-aligned);
-  --status-aligned-soft: var(--grain-aligned-soft);
-  --status-drift: var(--grain-drift);
-  --status-drift-soft: var(--grain-drift-soft);
-  --status-misaligned: var(--grain-misaligned);
-  --status-misaligned-soft: var(--grain-misaligned-soft);
+
+  --status-aligned: var(--grain-status-aligned);
+  --status-aligned-soft: var(--grain-status-aligned-soft);
+  --status-drift: var(--grain-status-drift);
+  --status-drift-soft: var(--grain-status-drift-soft);
+  --status-misaligned: var(--grain-status-misaligned);
+  --status-misaligned-soft: var(--grain-status-misaligned-soft);
+
+  /* Extended accents (aliases) */
+  --accent-blue: var(--grain-accent-blue);
+  --accent-blue-soft: var(--grain-accent-blue-soft);
+  --accent-blue-glow: var(--grain-accent-blue-glow);
+  --accent-blue-text: var(--grain-accent-blue-text);
+  --accent-blue-emphasis: var(--grain-accent-blue-emphasis);
+
+  --accent-amber: var(--grain-accent-amber);
+  --accent-amber-soft: var(--grain-accent-amber-soft);
+  --accent-amber-glow: var(--grain-accent-amber-glow);
+  --accent-amber-text: var(--grain-accent-amber-text);
+  --accent-amber-emphasis: var(--grain-accent-amber-emphasis);
+
+  --accent-violet: var(--grain-accent-violet);
+  --accent-violet-soft: var(--grain-accent-violet-soft);
+  --accent-violet-glow: var(--grain-accent-violet-glow);
+  --accent-violet-text: var(--grain-accent-violet-text);
+  --accent-violet-emphasis: var(--grain-accent-violet-emphasis);
+
+  /* Shadows (aliases) */
+  --shadow-card: var(--grain-shadow-card);
+  --shadow-elevated: var(--grain-shadow-elevated);
+  --shadow-glow: var(--grain-shadow-glow);
 }
 
-/* Typography */
-:root {
-  --grain-h1: 700 22px / 1.3 var(--grain-font-sans);
-  --grain-h2: 700 18px / 1.3 var(--grain-font-sans);
-  --grain-body: 400 15px / 1.5 var(--grain-font-sans);
-  --grain-body-strong: 600 15px / 1.5 var(--grain-font-sans);
-  --grain-small: 400 13px / 1.4 var(--grain-font-sans);
-  --grain-small-medium: 500 13px / 1.4 var(--grain-font-sans);
-  --grain-caption: 400 11px / 1.4 var(--grain-font-sans);
-  --grain-label: 600 10px / 1.2 var(--grain-font-sans);
-  --grain-data-lg: 700 64px / 1.1 var(--grain-font-sans);
-  --grain-data-md: 700 24px / 1.2 var(--grain-font-sans);
-}
+/* ----------------------------- */
+/* LIGHT THEME                    */
+/* ----------------------------- */
+[data-theme="light"] {
+  /* Background */
+  --grain-bg: #F7F7F5;
+  --grain-bg-card: #FFFFFF;
+  --grain-bg-input: #EEEEE9;
+  --grain-bg-elevated: #FFFFFF;
 
-/* Spacing */
-:root {
-  --grain-space-xs: 4px;
-  --grain-space-sm: 8px;
-  --grain-space-md: 16px;
-  --grain-space-lg: 24px;
-  --grain-space-xl: 32px;
-  --grain-space-2xl: 48px;
-}
+  /* Border */
+  --grain-border: #DDDDD6;
+  --grain-border-subtle: #E8E8E2;
 
-/* Radius */
-:root {
-  --grain-radius-sm: 8px;
-  --grain-radius-md: 12px;
-  --grain-radius-lg: 14px;
-  --grain-radius-xl: 22px;
-  --grain-radius-full: 999px;
+  /* Brand Accent (Meridian - light) */
+  --grain-accent: #5063B8;
+  --grain-accent-soft: #E7E8EF;
+  --grain-accent-glow: #D6D9E9;
+
+  /* Text */
+  --grain-text-primary: #1A1A1F;
+  --grain-text-secondary: #3E3E47;
+  --grain-text-muted: #71717B;
+
+  /* Status */
+  --grain-status-aligned: #21805F;
+  --grain-status-aligned-soft: #E2EBE6;
+  --grain-status-drift: #896E23;
+  --grain-status-drift-soft: #ECE9E0;
+  --grain-status-misaligned: #B85151;
+  --grain-status-misaligned-soft: #ECE9E0;
+
+  /* Extended Accents (semantic-only) */
+  --grain-accent-blue: #2563EB;
+  --grain-accent-blue-soft: #EEF2FF;
+  --grain-accent-blue-glow: #DBEAFE;
+  --grain-accent-blue-text: #1D4ED8;
+  --grain-accent-blue-emphasis: #1E40AF;
+
+  --grain-accent-amber: #92400E;
+  --grain-accent-amber-soft: #FFFBEB;
+  --grain-accent-amber-glow: #FEF3C7;
+  --grain-accent-amber-text: #78350F;
+  --grain-accent-amber-emphasis: #451A03;
+
+  --grain-accent-violet: #6D28D9;
+  --grain-accent-violet-soft: #F5F3FF;
+  --grain-accent-violet-glow: #EDE9FE;
+  --grain-accent-violet-text: #5B21B6;
+  --grain-accent-violet-emphasis: #4C1D95;
+
+  /* Shadows */
+  --grain-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --grain-shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --grain-shadow-input-focus: 0 0 0 3px rgba(84, 104, 192, 0.20);
+
+  /* White */
+  --grain-white: #FFFFFF;
+
+  /* Short-form aliases */
+  --bg: var(--grain-bg);
+  --bg-card: var(--grain-bg-card);
+  --bg-input: var(--grain-bg-input);
+  --bg-elevated: var(--grain-bg-elevated);
+
+  --border: var(--grain-border);
+  --border-subtle: var(--grain-border-subtle);
+
+  --accent: var(--grain-accent);
+  --accent-soft: var(--grain-accent-soft);
+  --accent-glow: var(--grain-accent-glow);
+
+  --text-primary: var(--grain-text-primary);
+  --text-secondary: var(--grain-text-secondary);
+  --text-muted: var(--grain-text-muted);
+
+  --status-aligned: var(--grain-status-aligned);
+  --status-aligned-soft: var(--grain-status-aligned-soft);
+  --status-drift: var(--grain-status-drift);
+  --status-drift-soft: var(--grain-status-drift-soft);
+  --status-misaligned: var(--grain-status-misaligned);
+  --status-misaligned-soft: var(--grain-status-misaligned-soft);
+
+  /* Extended accents (aliases) */
+  --accent-blue: var(--grain-accent-blue);
+  --accent-blue-soft: var(--grain-accent-blue-soft);
+  --accent-blue-glow: var(--grain-accent-blue-glow);
+  --accent-blue-text: var(--grain-accent-blue-text);
+  --accent-blue-emphasis: var(--grain-accent-blue-emphasis);
+
+  --accent-amber: var(--grain-accent-amber);
+  --accent-amber-soft: var(--grain-accent-amber-soft);
+  --accent-amber-glow: var(--grain-accent-amber-glow);
+  --accent-amber-text: var(--grain-accent-amber-text);
+  --accent-amber-emphasis: var(--grain-accent-amber-emphasis);
+
+  --accent-violet: var(--grain-accent-violet);
+  --accent-violet-soft: var(--grain-accent-violet-soft);
+  --accent-violet-glow: var(--grain-accent-violet-glow);
+  --accent-violet-text: var(--grain-accent-violet-text);
+  --accent-violet-emphasis: var(--grain-accent-violet-emphasis);
+
+  /* Shadows (aliases) */
+  --shadow-card: var(--grain-shadow-card);
+  --shadow-elevated: var(--grain-shadow-elevated);
+  --shadow-input-focus: var(--grain-shadow-input-focus);
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { ThemeProvider } from '@/context/ThemeContext'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { ProtectedRoute } from '@/components/Layout/ProtectedRoute'
 import { AppShell } from '@/components/Layout/AppShell'
@@ -11,6 +12,7 @@ import { HomePage } from '@/pages/Home/HomePage'
 import { LogPage } from '@/pages/Log/LogPage'
 import { ReviewPage } from '@/pages/Review/ReviewPage'
 import { JourneyPage } from '@/pages/Journey/JourneyPage'
+import { LogDetailsPage } from '@/pages/LogDetails/LogDetailsPage'
 import { SettingsPage } from '@/pages/Settings/SettingsPage'
 
 const AuthLoadingScreen = () => (
@@ -122,6 +124,14 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/log-details/:date"
+        element={
+          <AuthenticatedLayout>
+            <LogDetailsPage />
+          </AuthenticatedLayout>
+        }
+      />
+      <Route
         path="/review"
         element={
           <AuthenticatedLayout>
@@ -154,9 +164,11 @@ const AppRoutes = () => {
 }
 
 export const App = () => (
-  <AuthProvider>
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  </AuthProvider>
+  <ThemeProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
+  </ThemeProvider>
 )

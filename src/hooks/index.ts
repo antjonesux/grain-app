@@ -9,6 +9,9 @@ export { useActionsForJourney, type ActionForJourney } from './useActionsForJour
 export {
   useActionLogsForDate,
   useActionLogsForRange,
+  useLogDetailsForDate,
+  type LogDetailEntry,
+  type UseLogDetailsForDateResult,
 } from './useActionLogs'
 export { useInsertActionLog } from './useInsertActionLog'
 export {

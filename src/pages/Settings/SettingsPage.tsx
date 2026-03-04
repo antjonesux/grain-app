@@ -11,7 +11,10 @@
 import { type CSSProperties, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useTheme } from '@/context/ThemeContext'
+import type { ThemeMode } from '@/lib/theme/theme'
 import { supabase } from '@/lib/supabaseClient'
+import { Chip } from '@/components/onboarding/Chip'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { Drawer } from '@/components/onboarding/Drawer'
 
@@ -65,6 +68,23 @@ const sectionLabelStyle: CSSProperties = {
   textTransform: 'uppercase',
   color: 'var(--text-muted)',
   paddingTop: '32px',
+  margin: 0,
+}
+
+const chipsRowStyle: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '8px',
+  paddingTop: '8px',
+}
+
+const helperStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  lineHeight: '16.5px',
+  fontWeight: 400,
+  color: 'var(--text-muted)',
+  paddingTop: '8px',
   margin: 0,
 }
 
@@ -159,9 +179,16 @@ const ArrowLeft = () => (
 export const SettingsPage = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
+  const { mode, setMode } = useTheme()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  const themeOptions: { value: ThemeMode; label: string }[] = [
+    { value: 'dark', label: 'Dark' },
+    { value: 'light', label: 'Light' },
+    { value: 'system', label: 'System' },
+  ]
 
   const handleSignOut = async () => {
     await signOut()
@@ -227,6 +254,21 @@ export const SettingsPage = () => {
         </button>
         <h1 style={headerTitleStyle}>Settings</h1>
       </header>
+
+      <p style={sectionLabelStyle}>Theme</p>
+      <div style={chipsRowStyle}>
+        {themeOptions.map(({ value, label }) => (
+          <Chip
+            key={value}
+            label={label}
+            variant={mode === value ? 'selected' : 'unselected'}
+            onClick={() => setMode(value)}
+          />
+        ))}
+      </div>
+      <p style={helperStyle}>
+        {mode === 'system' ? 'Matches your device setting.' : 'Saved on this device.'}
+      </p>
 
       <p style={sectionLabelStyle}>Account</p>
       <p style={emailStyle}>{user?.email ?? 'Unknown'}</p>

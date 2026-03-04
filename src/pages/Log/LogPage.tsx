@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useState, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Calendar, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useJourneys, useActionsForJourney } from '@/hooks'
@@ -28,6 +28,9 @@ const getLocalDateString = (date: Date): string => {
   const d = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}`
 }
+
+const isValidDateParam = (s: string | null): s is string =>
+  !!s && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + 'T00:00:00'))
 
 const DURATION_OPTIONS: { label: string; value: number }[] = [
   { label: '30m', value: 0.5 },
@@ -73,6 +76,15 @@ const ArrowLeft = () => (
 
 export const LogPage = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const dateParam = searchParams.get('date')
+  const initialLogDate = isValidDateParam(dateParam)
+    ? dateParam
+    : getLocalDateString(new Date())
+  const [logDate, setLogDate] = useState(initialLogDate)
+  useEffect(() => {
+    if (isValidDateParam(dateParam)) setLogDate(dateParam)
+  }, [dateParam])
   const { user } = useAuth()
   const { primaryJourney, journeys, isLoading: journeysLoading, refetch: refetchJourneys } = useJourneys()
   const defaultJourney = primaryJourney ?? journeys[0] ?? null
@@ -103,7 +115,6 @@ export const LogPage = () => {
   const displayJourney = selectedJourney ?? defaultJourney
 
   const canSave = Boolean(selectedActionId && selectedDurationHours != null && selectedDurationHours > 0)
-  const logDate = getLocalDateString(new Date())
 
   const handleAttachCustomAction = useCallback(async () => {
     const title = customActionTitle.trim()
@@ -257,15 +268,17 @@ export const LogPage = () => {
           <div style={innerContainer}>
             <div>
               <div style={headerStyle}>
-                <button type="button" style={backBtnStyle} onClick={() => navigate(-1)} aria-label="Go back">
-                  <ArrowLeft />
-                </button>
-                <h1 style={titleStyle}>Log your time</h1>
-              </div>
+              <button type="button" style={backBtnStyle} onClick={() => navigate(-1)} aria-label="Go back">
+                <ArrowLeft />
+              </button>
+              <h1 style={titleStyle}>Log your time</h1>
+            </div>
 
               <div style={dateRowStyle}>
                 <Calendar size={20} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                <span style={dateTextStyle}>{formatDateShort(new Date())}</span>
+                <span style={dateTextStyle}>
+                  {formatDateShort(new Date(logDate + 'T12:00:00'))}
+                </span>
               </div>
 
               <div style={journeySelectWrap}>
