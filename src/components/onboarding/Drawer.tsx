@@ -1,4 +1,11 @@
-import { type ReactNode, type CSSProperties, useEffect } from 'react'
+import {
+  type ReactNode,
+  type CSSProperties,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from 'react'
 
 interface DrawerProps {
   isOpen: boolean
@@ -8,15 +15,18 @@ interface DrawerProps {
   children: ReactNode
 }
 
-const overlayStyle: CSSProperties = {
+const ENTER_DURATION = 260
+const EXIT_DURATION = 280
+const BACKDROP_ENTER = 180
+
+const overlayBase: CSSProperties = {
   position: 'fixed',
   inset: 0,
   background: 'rgba(0, 0, 0, 0.6)',
   zIndex: 50,
-  transition: 'opacity 300ms ease',
 }
 
-const drawerStyle: CSSProperties = {
+const drawerBase: CSSProperties = {
   position: 'fixed',
   bottom: 0,
   left: 0,
@@ -28,7 +38,6 @@ const drawerStyle: CSSProperties = {
   border: '1px solid var(--border)',
   borderBottom: 'none',
   zIndex: 51,
-  transition: 'transform 300ms ease',
   boxSizing: 'border-box',
   maxHeight: '90vh',
   overflowY: 'auto',
@@ -68,7 +77,7 @@ const subtitleStyle: CSSProperties = {
   fontSize: '13px',
   lineHeight: '19.5px',
   fontWeight: 400,
-  color: 'var(--text-muted)',
+  color: 'var(--text-secondary)',
   paddingBottom: '20px',
 }
 
@@ -95,16 +104,65 @@ export const Drawer = ({
   subtitle,
   children,
 }: DrawerProps) => {
+  const [mounted, setMounted] = useState(false)
+  const [visible, setVisible] = useState(false)
+  const exitTimer = useRef<ReturnType<typeof setTimeout>>()
+  const enterTimer = useRef<ReturnType<typeof setTimeout>>()
+
   useEffect(() => {
     if (isOpen) {
+      setMounted(true)
+      enterTimer.current = setTimeout(() => setVisible(true), 16)
+    } else if (mounted) {
+      setVisible(false)
+      exitTimer.current = setTimeout(() => setMounted(false), EXIT_DURATION)
+    }
+    return () => {
+      clearTimeout(enterTimer.current)
+      clearTimeout(exitTimer.current)
+    }
+  }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (mounted) {
       document.body.style.overflow = 'hidden'
       return () => {
         document.body.style.overflow = ''
       }
     }
-  }, [isOpen])
+  }, [mounted])
 
-  if (!isOpen) return null
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    },
+    [onClose],
+  )
+
+  useEffect(() => {
+    if (mounted) {
+      document.addEventListener('keydown', handleKeyDown)
+      return () => document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [mounted, handleKeyDown])
+
+  if (!mounted) return null
+
+  const overlayStyle: CSSProperties = {
+    ...overlayBase,
+    opacity: visible ? 1 : 0,
+    transition: visible
+      ? `opacity ${BACKDROP_ENTER}ms ease`
+      : `opacity ${EXIT_DURATION}ms ease`,
+  }
+
+  const sheetStyle: CSSProperties = {
+    ...drawerBase,
+    transform: visible ? 'translateY(0)' : 'translateY(100%)',
+    transition: visible
+      ? `transform ${ENTER_DURATION}ms cubic-bezier(0.16, 1, 0.3, 1)`
+      : `transform ${EXIT_DURATION}ms cubic-bezier(0.4, 0, 1, 1)`,
+  }
 
   return (
     <>
@@ -117,7 +175,7 @@ export const Drawer = ({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        style={drawerStyle}
+        style={sheetStyle}
       >
         <div style={closeRowStyle}>
           <button

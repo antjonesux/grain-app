@@ -41,6 +41,7 @@ const blockCard: CSSProperties = {
 const blockElevated: CSSProperties = {
   ...blockBase,
   background: 'var(--bg-elevated)',
+  border: '1px solid var(--border)',
   padding: '10px 14px',
   gap: 6,
 }

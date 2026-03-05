@@ -8,6 +8,7 @@ import { WelcomeScreen } from '@/pages/Onboarding/WelcomeScreen'
 import { DRAFT_KEY, OnboardingPage } from '@/pages/Onboarding/OnboardingPage'
 import { LoginPage } from '@/pages/Auth/LoginPage'
 import { SignupPage } from '@/pages/Auth/SignupPage'
+import { ResetPasswordPage } from '@/pages/ResetPassword/ResetPasswordPage'
 import { HomePage } from '@/pages/Home/HomePage'
 import { LogPage } from '@/pages/Log/LogPage'
 import { ReviewPage } from '@/pages/Review/ReviewPage'
@@ -102,6 +103,11 @@ const AppRoutes = () => {
       <Route
         path="/signup"
         element={isAuthed ? <Navigate to="/" replace /> : <SignupPage />}
+      />
+      {/* Supabase Auth redirect URL must include: https://<your-domain>/reset-password */}
+      <Route
+        path="/reset-password"
+        element={<ResetPasswordPage />}
       />
       <Route
         path="/"

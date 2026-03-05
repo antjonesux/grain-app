@@ -24,7 +24,16 @@ export const WeekSection = ({ days }: WeekSectionProps) => {
 
   return (
     <div style={containerStyle}>
-      <h3 style={headingStyle}>This Week</h3>
+      <div style={headerRowStyle}>
+        <h3 style={titleStyle}>This Week</h3>
+        <button
+          type="button"
+          onClick={() => navigate('/log')}
+          style={addLogButtonStyle}
+        >
+          + Add Log
+        </button>
+      </div>
       <div style={listStyle}>
         {sorted.map((day) => {
           const cardProps: DayCardProps = {
@@ -48,13 +57,36 @@ const containerStyle: CSSProperties = {
   padding: '24px 24px 32px',
 }
 
-const headingStyle: CSSProperties = {
+const headerRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 16,
+}
+
+const titleStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
   fontSize: 'var(--grain-h2)',
   fontWeight: 600,
   lineHeight: '12px',
   color: 'var(--text-primary)',
-  margin: '0 0 16px',
+  margin: 0,
+}
+
+const addLogButtonStyle: CSSProperties = {
+  background: 'var(--accent-soft)',
+  borderRadius: 22,
+  paddingLeft: 12,
+  paddingRight: 12,
+  paddingTop: 4,
+  paddingBottom: 4,
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 500,
+  lineHeight: '19.5px',
+  color: 'var(--accent)',
+  border: 'none',
+  cursor: 'pointer',
 }
 
 const listStyle: CSSProperties = {

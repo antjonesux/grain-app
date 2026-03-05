@@ -66,11 +66,9 @@ export const JourneyCard = ({
   invested,
   commitment,
   distinctActions,
-  bonusHours: _bonusHours,
+  bonusHours,
   createdAt,
 }: JourneyCardProps) => {
-  const navigate = useNavigate()
-
   if (state === 'no-journey') return <InactiveCard />
 
   const daysActive = getDaysActive(createdAt)
@@ -108,7 +106,12 @@ export const JourneyCard = ({
       <div style={{ paddingBottom: 16 }}>
         <div style={progressLabelRowStyle}>
           <span style={progressLabelStyle}>Progress</span>
-          <span style={progressLabelStyle}>{displayPercent}%</span>
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <span style={progressLabelStyle}>{displayPercent}%</span>
+            {isBonus && (
+              <span style={bonusLabelStyle}>+{fmt(bonusHours)}h bonus</span>
+            )}
+          </div>
         </div>
         <ProgressBar invested={invested} commitment={commitment} />
         <div style={commitmentCaptionRowStyle}>
@@ -118,23 +121,20 @@ export const JourneyCard = ({
 
       {/* E) Completion / Bonus message */}
       {(isComplete || isBonus) && (
-        <div style={{ paddingBottom: 16 }}>
-          <div style={warningGoldStyle}>
-            <span style={warningGoldTextStyle}>
-              You&#39;ve reached your weekly commitment. Everything beyond this is bonus.
+        <div style={trophyBannerStyle}>
+          <span style={isBonus ? trophyIconBonusStyle : trophyIconCompleteStyle}>🏆</span>
+          <div style={{ flex: 1 }}>
+            <span style={trophyTitleStyle}>
+              {isBonus ? 'Weekly commitment crushed!' : 'Weekly commitment complete!'}
+            </span>
+            <span style={trophyBodyStyle}>
+              {isBonus
+                ? `You've logged ${fmt(bonusHours)} bonus hours beyond your commitment.`
+                : `You hit your ${commitment}h goal.`}
             </span>
           </div>
         </div>
       )}
-
-      {/* F) CTA */}
-      <button
-        type="button"
-        onClick={() => navigate('/log')}
-        style={logBtnStyle}
-      >
-        Log your time
-      </button>
     </div>
   )
 }
@@ -211,6 +211,14 @@ const progressLabelStyle: CSSProperties = {
   color: 'var(--text-secondary)',
 }
 
+const bonusLabelStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  fontWeight: 600,
+  lineHeight: '16.5px',
+  color: 'var(--accent-amber)',
+}
+
 const commitmentCaptionRowStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
@@ -225,40 +233,47 @@ const commitmentCaptionStyle: CSSProperties = {
   color: 'var(--text-secondary)',
 }
 
-const warningGoldStyle: CSSProperties = {
+const trophyBannerStyle: CSSProperties = {
   padding: '10px 14px',
-  background: 'var(--accent-amber-soft)',
+  background: 'var(--bg-elevated)',
+  border: '1px solid var(--border)',
   borderRadius: 14,
   display: 'flex',
   alignItems: 'center',
+  gap: 8,
+  marginBottom: 0,
 }
 
-const warningGoldTextStyle: CSSProperties = {
-  color: 'var(--accent-amber-text)',
-  fontSize: '13px',
+const trophyIconCompleteStyle: CSSProperties = {
+  fontSize: 18,
   fontFamily: 'var(--grain-font-sans)',
+  fontWeight: 700,
+  lineHeight: '23.4px',
+  color: 'var(--accent-violet)',
+  flexShrink: 0,
+}
+
+const trophyIconBonusStyle: CSSProperties = {
+  ...trophyIconCompleteStyle,
+  color: 'var(--accent-amber)',
+}
+
+const trophyTitleStyle: CSSProperties = {
+  display: 'block',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  fontWeight: 700,
+  lineHeight: '16.5px',
+  color: 'var(--text-primary)',
+}
+
+const trophyBodyStyle: CSSProperties = {
+  display: 'block',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
   fontWeight: 400,
-  lineHeight: '19.5px',
-}
-
-const logBtnStyle: CSSProperties = {
-  width: '100%',
-  paddingLeft: 12,
-  paddingRight: 12,
-  paddingTop: 4,
-  paddingBottom: 4,
-  background: 'var(--accent-soft)',
-  borderRadius: 22,
-  border: 'none',
-  cursor: 'pointer',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '19.5px',
-  color: 'var(--accent)',
+  lineHeight: '16.5px',
+  color: 'var(--text-primary)',
 }
 
 const inactiveTitleStyle: CSSProperties = {

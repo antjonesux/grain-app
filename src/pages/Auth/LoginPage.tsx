@@ -5,6 +5,7 @@ import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader'
 import { TextInput } from '@/components/onboarding/TextInput'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
+import { ForgotPasswordDrawer } from './ForgotPasswordDrawer'
 
 interface LoginPageProps {
   showOAuth?: boolean
@@ -146,6 +147,27 @@ const submitDisabledStyle: CSSProperties = {
   cursor: 'not-allowed',
 }
 
+const forgotPasswordWrapStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+}
+
+const forgotPasswordBtnStyle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  lineHeight: '19.5px',
+  fontWeight: 400,
+  color: 'var(--text-secondary)',
+  textDecoration: 'underline',
+  background: 'none',
+  border: 'none',
+  padding: '4px 0',
+  cursor: 'pointer',
+  textAlign: 'center',
+  width: '100%',
+}
+
 const dividerWrapperStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
@@ -215,6 +237,7 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
   const [showPassword, setShowPassword] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [forgotDrawerOpen, setForgotDrawerOpen] = useState(false)
 
   const canSubmit = email.trim() !== '' && password !== ''
 
@@ -285,13 +308,22 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={isDisabled}
-          style={isDisabled ? submitDisabledStyle : submitEnabledStyle}
-        >
-          {isSubmitting ? 'Signing In…' : 'Sign In'}
-        </button>
+        <div style={forgotPasswordWrapStyle}>
+          <button
+            type="submit"
+            disabled={isDisabled}
+            style={isDisabled ? submitDisabledStyle : submitEnabledStyle}
+          >
+            {isSubmitting ? 'Signing In…' : 'Sign In'}
+          </button>
+          <button
+            type="button"
+            style={forgotPasswordBtnStyle}
+            onClick={() => setForgotDrawerOpen(true)}
+          >
+            Forgot Password?
+          </button>
+        </div>
 
         {showOAuth && (
           <>
@@ -317,6 +349,12 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
           </InlineLinkButton>
         </p>
       </div>
+
+      <ForgotPasswordDrawer
+        isOpen={forgotDrawerOpen}
+        onClose={() => setForgotDrawerOpen(false)}
+        initialEmail={email.trim()}
+      />
     </div>
   )
 }

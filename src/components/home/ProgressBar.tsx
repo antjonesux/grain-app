@@ -31,6 +31,7 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
             ...fillStyle,
             width: `${greenWidthPct}%`,
             borderRadius: '4px 0 0 4px',
+            boxShadow: fillGlowFull,
           }}
         />
         <div
@@ -47,6 +48,7 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
   }
 
   const widthPct = Math.min(Math.max(ratio * 100, 0), 100)
+  const atOrBeyondFull = ratio >= 1
 
   return (
     <div style={trackStyle}>
@@ -54,6 +56,7 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
         style={{
           ...fillStyle,
           width: `${widthPct}%`,
+          boxShadow: atOrBeyondFull ? fillGlowFull : fillGlowSub,
         }}
       />
     </div>
@@ -75,3 +78,6 @@ const fillStyle: CSSProperties = {
   backgroundColor: 'var(--accent-blue)',
   transition: 'width 240ms ease-out',
 }
+
+const fillGlowSub = '0px 0px 8px 1px rgba(59, 130, 246, 0.30)'
+const fillGlowFull = '0px 0px 8px 1px rgba(59, 130, 246, 0.70)'

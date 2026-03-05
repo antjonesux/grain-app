@@ -1,163 +1,21 @@
-/**
- * Deployment:
- *   supabase functions deploy delete-account
- *
- * Required secrets (set via supabase secrets set):
- *   SUPABASE_URL
- *   SUPABASE_ANON_KEY
- *   SUPABASE_SERVICE_ROLE_KEY
- */
-
-import { type CSSProperties, useState } from 'react'
+import { type CSSProperties, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import type { ThemeMode } from '@/lib/theme/theme'
-import { supabase } from '@/lib/supabaseClient'
-import { Chip } from '@/components/onboarding/Chip'
-import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
-import { Drawer } from '@/components/onboarding/Drawer'
+import { NameDrawer } from './NameDrawer'
+import { EmailDrawer } from './EmailDrawer'
+import { PasswordDrawer } from './PasswordDrawer'
+import { AppearanceDrawer } from './AppearanceDrawer'
+import { SignOutDrawer } from './SignOutDrawer'
+import { DeleteAccountDrawer } from './DeleteAccountDrawer'
 
-const screen: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: '100dvh',
-  padding: '0 24px',
-  background: 'var(--bg)',
-}
+type ActiveDrawer = 'name' | 'email' | 'password' | 'appearance' | 'signout' | 'delete' | null
 
-const headerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  paddingTop: '28px',
-  paddingBottom: '8px',
-  position: 'relative',
-}
+const themeLabel = (mode: ThemeMode): string =>
+  mode === 'dark' ? 'Dark' : mode === 'light' ? 'Light' : 'System'
 
-const backButtonStyle: CSSProperties = {
-  background: 'none',
-  border: 'none',
-  padding: 0,
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '20px',
-  height: '20px',
-  flexShrink: 0,
-}
-
-const headerTitleStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '22px',
-  fontWeight: 700,
-  lineHeight: '28.6px',
-  color: 'var(--text-primary)',
-  margin: 0,
-  flex: 1,
-  textAlign: 'center',
-  paddingRight: '20px',
-}
-
-const sectionLabelStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '10px',
-  fontWeight: 600,
-  lineHeight: '12px',
-  letterSpacing: '0.12px',
-  textTransform: 'uppercase',
-  color: 'var(--text-muted)',
-  paddingTop: '32px',
-  margin: 0,
-}
-
-const chipsRowStyle: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '8px',
-  paddingTop: '8px',
-}
-
-const helperStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '11px',
-  lineHeight: '16.5px',
-  fontWeight: 400,
-  color: 'var(--text-muted)',
-  paddingTop: '8px',
-  margin: 0,
-}
-
-const emailStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 400,
-  lineHeight: '19.5px',
-  color: 'var(--text-secondary)',
-  paddingTop: '8px',
-  margin: 0,
-}
-
-const actionsZone: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  paddingTop: '28px',
-  gap: '12px',
-}
-
-const destructiveLinkStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '19.5px',
-  color: 'var(--status-misaligned)',
-  background: 'none',
-  border: 'none',
-  padding: '4px 0 0 0',
-  cursor: 'pointer',
-  transition: 'opacity 150ms ease',
-}
-
-const drawerBody: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '16px',
-  paddingBottom: '32px',
-}
-
-const drawerActions: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-}
-
-const destructiveButtonStyle: CSSProperties = {
-  width: '100%',
-  borderRadius: '14px',
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  lineHeight: '19.5px',
-  fontWeight: 500,
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '14px 16px',
-  background: 'var(--status-misaligned)',
-  color: 'var(--bg)',
-  border: 'none',
-  cursor: 'pointer',
-  transition: 'opacity 150ms ease',
-}
-
-const errorStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 400,
-  lineHeight: '19.5px',
-  color: 'var(--status-misaligned)',
-  margin: 0,
-}
+/* ---------- SVG icons ---------- */
 
 const ArrowLeft = () => (
   <svg
@@ -176,142 +34,288 @@ const ArrowLeft = () => (
   </svg>
 )
 
+const ChevronRight = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path
+      d="M6 4L10 8L6 12"
+      stroke="var(--text-muted)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
+/* ---------- styles ---------- */
+
+const screen: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: '100dvh',
+  padding: '0 24px',
+  background: 'var(--bg)',
+}
+
+const headerBlock: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  paddingTop: 20,
+  paddingBottom: 8,
+  gap: 12,
+}
+
+const backBtn: CSSProperties = {
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '20px',
+  height: '20px',
+}
+
+const pageTitle: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '22px',
+  fontWeight: 700,
+  lineHeight: '28.6px',
+  color: 'var(--text-primary)',
+  margin: 0,
+}
+
+const section: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  paddingBottom: '20px',
+  gap: '12px',
+}
+
+const sectionLabel: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '10px',
+  fontWeight: 600,
+  lineHeight: '12px',
+  letterSpacing: '0.12px',
+  textTransform: 'uppercase',
+  color: 'var(--text-muted)',
+  margin: 0,
+}
+
+const card: CSSProperties = {
+  background: 'var(--bg-card)',
+  borderRadius: '14px',
+  border: '1px solid var(--border)',
+  padding: '18px 16px',
+}
+
+const rowStyle = (hasBorder: boolean): CSSProperties => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  cursor: 'pointer',
+  background: 'none',
+  borderTop: 'none',
+  borderLeft: 'none',
+  borderRight: 'none',
+  borderBottom: hasBorder ? '1px solid var(--border)' : 'none',
+  width: '100%',
+  textAlign: 'left',
+  paddingTop: 0,
+  paddingLeft: 0,
+  paddingRight: 0,
+  paddingBottom: hasBorder ? '12px' : 0,
+})
+
+const rowLabel: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '15px',
+  fontWeight: 400,
+  lineHeight: '24px',
+  color: 'var(--text-primary)',
+}
+
+const rowRight: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+}
+
+const rowValue: CSSProperties = {
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  fontWeight: 400,
+  lineHeight: '19.5px',
+  color: 'var(--text-muted)',
+}
+
+const signOutBtn: CSSProperties = {
+  width: '100%',
+  padding: '14px 16px',
+  background: 'var(--bg-card)',
+  borderRadius: '14px',
+  border: '1px solid var(--border)',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  lineHeight: '19.5px',
+  fontWeight: 500,
+  color: 'var(--text-primary)',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '8px',
+  boxSizing: 'border-box',
+}
+
+const deleteBtn: CSSProperties = {
+  width: '100%',
+  padding: '4px 16px',
+  borderRadius: '14px',
+  background: 'none',
+  border: 'none',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '13px',
+  lineHeight: '19.5px',
+  fontWeight: 400,
+  color: 'var(--status-misaligned)',
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '8px',
+}
+
+/* ---------- component ---------- */
+
 export const SettingsPage = () => {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
   const { mode, setMode } = useTheme()
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [deleteError, setDeleteError] = useState<string | null>(null)
-  const [deleting, setDeleting] = useState(false)
 
-  const themeOptions: { value: ThemeMode; label: string }[] = [
-    { value: 'dark', label: 'Dark' },
-    { value: 'light', label: 'Light' },
-    { value: 'system', label: 'System' },
-  ]
+  const [activeDrawer, setActiveDrawer] = useState<ActiveDrawer>(null)
+
+  const userName =
+    user?.user_metadata?.first_name ??
+    user?.user_metadata?.name ??
+    ''
+  const [displayName, setDisplayName] = useState(userName)
+  const userEmail = user?.email ?? ''
+
+  const close = useCallback(() => setActiveDrawer(null), [])
 
   const handleSignOut = async () => {
     await signOut()
     navigate('/welcome', { replace: true })
   }
 
-  const openDeleteDrawer = () => {
-    setDeleteError(null)
-    setShowDeleteConfirm(true)
-  }
-
-  const closeDeleteDrawer = () => {
-    if (deleting) return
-    setShowDeleteConfirm(false)
-  }
-
-  const deleteAccount = async () => {
-    if (deleting) return
-
-    setDeleting(true)
-    setDeleteError(null)
-
-    const { error, response } = await supabase.functions.invoke(
-      'delete-account',
-      { method: 'POST' },
-    )
-
-    if (error) {
-      let msg = 'Something went wrong. Try again.'
-      const res = response ?? error.context
-      if (res && typeof res.json === 'function') {
-        try {
-          const body = await res.clone().json()
-          msg = body?.error ?? body?.message ?? msg
-        } catch {
-          try {
-            msg = await res.clone().text()
-          } catch { /* exhausted */ }
-        }
-      } else if (error.message) {
-        msg = error.message
-      }
-      console.error('delete-account error', { status: res?.status, msg, error })
-      setDeleteError(msg)
-      setDeleting(false)
-      return
-    }
-
+  const handleDeleted = async () => {
     await signOut()
     navigate('/welcome', { replace: true })
   }
 
   return (
     <div style={screen}>
-      <header style={headerStyle}>
-        <button
-          type="button"
-          style={backButtonStyle}
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-        >
+      {/* Header */}
+      <div style={headerBlock}>
+        <button type="button" style={backBtn} onClick={() => navigate(-1)} aria-label="Go back">
           <ArrowLeft />
         </button>
-        <h1 style={headerTitleStyle}>Settings</h1>
-      </header>
-
-      <p style={sectionLabelStyle}>Theme</p>
-      <div style={chipsRowStyle}>
-        {themeOptions.map(({ value, label }) => (
-          <Chip
-            key={value}
-            label={label}
-            variant={mode === value ? 'selected' : 'unselected'}
-            onClick={() => setMode(value)}
-          />
-        ))}
+        <h1 style={pageTitle}>Settings</h1>
       </div>
-      <p style={helperStyle}>
-        {mode === 'system' ? 'Matches your device setting.' : 'Saved on this device.'}
-      </p>
 
-      <p style={sectionLabelStyle}>Account</p>
-      <p style={emailStyle}>{user?.email ?? 'Unknown'}</p>
+      {/* Account section */}
+      <div style={section}>
+        <p style={sectionLabel}>Account</p>
+        <div style={card}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Name row */}
+            <button type="button" style={rowStyle(true) as CSSProperties} onClick={() => setActiveDrawer('name')}>
+              <span style={rowLabel}>Name</span>
+              <span style={rowRight}>
+                <span style={rowValue}>{displayName || '—'}</span>
+                <ChevronRight />
+              </span>
+            </button>
 
-      <div style={actionsZone}>
-        <PrimaryButton onClick={handleSignOut}>Sign out</PrimaryButton>
-        <button
-          type="button"
-          style={destructiveLinkStyle}
-          onClick={openDeleteDrawer}
-        >
-          Delete account
+            {/* Email row */}
+            <button type="button" style={rowStyle(true) as CSSProperties} onClick={() => setActiveDrawer('email')}>
+              <span style={rowLabel}>Email address</span>
+              <span style={rowRight}>
+                <span style={rowValue}>{userEmail}</span>
+                <ChevronRight />
+              </span>
+            </button>
+
+            {/* Password row */}
+            <button type="button" style={rowStyle(false) as CSSProperties} onClick={() => setActiveDrawer('password')}>
+              <span style={rowLabel}>Password</span>
+              <span style={rowRight}>
+                <span style={rowValue}>******</span>
+                <ChevronRight />
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Appearance section */}
+      <div style={section}>
+        <p style={sectionLabel}>Appearance</p>
+        <div style={card}>
+          <button type="button" style={rowStyle(false) as CSSProperties} onClick={() => setActiveDrawer('appearance')}>
+            <span style={rowLabel}>Theme</span>
+            <span style={rowRight}>
+              <span style={rowValue}>{themeLabel(mode)}</span>
+              <ChevronRight />
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div style={section}>
+        <button type="button" style={signOutBtn} onClick={() => setActiveDrawer('signout')}>
+          Sign Out
+        </button>
+        <button type="button" style={deleteBtn} onClick={() => setActiveDrawer('delete')}>
+          Delete Account
         </button>
       </div>
 
-      <Drawer
-        isOpen={showDeleteConfirm}
-        onClose={closeDeleteDrawer}
-        title="Delete your account?"
-        subtitle="This action cannot be undone."
-      >
-        <div style={drawerBody}>
-          {deleteError && <p style={errorStyle}>{deleteError}</p>}
-
-          <div style={drawerActions}>
-            <button
-              type="button"
-              style={destructiveButtonStyle}
-              disabled={deleting}
-              onClick={deleteAccount}
-            >
-              {deleting ? 'Deleting…' : 'Delete account'}
-            </button>
-            <PrimaryButton
-              variant="outline"
-              onClick={closeDeleteDrawer}
-              disabled={deleting}
-            >
-              Cancel
-            </PrimaryButton>
-          </div>
-        </div>
-      </Drawer>
+      {/* Drawers */}
+      <NameDrawer
+        isOpen={activeDrawer === 'name'}
+        onClose={close}
+        currentName={displayName || userName}
+        onSaved={setDisplayName}
+      />
+      <EmailDrawer
+        isOpen={activeDrawer === 'email'}
+        onClose={close}
+        currentEmail={userEmail}
+      />
+      <PasswordDrawer
+        isOpen={activeDrawer === 'password'}
+        onClose={close}
+      />
+      <AppearanceDrawer
+        isOpen={activeDrawer === 'appearance'}
+        onClose={close}
+        mode={mode}
+        onSelect={(m) => { setMode(m); close() }}
+      />
+      <SignOutDrawer
+        isOpen={activeDrawer === 'signout'}
+        onClose={close}
+        onConfirm={handleSignOut}
+      />
+      <DeleteAccountDrawer
+        isOpen={activeDrawer === 'delete'}
+        onClose={close}
+        onDeleted={handleDeleted}
+      />
     </div>
   )
 }
