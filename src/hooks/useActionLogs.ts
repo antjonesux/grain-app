@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { errors } from '@/lib/errorMessages'
 import type { ActionLogRow } from '@/types/database.types'
 
 export interface LogDetailEntry {
@@ -49,7 +50,7 @@ export const useLogDetailsForDate = (
         .order('logged_at', { ascending: false })
 
       if (fetchError) {
-        setError(fetchError.message)
+        setError(errors.loadDay)
         setEntries([])
         setIsLoading(false)
         return
@@ -64,12 +65,9 @@ export const useLogDetailsForDate = (
         note: item.action_logs?.note ?? null,
       }))
 
-      const timeInvestedHours = mapped.reduce((sum, e) => sum + e.duration, 0)
-      const actionsLoggedCount = mapped.length
-
       setEntries(mapped)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load log details')
+      setError(err instanceof Error ? err.message : errors.loadDay)
       setEntries([])
     } finally {
       setIsLoading(false)

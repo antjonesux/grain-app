@@ -102,11 +102,11 @@ export const SuccessScreen = ({ onFinish }: SuccessScreenProps) => {
         </div>
 
         <h1 style={headingStyle}>You're in.</h1>
-        <p style={subheadStyle}>Week one starts now. Come back tomorrow and keep it going.</p>
+        <p style={subheadStyle}>Week one starts now. See how it forms.</p>
       </div>
 
       <div style={ctaZone}>
-        <PrimaryButton onClick={onFinish}>Go to Home</PrimaryButton>
+        <PrimaryButton onClick={onFinish}>See your week</PrimaryButton>
       </div>
     </div>
   )

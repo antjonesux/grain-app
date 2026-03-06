@@ -5,6 +5,8 @@ import { Calendar, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useJourneys, useActionsForJourney } from '@/hooks'
 import { createLogEntry } from '@/lib/logging/createLogEntry'
+import { errors } from '@/lib/errorMessages'
+import { transitionMessages } from '@/lib/transitionMessages'
 import { supabase } from '@/lib/supabaseClient'
 import type { ActionInsert } from '@/types/database.types'
 import type { JourneyActionInsert } from '@/types/database.types'
@@ -86,7 +88,7 @@ export const LogPage = () => {
     if (isValidDateParam(dateParam)) setLogDate(dateParam)
   }, [dateParam])
   const { user } = useAuth()
-  const { primaryJourney, journeys, isLoading: journeysLoading, refetch: refetchJourneys } = useJourneys()
+  const { primaryJourney, journeys, isLoading: journeysLoading } = useJourneys()
   const defaultJourney = primaryJourney ?? journeys[0] ?? null
   const [selectedJourney, setSelectedJourney] = useState<JourneyRow | null>(defaultJourney)
   useEffect(() => {
@@ -97,13 +99,14 @@ export const LogPage = () => {
     }
   }, [defaultJourney, journeys, selectedJourney])
   const journeyId = selectedJourney?.id ?? null
-  const { actions, isLoading: actionsLoading, refetch: refetchActions } = useActionsForJourney(journeyId)
+  const { actions, refetch: refetchActions } = useActionsForJourney(journeyId)
 
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null)
   const [selectedDurationHours, setSelectedDurationHours] = useState<number | null>(null)
   const [note, setNote] = useState('')
   const [saveError, setSaveError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const [customActionDrawerOpen, setCustomActionDrawerOpen] = useState(false)
   const [customActionTitle, setCustomActionTitle] = useState('')
@@ -144,7 +147,7 @@ export const LogPage = () => {
           .select('id')
           .single()
         if (createErr || !created) {
-          setSaveError(createErr?.message ?? 'Failed to create action.')
+          setSaveError(createErr?.message ?? errors.saveAction)
           return
         }
         actionId = (created as { id: string }).id
@@ -167,7 +170,7 @@ export const LogPage = () => {
       setCustomActionTitle('')
       setCustomActionDrawerOpen(false)
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to add action.')
+      setSaveError(err instanceof Error ? err.message : errors.saveAction)
     }
   }, [user?.id, journeyId, customActionTitle, actions.length, refetchActions])
 
@@ -186,11 +189,14 @@ export const LogPage = () => {
       })
       if (result.error) {
         setSaveError(result.error)
+        setIsSaving(false)
         return
       }
-      navigate('/', { state: { toast: 'Entry saved.' } })
+      setIsSaving(false)
+      setSaved(true)
+      setTimeout(() => navigate('/'), 1200)
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save entry.')
+      setSaveError(err instanceof Error ? err.message : errors.saveEntry)
     } finally {
       setIsSaving(false)
     }
@@ -245,11 +251,11 @@ export const LogPage = () => {
                 <div style={cardInnerStyle}>
                   <h2 style={cardHeadingStyle}>No active journey</h2>
                   <p style={cardBodyStyle}>
-                    Start something worth investing in so you can log your progress along the way.
+                    Set up your journey to start logging.
                   </p>
                   <div style={ctaContainerStyle}>
                     <PrimaryButton variant="primary" onClick={() => navigate('/onboarding')}>
-                      Begin My Journey
+                      Start your journey
                     </PrimaryButton>
                   </div>
                 </div>
@@ -386,7 +392,7 @@ export const LogPage = () => {
                   <TextArea
                     value={note}
                     onChange={setNote}
-                    placeholder="Add a reflective note"
+                    placeholder="Reflect on it."
                   />
                 </div>
               </div>
@@ -398,9 +404,21 @@ export const LogPage = () => {
                   {saveError}
                 </p>
               )}
-              <PrimaryButton disabled={!canSave || isSaving} onClick={handleSaveEntry}>
-                Save
-              </PrimaryButton>
+              <button
+                type="button"
+                style={
+                  saved
+                    ? { ...saveBtnBase, background: '#1A2421', color: 'var(--accent)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'default' }
+                    : canSave && !isSaving
+                      ? { ...saveBtnBase, background: 'var(--accent)', color: 'var(--bg)' }
+                      : { ...saveBtnBase, background: 'var(--bg-input)', color: 'var(--text-muted)', cursor: 'not-allowed' }
+                }
+                disabled={(!canSave && !saved) || isSaving}
+                onClick={handleSaveEntry}
+              >
+                {saved && <SaveCheckmark />}
+                {isSaving ? 'Saving…' : saved ? transitionMessages.firstLogSaved : 'Save'}
+              </button>
             </div>
           </div>
         </div>
@@ -703,3 +721,26 @@ const drawerActionsStyle: CSSProperties = {
   paddingTop: 28,
   paddingBottom: 40,
 }
+
+const saveBtnBase: CSSProperties = {
+  width: '100%',
+  borderRadius: 14,
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: 13,
+  lineHeight: '19.5px',
+  fontWeight: 500,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  padding: '14px 16px',
+  border: 'none',
+  cursor: 'pointer',
+  transition: 'background 250ms ease, color 200ms ease, border-color 250ms ease',
+}
+
+const SaveCheckmark = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+    <path d="M2.5 7.5L5.5 10.5L11.5 4.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)

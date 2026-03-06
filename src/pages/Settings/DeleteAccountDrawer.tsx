@@ -1,5 +1,6 @@
 import { type CSSProperties, useState, useEffect } from 'react'
 import { Drawer } from '@/components/onboarding/Drawer'
+import { errors } from '@/lib/errorMessages'
 import { supabase } from '@/lib/supabaseClient'
 
 interface DeleteAccountDrawerProps {
@@ -74,21 +75,18 @@ export const DeleteAccountDrawer = ({ isOpen, onClose, onDeleted }: DeleteAccoun
     )
 
     if (fnError) {
-      let msg = 'Something went wrong. Try again.'
+      let msg = errors.deleteAccount
       const res = response ?? (fnError as unknown as { context?: Response }).context
       if (res && typeof (res as Response).json === 'function') {
         try {
-          const body = await (res as Response).clone().json()
-          msg = body?.error ?? body?.message ?? msg
+          await (res as Response).clone().json()
         } catch {
           try {
-            msg = await (res as Response).clone().text()
+            await (res as Response).clone().text()
           } catch { /* exhausted */ }
         }
-      } else if (fnError.message) {
-        msg = fnError.message
       }
-      console.error('delete-account error', { status: (res as Response | undefined)?.status, msg, error: fnError })
+      console.error('delete-account error', { status: (res as Response | undefined)?.status, error: fnError })
       setError(msg)
       setDeleting(false)
       return

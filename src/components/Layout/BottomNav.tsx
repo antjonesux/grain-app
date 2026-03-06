@@ -4,8 +4,6 @@ import type { CSSProperties } from 'react'
 const tabs = [
   { label: 'Home', path: '/' },
   { label: 'Log', path: '/log' },
-  { label: 'Review', path: '/review' },
-  { label: 'Journeys', path: '/journey' },
 ] as const
 
 export const BottomNav = () => {
@@ -13,29 +11,31 @@ export const BottomNav = () => {
   const navigate = useNavigate()
 
   return (
-    <nav style={navStyle} role="navigation" aria-label="Primary">
-      {tabs.map(tab => {
-        const isActive =
-          tab.path === '/'
-            ? pathname === '/' || pathname.startsWith('/log-details/')
-            : tab.path === '/log'
-              ? pathname === '/log'
-              : pathname.startsWith(tab.path)
-        const color = isActive
-          ? 'var(--accent, #10B981)'
-          : 'var(--text-muted, #7D8093)'
-        return (
-          <button
-            key={tab.path}
-            onClick={() => navigate(tab.path)}
-            style={tabBtnStyle}
-          >
-            <TabIcon name={tab.label} color={color} />
-            <span style={{ ...labelStyle, color }}>{tab.label}</span>
-          </button>
-        )
-      })}
-    </nav>
+    <div style={navStyle} role="navigation" aria-label="Primary">
+      {pathname === '/log' ? null : (
+        <>
+          {tabs.map(tab => {
+            const isActive =
+              tab.path === '/'
+                ? pathname === '/' || pathname.startsWith('/log-details/')
+                : pathname === '/log'
+            const color = isActive
+              ? 'var(--accent, #10B981)'
+              : 'var(--text-muted, #7D8093)'
+            return (
+              <button
+                key={tab.path}
+                onClick={() => navigate(tab.path)}
+                style={tabBtnStyle}
+              >
+                <TabIcon name={tab.label} color={color} />
+                <span style={{ ...labelStyle, color }}>{tab.label}</span>
+              </button>
+            )
+          })}
+        </>
+      )}
+    </div>
   )
 }
 
@@ -63,20 +63,6 @@ function TabIcon({ name, color }: { name: string; color: string }) {
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
         </svg>
       )
-    case 'Review':
-      return (
-        <svg width="26" height="26" viewBox="0 0 24 24" {...shared} aria-hidden>
-          <path d="M9 11l3 3L22 4" />
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-        </svg>
-      )
-    case 'Journeys':
-      return (
-        <svg width="26" height="26" viewBox="0 0 24 24" {...shared} aria-hidden>
-          <circle cx="12" cy="12" r="10" />
-          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-        </svg>
-      )
     default:
       return null
   }
@@ -91,7 +77,8 @@ const navStyle: CSSProperties = {
   background: 'var(--bg-card, #161921)',
   borderTop: '0.94px solid var(--border, #2A2D3A)',
   display: 'flex',
-  justifyContent: 'space-between',
+  justifyContent: 'center',
+  gap: 48,
   alignItems: 'center',
 }
 

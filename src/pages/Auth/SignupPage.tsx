@@ -3,19 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
+import { getSignUpError } from '@/lib/errorMessages'
+import { meetsMinLength, PASSWORD_HINT } from '@/lib/passwordValidation'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const MIN_PASSWORD_LENGTH = 6
 
 const validateEmail = (value: string): string | null => {
   if (!value.trim()) return 'Email is required'
   if (!EMAIL_RE.test(value.trim())) return 'Please enter a valid email'
-  return null
-}
-
-const validatePassword = (value: string): string | null => {
-  if (!value) return 'Password is required'
-  if (value.length < MIN_PASSWORD_LENGTH) return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
   return null
 }
 
@@ -114,6 +109,54 @@ const fieldErrorStyle: CSSProperties = {
   paddingTop: '4px',
 }
 
+const hintStyle = (met: boolean): CSSProperties => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  padding: '4px 12px',
+  borderRadius: '22px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  lineHeight: '16.5px',
+  fontWeight: 400,
+  color: met ? 'var(--accent)' : 'var(--text-secondary)',
+})
+
+const inputWrap: CSSProperties = {
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+}
+
+const toggleBtn: CSSProperties = {
+  position: 'absolute',
+  right: '16px',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+}
+
+const HintCircle = ({ met }: { met: boolean }) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="6" stroke={met ? 'var(--accent)' : 'var(--text-secondary)'} strokeWidth="1" fill="none" />
+  </svg>
+)
+
+const ErrorCircle = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="6" stroke="var(--status-misaligned)" strokeWidth="1.2" fill="none" />
+  </svg>
+)
+
+const CheckCircle = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2" fill="none" />
+  </svg>
+)
+
 const bottomLinkStyle: CSSProperties = {
   paddingTop: '24px',
   display: 'flex',
@@ -138,14 +181,24 @@ export const SignupPage = () => {
   const { signUp, error, clearError } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [touched, setTouched] = useState({ email: false, password: false })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
 
   const emailError = touched.email ? validateEmail(email) : null
-  const passwordError = touched.password ? validatePassword(password) : null
-  const canSubmit = !emailError && !passwordError && email.trim() && password.length >= MIN_PASSWORD_LENGTH
+  const meetsLength = meetsMinLength(password)
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0
+  const confirmHasInput = confirmPassword.length > 0
+  const confirmShowError = confirmHasInput && !passwordsMatch
+  const confirmShowSuccess = confirmHasInput && passwordsMatch
+  const canSubmit =
+    !emailError &&
+    email.trim() !== '' &&
+    meetsLength &&
+    passwordsMatch &&
+    !isSubmitting
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -174,7 +227,7 @@ export const SignupPage = () => {
         <form onSubmit={handleSubmit} style={formStyle}>
           {error && (
             <div style={errorBannerStyle} role="alert">
-              {error}
+              {getSignUpError(error)}
             </div>
           )}
 
@@ -216,18 +269,47 @@ export const SignupPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onFocus={() => setPasswordFocused(true)}
-              onBlur={() => {
-                setPasswordFocused(false)
-                setTouched((t) => ({ ...t, password: true }))
-              }}
-              style={inputStyle(passwordFocused, !!passwordError)}
-              placeholder="At least 6 characters"
-              aria-invalid={!!passwordError}
-              aria-describedby={passwordError ? 'signup-password-error' : undefined}
+              onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+              style={inputStyle(passwordFocused, false)}
+              placeholder={PASSWORD_HINT}
+              aria-invalid={touched.password && !meetsLength}
+              aria-describedby={password.length > 0 ? 'signup-password-hint' : undefined}
             />
-            {passwordError && (
-              <p id="signup-password-error" style={fieldErrorStyle}>
-                {passwordError}
+            {password.length > 0 && (
+              <span id="signup-password-hint" style={{ ...hintStyle(meetsLength), marginTop: 6, display: 'inline-flex' }}>
+                <HintCircle met={meetsLength} />
+                {PASSWORD_HINT}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="signup-confirm-password" style={labelStyle}>
+              Confirm password
+            </label>
+            <div style={inputWrap}>
+              <input
+                id="signup-confirm-password"
+                type="password"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                style={{
+                  ...inputStyle(passwordFocused, confirmShowError),
+                  paddingRight: confirmHasInput ? 44 : 16,
+                }}
+                placeholder="Confirm password"
+                aria-invalid={confirmShowError}
+                aria-describedby={confirmHasInput && confirmShowError ? 'signup-confirm-status' : undefined}
+              />
+              {confirmShowError && <span style={{ ...toggleBtn, cursor: 'default' }}><ErrorCircle /></span>}
+              {confirmShowSuccess && <span style={{ ...toggleBtn, cursor: 'default' }}><CheckCircle /></span>}
+            </div>
+            {confirmHasInput && confirmShowError && (
+              <p id="signup-confirm-status" style={fieldErrorStyle}>
+                Passwords do not match
               </p>
             )}
           </div>

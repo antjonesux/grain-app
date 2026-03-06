@@ -20,11 +20,12 @@ const fmt = (h: number): string => {
   return h.toFixed(1)
 }
 
-const getDaysActive = (createdAt?: string): number => {
-  if (!createdAt) return 0
+const getWeekNumber = (createdAt?: string): number => {
+  if (!createdAt) return 1
   const created = new Date(createdAt)
   const now = new Date()
-  return Math.max(1, Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24)))
+  const msPerWeek = 7 * 24 * 60 * 60 * 1000
+  return Math.max(1, Math.floor((now.getTime() - created.getTime()) / msPerWeek) + 1)
 }
 
 const ClockIcon = () => (
@@ -45,7 +46,7 @@ const InactiveCard = () => {
 
   return (
     <div style={cardStyle}>
-      <p style={inactiveTitleStyle}>No active journey</p>
+      <p style={inactiveTitleStyle}>You haven't started a journey yet.</p>
       <p style={inactiveSubStyle}>
         Start something worth investing in.
       </p>
@@ -54,7 +55,7 @@ const InactiveCard = () => {
         onClick={() => navigate('/onboarding')}
         style={ctaBtnStyle}
       >
-        Begin My Journey
+        Start your journey
       </button>
     </div>
   )
@@ -71,7 +72,7 @@ export const JourneyCard = ({
 }: JourneyCardProps) => {
   if (state === 'no-journey') return <InactiveCard />
 
-  const daysActive = getDaysActive(createdAt)
+  const weekNumber = getWeekNumber(createdAt)
   const isBonus = state === 'bonus'
   const isComplete = state === 'complete'
   const rawPercent = commitment <= 0 ? 0 : (invested / commitment) * 100
@@ -84,7 +85,7 @@ export const JourneyCard = ({
         <span style={metaLabelStyle}>YOUR JOURNEY</span>
         {createdAt && (
           <div style={pillBadgeStyle}>
-            <span style={pillBadgeTextStyle}>🔥 {daysActive} days active</span>
+            <span style={pillBadgeTextStyle}>Week {weekNumber}</span>
           </div>
         )}
       </div>
@@ -98,7 +99,7 @@ export const JourneyCard = ({
         style={{ paddingBottom: 16 }}
         items={[
           { icon: <ClockIcon />, label: 'Time Invested', value: `${fmt(invested)}h` },
-          { icon: <ActionsIcon />, label: 'Actions Logged', value: distinctActions },
+          { icon: <ActionsIcon />, label: 'Actions used', value: distinctActions },
         ]}
       />
 
@@ -109,7 +110,7 @@ export const JourneyCard = ({
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <span style={progressLabelStyle}>{displayPercent}%</span>
             {isBonus && (
-              <span style={bonusLabelStyle}>+{fmt(bonusHours)}h bonus</span>
+              <span style={bonusLabelStyle}>{fmt(bonusHours)}h over</span>
             )}
           </div>
         </div>
@@ -125,12 +126,12 @@ export const JourneyCard = ({
           <span style={isBonus ? trophyIconBonusStyle : trophyIconCompleteStyle}>🏆</span>
           <div style={{ flex: 1 }}>
             <span style={trophyTitleStyle}>
-              {isBonus ? 'Weekly commitment crushed!' : 'Weekly commitment complete!'}
+              {isBonus ? 'You went past your commitment.' : 'You met your commitment.'}
             </span>
             <span style={trophyBodyStyle}>
               {isBonus
-                ? `You've logged ${fmt(bonusHours)} bonus hours beyond your commitment.`
-                : `You hit your ${commitment}h goal.`}
+                ? `You logged ${fmt(bonusHours)}h more than your commitment.`
+                : `You met your ${commitment}h commitment.`}
             </span>
           </div>
         </div>

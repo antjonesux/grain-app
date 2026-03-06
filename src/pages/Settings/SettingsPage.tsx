@@ -53,7 +53,7 @@ const screen: CSSProperties = {
   flexDirection: 'column',
   minHeight: '100dvh',
   padding: '0 24px',
-  background: 'var(--bg)',
+  background: 'var(--bg, #faf9f7)',
 }
 
 const headerBlock: CSSProperties = {
@@ -277,10 +277,10 @@ export const SettingsPage = () => {
       {/* Actions */}
       <div style={section}>
         <button type="button" style={signOutBtn} onClick={() => setActiveDrawer('signout')}>
-          Sign Out
+          Sign out
         </button>
         <button type="button" style={deleteBtn} onClick={() => setActiveDrawer('delete')}>
-          Delete Account
+          Delete account
         </button>
       </div>
 

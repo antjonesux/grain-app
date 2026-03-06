@@ -131,7 +131,7 @@ export const CommitmentScreen = ({
         <OnboardingHeader onBack={onBack} />
         <ProgressBar step={4} total={5} />
 
-        <h1 style={headingStyle}>How many hours per week?</h1>
+        <h1 style={headingStyle}>How many hours a week feels honest?</h1>
         <p style={subheadStyle}>
           Be honest — not ambitious. You can always adjust later.
         </p>
@@ -183,6 +183,7 @@ export const CommitmentScreen = ({
             </span>
           </div>
         )}
+        <p style={{ ...subheadStyle, paddingTop: 0 }}>You can adjust this any time. Start where you are.</p>
       </div>
 
       <div style={ctaZone}>

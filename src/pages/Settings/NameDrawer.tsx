@@ -1,5 +1,6 @@
 import { type CSSProperties, useState, useEffect, useRef } from 'react'
 import { Drawer } from '@/components/onboarding/Drawer'
+import { errors } from '@/lib/errorMessages'
 import { supabase } from '@/lib/supabaseClient'
 
 interface NameDrawerProps {
@@ -83,7 +84,7 @@ export const NameDrawer = ({ isOpen, onClose, currentName, onSaved }: NameDrawer
     })
 
     if (updateError) {
-      setError(updateError.message)
+      setError(errors.saveName)
       setSaving(false)
       return
     }
@@ -105,7 +106,7 @@ export const NameDrawer = ({ isOpen, onClose, currentName, onSaved }: NameDrawer
       isOpen={isOpen}
       onClose={onClose}
       title="Your name"
-      subtitle="This is how you'll appear across your goals and activity."
+      subtitle="This is how you'll appear in the app."
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ paddingBottom: '20px' }}>

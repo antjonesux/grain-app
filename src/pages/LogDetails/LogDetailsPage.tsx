@@ -3,6 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { MetricStatRow } from '@/components/shared/MetricStatRow'
 import { useActiveJourney } from '@/hooks'
 import { useLogDetailsForDate, type LogDetailEntry } from '@/hooks/useActionLogs'
+import { errors } from '@/lib/errorMessages'
+import { SkeletonBlock } from '@/components/skeleton/SkeletonBlock'
+import { LogEntrySkeleton } from '@/components/skeleton/LogEntrySkeleton'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -83,7 +86,7 @@ function AddLogChipButton ({ selectedDate, onNavigate }: { selectedDate: string;
       style={addLogPillStyle}
       onClick={() => onNavigate(`/log?date=${selectedDate}`)}
     >
-      + Add Log
+      + Add entry
     </button>
   )
 }
@@ -135,10 +138,27 @@ export const LogDetailsPage = () => {
           <div>
             <HeaderBackTitle title={formatDateLabel(selectedDate)} onBack={() => navigate(-1)} />
 
-            {isLoading && <p style={mutedStyle}>Loading…</p>}
+            {isLoading && (
+              <>
+                <div style={metricSkeletonRowStyle}>
+                  <SkeletonBlock height={64} borderRadius={14} style={{ flex: 1 }} />
+                  <SkeletonBlock height={64} borderRadius={14} style={{ flex: 1 }} />
+                </div>
+                <section style={activitySectionStyle}>
+                  <div style={activityHeaderRowStyle}>
+                    <h2 style={activityTitleStyle}>Entries</h2>
+                  </div>
+                  <ul style={listStyle}>
+                    <LogEntrySkeleton />
+                    <LogEntrySkeleton />
+                    <LogEntrySkeleton />
+                  </ul>
+                </section>
+              </>
+            )}
             {error && (
               <p style={errorStyle} role="alert">
-                {error}
+                {errors.loadDay}
               </p>
             )}
 
@@ -154,12 +174,12 @@ export const LogDetailsPage = () => {
 
                 <section style={activitySectionStyle}>
                   <div style={activityHeaderRowStyle}>
-                    <h2 style={activityTitleStyle}>Activity Log</h2>
+                    <h2 style={activityTitleStyle}>Entries</h2>
                     <AddLogChipButton selectedDate={selectedDate} onNavigate={navigate} />
                   </div>
 
                   {isEmpty && (
-                    <p style={emptyTextStyle}>No log entries exist yet.</p>
+                    <p style={emptyTextStyle}>Nothing logged for this day.</p>
                   )}
 
                   {!isEmpty && entries.length > 0 && (
@@ -196,6 +216,11 @@ const mainWrapper: CSSProperties = {
   flexDirection: 'column',
 }
 
+const metricSkeletonRowStyle: CSSProperties = {
+  display: 'flex',
+  gap: 8,
+}
+
 const innerContainer: CSSProperties = {
   flex: 1,
   display: 'flex',
@@ -228,15 +253,6 @@ const titleStyle: CSSProperties = {
   fontWeight: 700,
   lineHeight: '28.6px',
   color: 'var(--text-primary)',
-  margin: 0,
-}
-
-const mutedStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 400,
-  lineHeight: '19.5px',
-  color: 'var(--text-muted)',
   margin: 0,
 }
 

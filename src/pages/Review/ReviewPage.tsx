@@ -31,7 +31,8 @@ export const ReviewPage = () => {
 
   return (
     <div className="px-4 py-6 max-w-[480px] mx-auto">
-      <h2 className="text-xl font-medium text-stone-800 mb-4">Review</h2>
+      <h2 className="text-xl font-medium text-stone-800 mb-2">Review</h2>
+      <p className="text-stone-600 text-sm mb-4">How did this week go?</p>
       {summaryLoading ? (
         <p className="text-stone-500 text-sm">Loading week…</p>
       ) : (
@@ -40,7 +41,7 @@ export const ReviewPage = () => {
             This week
           </h3>
           <p className="text-stone-600 text-sm">
-            Commitment: {commitment}h · Actual: {actual}h · Delta: {delta >= 0 ? '+' : ''}{delta}h
+            What you aimed for: {commitment}h · What you logged: {actual}h · Difference: {delta >= 0 ? '+' : ''}{delta}h
           </p>
           <p className="text-stone-600 text-sm">Days without a log: {zeroDays}</p>
         </section>

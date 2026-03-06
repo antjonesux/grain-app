@@ -6,6 +6,11 @@ import { TextInput } from '@/components/onboarding/TextInput'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
 import { ForgotPasswordDrawer } from './ForgotPasswordDrawer'
+import { getAuthError } from '@/lib/errorMessages'
+import { supabase } from '@/lib/supabaseClient'
+
+const FROM_KEY = 'grain.auth.from'
+const RESUME_KEY = 'grain.auth.resume'
 
 interface LoginPageProps {
   showOAuth?: boolean
@@ -241,6 +246,18 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
 
   const canSubmit = email.trim() !== '' && password !== ''
 
+  const handleGoogleSignIn = async () => {
+    const stateData = location.state as { from?: string; resume?: string } | null
+    const from = stateData?.from
+    const resume = stateData?.resume
+    if (from != null) sessionStorage.setItem(FROM_KEY, from)
+    if (resume != null) sessionStorage.setItem(RESUME_KEY, JSON.stringify(resume))
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!canSubmit || isSubmitting) return
@@ -263,6 +280,8 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
   }
 
   const isDisabled = !canSubmit || isSubmitting
+  const stateError = (location.state as { error?: string } | null)?.error
+  const displayError = error ?? stateError
 
   return (
     <div style={pageStyle}>
@@ -270,8 +289,8 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
 
       <h1 style={headlineStyle}>Sign in</h1>
 
-      {error && (
-        <div style={errorStyle} role="alert">{error}</div>
+      {displayError && (
+        <div style={errorStyle} role="alert">{getAuthError(displayError)}</div>
       )}
 
       <form onSubmit={handleSubmit} style={cardStyle}>
@@ -314,14 +333,14 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
             disabled={isDisabled}
             style={isDisabled ? submitDisabledStyle : submitEnabledStyle}
           >
-            {isSubmitting ? 'Signing In…' : 'Sign In'}
+            {isSubmitting ? 'Signing in…' : 'Sign in'}
           </button>
           <button
             type="button"
             style={forgotPasswordBtnStyle}
             onClick={() => setForgotDrawerOpen(true)}
           >
-            Forgot Password?
+            Forgot password?
           </button>
         </div>
 
@@ -334,8 +353,9 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
             </div>
 
             <div style={oauthSectionStyle}>
-              <PrimaryButton variant="outline">Continue with Google</PrimaryButton>
-              <PrimaryButton variant="outline">Continue with Apple</PrimaryButton>
+              <PrimaryButton variant="outline" onClick={handleGoogleSignIn}>
+                Continue with Google
+              </PrimaryButton>
             </div>
           </>
         )}
@@ -345,7 +365,7 @@ export const LoginPage = ({ showOAuth = true }: LoginPageProps) => {
         <p style={bottomTextStyle}>
           Don't have an account?{' '}
           <InlineLinkButton underline onClick={() => navigate('/welcome')}>
-            Sign Up
+            Sign up
           </InlineLinkButton>
         </p>
       </div>

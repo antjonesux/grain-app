@@ -10,6 +10,7 @@ import { Drawer } from '@/components/onboarding/Drawer'
 import { TextInput } from '@/components/onboarding/TextInput'
 import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
 import { InlineLinkRow } from '@/components/onboarding/InlineLinkRow'
+import { errors, getSignUpError } from '@/lib/errorMessages'
 
 type SignupStatus = 'idle' | 'pendingConfirmation'
 
@@ -248,7 +249,7 @@ export const SummaryScreen = ({
       setSignupStatus('pendingConfirmation')
     } catch (err) {
       setAuthError(
-        err instanceof Error ? err.message : 'Something went wrong',
+        err instanceof Error ? getSignUpError(err.message) : errors.generic,
       )
     } finally {
       setIsSubmitting(false)
@@ -264,9 +265,7 @@ export const SummaryScreen = ({
       onContinue?.()
     } catch (err) {
       console.error('[Grain] saveJourney error:', err)
-      setSaveError(
-        err instanceof Error ? err.message : 'Failed to save journey',
-      )
+      setSaveError(errors.saveJourney)
     } finally {
       setIsSaving(false)
     }
@@ -306,9 +305,9 @@ export const SummaryScreen = ({
         <OnboardingHeader onBack={onBack} />
         <ProgressBar step={5} total={5} />
 
-        <h1 style={headingStyle}>Here's your plan.</h1>
+        <h1 style={headingStyle}>Here's your journey.</h1>
         <p style={subheadStyle}>
-          Here's what you're about to commit to.
+          Take a look before you save.
         </p>
 
         <SummaryCard label="DESTINATION" onEdit={() => onEdit(1)}>
@@ -346,7 +345,7 @@ export const SummaryScreen = ({
             </>
           ) : (
             <PrimaryButton onClick={() => setDrawerOpen(true)}>
-              Save my progress
+              Save your journey
             </PrimaryButton>
           )
         )}
@@ -362,14 +361,13 @@ export const SummaryScreen = ({
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         title={signupStatus === 'pendingConfirmation' ? `We sent a confirmation link to ${pendingEmail || email.trim()}` : 'Save your journey.'}
-        subtitle={signupStatus === 'pendingConfirmation' ? undefined : 'Create an account so your setup is waiting each week.'}
+        subtitle={signupStatus === 'pendingConfirmation' ? undefined : "Create an account and your journey will be there every week."}
       >
         <div style={formSection}>
           {signupStatus === 'pendingConfirmation' ? (
             <>
               <p style={confirmationText}>
-                Check your email to confirm your account. Then sign in to
-                finish saving your journey.
+                Check your email to confirm. Then sign in again.
               </p>
               {resendStatus === 'sent' && resendCooldown > 0 && (
                 <p style={resendHelperText}>
@@ -381,7 +379,7 @@ export const SummaryScreen = ({
               )}
               <div style={drawerCtaZone}>
                 <PrimaryButton onClick={handleSignInRedirect}>
-                  Sign In
+                  Sign in
                 </PrimaryButton>
                 <InlineLinkRow>
                   {resendStatus === 'sending'
@@ -426,7 +424,7 @@ export const SummaryScreen = ({
                 disabled={isSubmitting}
                 onClick={handleCreateAccount}
               >
-                {isSubmitting ? 'Creating...' : 'Create Account'}
+                {isSubmitting ? 'Creating…' : 'Create Account'}
               </PrimaryButton>
 
               {showOAuth && (

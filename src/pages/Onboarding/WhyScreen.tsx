@@ -83,14 +83,14 @@ export const WhyScreen = ({
 
         <h1 style={headingStyle}>Why does this matter to you?</h1>
         <p style={subheadStyle}>
-          This stays private. It anchors your direction when things get noisy.
+          This stays private. It's just for you.
         </p>
 
         <div style={inputWrapper}>
           <TextArea
             value={value}
             onChange={setValue}
-            placeholder="Ex: I want to get in shape and push myself"
+            placeholder="Be honest with yourself."
           />
           <p style={privacyNote}>Never shown in summaries or reviews.</p>
         </div>

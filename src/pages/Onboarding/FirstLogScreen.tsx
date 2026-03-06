@@ -7,8 +7,9 @@ import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 interface FirstLogScreenProps {
   name?: string
   actions?: string[]
-  onNext: () => void
+  onNext?: () => void
   onSave?: (action: string, duration: string, note?: string) => void
+  onSkip?: () => void
 }
 
 const DURATIONS = ['30m', '1h', '1.5h', '2h', '2.5h', '3h', 'Custom']
@@ -111,6 +112,7 @@ export const FirstLogScreen = ({
   actions = [],
   onNext,
   onSave,
+  onSkip,
 }: FirstLogScreenProps) => {
   const [selectedAction, setSelectedAction] = useState<string | null>(null)
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null)
@@ -122,7 +124,7 @@ export const FirstLogScreen = ({
   const handleSave = () => {
     if (!canSave) return
     onSave?.(selectedAction, selectedDuration, note.trim() || undefined)
-    onNext()
+    onNext?.()
   }
 
   return (
@@ -132,11 +134,11 @@ export const FirstLogScreen = ({
 
         <h1 style={greetingStyle}>{greeting}</h1>
         <p style={subGreetingStyle}>
-          Your journey is set. Let's see where your time goes.
+          Your journey is set. Log when you're ready.
         </p>
 
         <div style={cardStyle}>
-          <p style={cardTitleStyle}>Make your first entry</p>
+          <p style={cardTitleStyle}>Want to log something now?</p>
           <p style={cardCaptionStyle}>What did you work on today?</p>
 
           <div style={{ paddingBottom: '16px' }}>
@@ -184,8 +186,8 @@ export const FirstLogScreen = ({
         <PrimaryButton disabled={!canSave} onClick={handleSave}>
           Save Entry
         </PrimaryButton>
-        <PrimaryButton variant="ghost" onClick={onNext}>
-          I'll log later
+        <PrimaryButton variant="ghost" onClick={onSkip ?? onNext}>
+          Not today
         </PrimaryButton>
       </div>
     </div>

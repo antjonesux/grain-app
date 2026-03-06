@@ -1,5 +1,6 @@
 import { type CSSProperties, useState, useEffect, useRef } from 'react'
 import { Drawer } from '@/components/onboarding/Drawer'
+import { errors } from '@/lib/errorMessages'
 import { supabase } from '@/lib/supabaseClient'
 
 interface ForgotPasswordDrawerProps {
@@ -57,6 +58,8 @@ export const ForgotPasswordDrawer = ({ isOpen, onClose, initialEmail = '' }: For
   const [error, setError] = useState<string | null>(null)
   const [phase, setPhase] = useState<DrawerPhase>('form')
   const [sentTo, setSentTo] = useState('')
+  const [resendSending, setResendSending] = useState(false)
+  const [resendSent, setResendSent] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -67,6 +70,8 @@ export const ForgotPasswordDrawer = ({ isOpen, onClose, initialEmail = '' }: For
       setError(null)
       setPhase('form')
       setSentTo('')
+      setResendSending(false)
+      setResendSent(false)
       setTimeout(() => inputRef.current?.focus(), 300)
     }
   }, [isOpen, initialEmail])
@@ -84,7 +89,7 @@ export const ForgotPasswordDrawer = ({ isOpen, onClose, initialEmail = '' }: For
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmed, { redirectTo })
 
     if (resetError) {
-      setError(resetError.message)
+      setError(errors.resetLink)
       setSending(false)
       return
     }
@@ -100,27 +105,41 @@ export const ForgotPasswordDrawer = ({ isOpen, onClose, initialEmail = '' }: For
 
   const handleResend = async () => {
     setError(null)
+    setResendSending(true)
     const redirectTo = `${window.location.origin}/reset-password`
     const { error: resendError } = await supabase.auth.resetPasswordForEmail(sentTo, { redirectTo })
-    if (resendError) setError(resendError.message)
+    if (resendError) {
+      setError(errors.resend)
+      setResendSending(false)
+      return
+    }
+    setResendSending(false)
+    setResendSent(true)
+    setTimeout(() => setResendSent(false), 1200)
   }
 
   if (phase === 'confirmation') {
+    const resendBusy = resendSending || resendSent
+    const resendBtnStyle: CSSProperties = resendSent
+      ? { ...btnBase, background: '#1A2421', color: 'var(--accent)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'default' }
+      : { ...btnBase, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }
     return (
       <Drawer
         isOpen={isOpen}
         onClose={onClose}
         title={`We sent a reset link to ${sentTo}`}
-        subtitle="Check your email to reset your password. Then sign in with your new password."
+        subtitle="Check your email and follow the link. Then sign in."
       >
         <div style={{ paddingTop: '28px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
           {error && <p style={errorTextStyle}>{error}</p>}
           <button
             type="button"
-            style={{ ...btnBase, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+            style={resendBtnStyle}
             onClick={handleResend}
+            disabled={resendBusy}
           >
-            Resend reset link
+            {resendSent && <SaveCheckmark />}
+            {resendSending ? 'Sending…' : resendSent ? 'Sent' : 'Resend reset link'}
           </button>
         </div>
       </Drawer>
@@ -138,7 +157,7 @@ export const ForgotPasswordDrawer = ({ isOpen, onClose, initialEmail = '' }: For
       isOpen={isOpen}
       onClose={onClose}
       title="Forgot password?"
-      subtitle="Enter your email and we'll send you a link to reset your password."
+      subtitle="Enter your email. We'll send you a reset link."
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ paddingBottom: '20px' }}>

@@ -168,7 +168,7 @@ export const ActionsScreen = ({
 
         <h1 style={headingStyle}>What moves the needle?</h1>
         <p style={subheadStyle}>
-          Choose a focus area to get tailored suggestions, or add your own.
+          Pick what counts. You can always add more later.
         </p>
 
         <div style={chipWrap}>
@@ -213,7 +213,7 @@ export const ActionsScreen = ({
                 />
               ))}
               <Chip
-                label="Custom"
+                label="+ Add your own"
                 variant="chip-button"
                 onClick={() => setDrawerOpen(true)}
               />
@@ -240,7 +240,7 @@ export const ActionsScreen = ({
         <TextInput
           value={customAction}
           onChange={setCustomAction}
-          placeholder="Ex: Run 2 miles"
+          placeholder="e.g. Read for 30 minutes"
         />
         <div style={drawerActions}>
           <PrimaryButton

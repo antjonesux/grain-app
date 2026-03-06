@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { errors } from '@/lib/errorMessages'
 import type { JourneyInsert } from '@/types/database.types'
 import type { ActionInsert } from '@/types/database.types'
 import type { JourneyActionInsert } from '@/types/database.types'
@@ -33,7 +34,7 @@ export const useCreateJourneyWithActions = (
       params: CreateJourneyWithActionsParams
     ): Promise<{ journeyId: string | null; error: string | null }> => {
       if (!userId) {
-        return { journeyId: null, error: 'You must be signed in to create a journey.' }
+        return { journeyId: null, error: 'Sign in to save your journey.' }
       }
       setIsSubmitting(true)
       try {
@@ -54,7 +55,7 @@ export const useCreateJourneyWithActions = (
           .single()
 
         if (journeyError || !journeyRow) {
-          return { journeyId: null, error: journeyError?.message ?? 'Failed to create journey.' }
+          return { journeyId: null, error: journeyError?.message ?? errors.saveJourney }
         }
         const journeyId = (journeyRow as { id: string }).id
 
@@ -89,7 +90,7 @@ export const useCreateJourneyWithActions = (
             if (actionError || !newAction) {
               return {
                 journeyId,
-                error: actionError?.message ?? 'Failed to create action.',
+                error: actionError?.message ?? errors.saveAction,
               }
             }
             actionId = (newAction as { id: string }).id
@@ -105,7 +106,7 @@ export const useCreateJourneyWithActions = (
           // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client inferrence with custom Database type
           const { error: jaError } = await (supabase as any).from('journey_actions').insert(jaInsert)
           if (jaError) {
-            return { journeyId, error: jaError.message }
+            return { journeyId, error: errors.saveJourney }
           }
         }
 
@@ -113,7 +114,7 @@ export const useCreateJourneyWithActions = (
       } catch (err) {
         return {
           journeyId: null,
-          error: err instanceof Error ? err.message : 'Failed to create journey.',
+          error: err instanceof Error ? err.message : errors.saveJourney,
         }
       } finally {
         setIsSubmitting(false)

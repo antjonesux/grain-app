@@ -1,7 +1,6 @@
 import { useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { PageHeader } from '@/components/Layout/PageHeader'
-import { BottomNav } from '@/components/Layout/BottomNav'
 
 const PATH_TITLES: Record<string, string> = {
   '/': 'Home',
@@ -35,7 +34,6 @@ export const AppShell = ({ children }: AppShellProps) => {
       >
         {children}
       </main>
-      <BottomNav />
     </div>
   )
 }

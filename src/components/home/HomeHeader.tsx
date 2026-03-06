@@ -31,7 +31,7 @@ export const HomeHeader = ({ weekStart, weekEnd }: HomeHeaderProps) => {
   return (
     <div style={containerStyle}>
       <div style={topRowStyle}>
-        <h1 style={greetingStyle}>Welcome, {firstName}!</h1>
+        <h1 style={greetingStyle}>Hey, {firstName}.</h1>
         <button
           type="button"
           onClick={() => navigate('/settings')}

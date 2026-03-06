@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { errors } from '@/lib/errorMessages'
 import type { ActionLogItemRow } from '@/types/database.types'
 import { getWeekWindow, getWeekDays, getTodayStr } from '@/utils'
 
@@ -69,14 +70,14 @@ export const useHomeWeekData = (
 
         if (cancelled) return
         if (fetchErr) {
-          setError(fetchErr.message)
+          setError(errors.loadWeek)
           setItems([])
         } else {
           setItems((data ?? []) as ActionLogItemRow[])
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load week data')
+          setError(err instanceof Error ? err.message : errors.loadWeek)
           setItems([])
         }
       } finally {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { errors } from '@/lib/errorMessages'
 import type { ActionRow } from '@/types/database.types'
 
 export interface ActionForJourney extends ActionRow {
@@ -48,7 +49,7 @@ export const useActionsForJourney = (journeyId: string | null): UseActionsForJou
         .order('sort_order', { ascending: true })
 
       if (fetchError) {
-        setError(fetchError.message)
+        setError(errors.loadActions)
         setActions([])
         setIsLoading(false)
         return
@@ -64,7 +65,7 @@ export const useActionsForJourney = (journeyId: string | null): UseActionsForJou
         }))
       setActions(flattened)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load actions')
+      setError(err instanceof Error ? err.message : errors.loadActions)
       setActions([])
     } finally {
       setIsLoading(false)

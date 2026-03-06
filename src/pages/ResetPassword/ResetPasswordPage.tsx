@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { supabase } from '@/lib/supabaseClient'
+import { meetsMinLength, PASSWORD_HINT } from '@/lib/passwordValidation'
+import { errors } from '@/lib/errorMessages'
 
 type PageState = 'loading' | 'error' | 'ready'
 
@@ -24,7 +26,7 @@ async function establishRecoverySession(): Promise<{ ok: true } | { ok: false; m
   const code = searchParams.get('code')
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-    if (error) return { ok: false, message: error.message }
+    if (error) return { ok: false, message: errors.expiredLink }
     if (data.session) {
       window.history.replaceState({}, document.title, '/reset-password')
       return { ok: true }
@@ -36,15 +38,61 @@ async function establishRecoverySession(): Promise<{ ok: true } | { ok: false; m
   const refreshToken = hashParams.refresh_token
   if (accessToken && refreshToken) {
     const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
-    if (error) return { ok: false, message: error.message }
+    if (error) return { ok: false, message: errors.expiredLink }
     window.history.replaceState({}, document.title, '/reset-password')
     return { ok: true }
   }
 
-  return { ok: false, message: 'Invalid or expired link.' }
+  return { ok: false, message: errors.expiredLink }
 }
 
-const MIN_PASSWORD_LENGTH = 6
+const hintStyle = (met: boolean): CSSProperties => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  padding: '4px 12px',
+  borderRadius: '22px',
+  fontFamily: 'var(--grain-font-sans)',
+  fontSize: '11px',
+  lineHeight: '16.5px',
+  fontWeight: 400,
+  color: met ? 'var(--accent)' : 'var(--text-secondary)',
+})
+
+const inputWrap: CSSProperties = {
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+}
+
+const iconPos: CSSProperties = {
+  position: 'absolute',
+  right: '16px',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'default',
+  display: 'flex',
+  alignItems: 'center',
+}
+
+const HintCircle = ({ met }: { met: boolean }) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="6" stroke={met ? 'var(--accent)' : 'var(--text-secondary)'} strokeWidth="1" fill="none" />
+  </svg>
+)
+
+const ErrorCircle = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="6" stroke="var(--status-misaligned)" strokeWidth="1.2" fill="none" />
+  </svg>
+)
+
+const CheckCircle = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2" fill="none" />
+  </svg>
+)
 
 /* ----- Styles ----- */
 
@@ -170,7 +218,7 @@ export const ResetPasswordPage = () => {
 
   const goToLogin = () => navigate('/login')
 
-  const meetsLength = newPassword.length >= MIN_PASSWORD_LENGTH
+  const meetsLength = meetsMinLength(newPassword)
   const passwordsMatch = newPassword === confirmPassword && confirmPassword.length > 0
   const canSubmit = meetsLength && passwordsMatch && !isSubmitting
 
@@ -183,7 +231,7 @@ export const ResetPasswordPage = () => {
     const { error } = await supabase.auth.updateUser({ password: newPassword })
 
     if (error) {
-      setSubmitError(error.message)
+      setSubmitError(error.message.includes('expired') || error.message.includes('invalid') ? errors.expiredLink : errors.savePassword)
       setIsSubmitting(false)
       return
     }
@@ -214,7 +262,7 @@ export const ResetPasswordPage = () => {
           <p style={subtextStyle}>
             This link may be invalid or expired. Request a new one from the sign in page.
           </p>
-          <PrimaryButton onClick={goToLogin}>Back to Login</PrimaryButton>
+          <PrimaryButton onClick={goToLogin}>Back to sign in</PrimaryButton>
         </div>
       </div>
     )
@@ -240,22 +288,37 @@ export const ResetPasswordPage = () => {
 
       <form onSubmit={handleSubmit} style={cardStyle}>
         <div style={inputSectionStyle}>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="New password"
-            autoComplete="new-password"
-            style={inputStyle(newPassword.length > 0)}
-          />
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm password"
-            autoComplete="new-password"
-            style={inputStyle(confirmPassword.length > 0)}
-          />
+          <div>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="New password"
+              autoComplete="new-password"
+              style={inputStyle(newPassword.length > 0)}
+            />
+            {newPassword.length > 0 && (
+              <span style={{ ...hintStyle(meetsLength), marginTop: 6, display: 'inline-flex' }}>
+                <HintCircle met={meetsLength} />
+                {PASSWORD_HINT}
+              </span>
+            )}
+          </div>
+          <div style={inputWrap}>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm password"
+              autoComplete="new-password"
+              style={{
+                ...inputStyle(confirmPassword.length > 0),
+                paddingRight: confirmPassword.length > 0 ? 44 : 16,
+              }}
+            />
+            {confirmPassword.length > 0 && newPassword !== confirmPassword && <span style={iconPos}><ErrorCircle /></span>}
+            {confirmPassword.length > 0 && newPassword === confirmPassword && <span style={iconPos}><CheckCircle /></span>}
+          </div>
         </div>
         <PrimaryButton type="submit" disabled={!canSubmit}>
           {isSubmitting ? 'Saving…' : 'Save password'}

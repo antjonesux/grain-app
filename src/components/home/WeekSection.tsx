@@ -25,13 +25,13 @@ export const WeekSection = ({ days }: WeekSectionProps) => {
   return (
     <div style={containerStyle}>
       <div style={headerRowStyle}>
-        <h3 style={titleStyle}>This Week</h3>
+        <h3 style={titleStyle}>This week</h3>
         <button
           type="button"
           onClick={() => navigate('/log')}
           style={addLogButtonStyle}
         >
-          + Add Log
+          + Add entry
         </button>
       </div>
       <div style={listStyle}>

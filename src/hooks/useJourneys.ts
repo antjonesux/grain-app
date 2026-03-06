@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { errors } from '@/lib/errorMessages'
 import type { JourneyRow } from '@/types/database.types'
 
 interface UseJourneysResult {
@@ -26,13 +27,13 @@ export const useJourneys = (): UseJourneysResult => {
         .order('created_at', { ascending: true })
 
       if (fetchError) {
-        setError(fetchError.message)
+        setError(errors.loadJourney)
         setJourneys([])
         return
       }
       setJourneys((data ?? []) as JourneyRow[])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load journeys')
+      setError(err instanceof Error ? err.message : errors.loadJourney)
       setJourneys([])
     } finally {
       setIsLoading(false)

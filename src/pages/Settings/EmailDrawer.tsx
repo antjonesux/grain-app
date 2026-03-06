@@ -1,5 +1,6 @@
 import { type CSSProperties, useState, useEffect, useRef } from 'react'
 import { Drawer } from '@/components/onboarding/Drawer'
+import { errors } from '@/lib/errorMessages'
 import { supabase } from '@/lib/supabaseClient'
 
 interface EmailDrawerProps {
@@ -142,7 +143,7 @@ export const EmailDrawer = ({ isOpen, onClose, currentEmail }: EmailDrawerProps)
     const { error: updateError } = await supabase.auth.updateUser({ email: newEmail })
 
     if (updateError) {
-      setError(updateError.message)
+      setError(errors.saveEmail)
       setSaving(false)
       return
     }
@@ -162,12 +163,12 @@ export const EmailDrawer = ({ isOpen, onClose, currentEmail }: EmailDrawerProps)
       type: 'email_change',
       email: currentEmail,
     })
-    if (resendError) setError(resendError.message)
+    if (resendError) setError(errors.resend)
   }
 
   if (phase === 'confirmation') {
     return (
-      <Drawer isOpen={isOpen} onClose={onClose} title={`We sent a confirmation link to ${sentTo}`} subtitle="Check your email to confirm your account. Then sign in to finish saving your journey.">
+      <Drawer isOpen={isOpen} onClose={onClose} title={`We sent a confirmation link to ${sentTo}`} subtitle="Check your email to confirm. Then sign in again.">
         <div style={{ paddingTop: '28px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
           {error && <p style={errorTextStyle}>{error}</p>}
           <button type="button" style={{ ...btnBase, background: 'var(--bg-input)', border: '1px solid var(--border)', color: 'var(--text-primary)' }} onClick={handleResend}>
@@ -185,7 +186,7 @@ export const EmailDrawer = ({ isOpen, onClose, currentEmail }: EmailDrawerProps)
       : { ...btnBase, background: 'var(--bg-input)', color: 'var(--text-muted)', cursor: 'not-allowed' }
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title="Email address" subtitle="A confirmation link will be sent before your email changes.">
+    <Drawer isOpen={isOpen} onClose={onClose} title="Email address" subtitle="We'll send a confirmation link before anything changes.">
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {/* CURRENT */}
         <div style={{ paddingBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>

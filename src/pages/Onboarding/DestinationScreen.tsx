@@ -71,7 +71,7 @@ export const DestinationScreen = ({
 
         <h1 style={headingStyle}>What are you working toward?</h1>
         <p style={subheadStyle}>
-          This is your north star. One clear destination.
+          This becomes your anchor. Be specific.
         </p>
 
         <div style={inputWrapper}>

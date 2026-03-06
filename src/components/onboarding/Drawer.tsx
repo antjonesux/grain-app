@@ -106,8 +106,8 @@ export const Drawer = ({
 }: DrawerProps) => {
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
-  const exitTimer = useRef<ReturnType<typeof setTimeout>>()
-  const enterTimer = useRef<ReturnType<typeof setTimeout>>()
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -118,8 +118,8 @@ export const Drawer = ({
       exitTimer.current = setTimeout(() => setMounted(false), EXIT_DURATION)
     }
     return () => {
-      clearTimeout(enterTimer.current)
-      clearTimeout(exitTimer.current)
+      clearTimeout(enterTimer.current ?? undefined)
+      clearTimeout(exitTimer.current ?? undefined)
     }
   }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 

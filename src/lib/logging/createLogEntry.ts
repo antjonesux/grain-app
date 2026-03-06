@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
+import { errors } from '@/lib/errorMessages'
 
 export interface LogEntryItem {
   actionId: string
@@ -32,7 +33,7 @@ export async function createLogEntry(
   const { userId, journeyId, logDate, loggedAt, note, items } = params
 
   if (items.length === 0) {
-    return { logId: null, error: 'At least one action item is required.' }
+    return { logId: null, error: 'Select an action and duration.' }
   }
 
   const seen = new Set<string>()
@@ -59,7 +60,7 @@ export async function createLogEntry(
   if (parentErr || !parent?.id) {
     return {
       logId: null,
-      error: parentErr?.message ?? 'Failed to create log entry.',
+      error: parentErr?.message ?? errors.saveEntry,
     }
   }
 
@@ -82,7 +83,7 @@ export async function createLogEntry(
     .insert(childRows)
 
   if (childErr) {
-    return { logId, error: childErr.message }
+    return { logId, error: errors.saveEntry }
   }
 
   return { logId, error: null }

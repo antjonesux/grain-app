@@ -3,6 +3,8 @@ import { useActiveJourney, useHomeWeekData } from '@/hooks'
 import { HomeHeader } from '@/components/home/HomeHeader'
 import { JourneyCard } from '@/components/home/JourneyCard'
 import { WeekSection } from '@/components/home/WeekSection'
+import { JourneyCardSkeleton } from '@/components/skeleton/JourneyCardSkeleton'
+import { DayCardSkeleton } from '@/components/skeleton/DayCardSkeleton'
 
 export const HomePage = () => {
   const {
@@ -28,8 +30,17 @@ export const HomePage = () => {
   if (journeyLoading) {
     return (
       <div style={pageStyle}>
-        <div style={loadingWrapStyle}>
-          <p style={loadingTextStyle}>Loading…</p>
+        <HomeHeader weekStart={weekStart} weekEnd={weekEnd} />
+        <div style={cardWrapStyle}>
+          <JourneyCardSkeleton />
+        </div>
+        <div style={weekSkeletonSectionStyle}>
+          <h3 style={weekSkeletonTitleStyle}>This week</h3>
+          <div style={weekSkeletonListStyle}>
+            {Array.from({ length: 7 }, (_, i) => (
+              <DayCardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -51,9 +62,19 @@ export const HomePage = () => {
           />
         </div>
       ) : weekLoading ? (
-        <div style={loadingWrapStyle}>
-          <p style={loadingTextStyle}>Loading week…</p>
-        </div>
+        <>
+          <div style={cardWrapStyle}>
+            <JourneyCardSkeleton />
+          </div>
+          <div style={weekSkeletonSectionStyle}>
+            <h3 style={weekSkeletonTitleStyle}>This week</h3>
+            <div style={weekSkeletonListStyle}>
+              {Array.from({ length: 7 }, (_, i) => (
+                <DayCardSkeleton key={i} />
+              ))}
+            </div>
+          </div>
+        </>
       ) : (
         <>
           <div style={cardWrapStyle}>
@@ -84,15 +105,22 @@ const pageStyle: CSSProperties = {
   backgroundColor: 'var(--grain-bg)',
 }
 
-const loadingWrapStyle: CSSProperties = {
-  padding: '32px 24px',
+const weekSkeletonSectionStyle: CSSProperties = {
+  padding: '24px 24px 32px',
 }
 
-const loadingTextStyle: CSSProperties = {
+const weekSkeletonTitleStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 400,
-  lineHeight: '19.5px',
-  color: 'var(--text-muted)',
+  fontSize: 'var(--grain-h2)',
+  fontWeight: 600,
+  lineHeight: '12px',
+  color: 'var(--text-primary)',
   margin: 0,
+  marginBottom: 16,
+}
+
+const weekSkeletonListStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
 }

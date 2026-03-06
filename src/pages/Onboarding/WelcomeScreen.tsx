@@ -16,6 +16,11 @@ const screen: CSSProperties = {
   minHeight: '100dvh',
   padding: '0 24px',
   background: 'var(--bg)',
+  maxWidth: 480,
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  width: '100%',
+  boxSizing: 'border-box',
 }
 
 const topSection: CSSProperties = {

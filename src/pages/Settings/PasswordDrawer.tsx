@@ -1,6 +1,8 @@
 import { type CSSProperties, useState, useEffect, useRef } from 'react'
 import { Drawer } from '@/components/onboarding/Drawer'
 import { supabase } from '@/lib/supabaseClient'
+import { errors } from '@/lib/errorMessages'
+import { meetsMinLength, PASSWORD_HINT } from '@/lib/passwordValidation'
 
 interface PasswordDrawerProps {
   isOpen: boolean
@@ -178,7 +180,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
     }
   }, [isOpen])
 
-  const meetsLength = newPw.length >= 6
+  const meetsLength = meetsMinLength(newPw)
   const passwordsMatch = newPw === confirmPw && confirmPw.length > 0
   const confirmHasInput = confirmPw.length > 0
   const confirmShowError = confirmHasInput && !passwordsMatch
@@ -194,7 +196,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
     const { error: updateErr } = await supabase.auth.updateUser({ password: newPw })
 
     if (updateErr) {
-      setError(updateErr.message)
+      setError(updateErr.message.includes('same') || updateErr.message.includes('identical') ? errors.samePassword : errors.savePassword)
       setSaving(false)
       return
     }
@@ -209,13 +211,13 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
     setError(null)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user?.email) {
-      setForgotMessage('Could not find your email. Sign out and use Forgot password on the sign in page.')
+      setForgotMessage(errors.noEmail)
       return
     }
     const redirectTo = `${window.location.origin}/reset-password`
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(user.email, { redirectTo })
     if (resetError) {
-      setForgotMessage(resetError.message)
+      setForgotMessage(errors.resetLink)
       return
     }
     setForgotMessage('Check your email for a link to reset your password.')
@@ -269,7 +271,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
             {newPw.length > 0 && (
               <span style={hintStyle(meetsLength)}>
                 <HintCircle met={meetsLength} />
-                At least 6 characters
+                {PASSWORD_HINT}
               </span>
             )}
 

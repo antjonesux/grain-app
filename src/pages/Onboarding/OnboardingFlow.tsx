@@ -235,7 +235,7 @@ export const OnboardingFlow = () => {
       )
 
     case 7:
-      return <SuccessScreen onContinue={handleSuccess} />
+      return <SuccessScreen onFinish={handleSuccess} />
 
     default:
       return null
