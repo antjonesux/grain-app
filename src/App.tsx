@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/context/ThemeContext'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { ProtectedRoute } from '@/components/Layout/ProtectedRoute'
 import { AppShell } from '@/components/Layout/AppShell'
+import { ScrollToTop } from '@/components/Layout/ScrollToTop'
 import { WelcomeScreen } from '@/pages/Onboarding/WelcomeScreen'
 import { DRAFT_KEY, OnboardingPage } from '@/pages/Onboarding/OnboardingPage'
 import { LoginPage } from '@/pages/Auth/LoginPage'
@@ -178,6 +179,7 @@ export const App = () => (
   <ThemeProvider>
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>

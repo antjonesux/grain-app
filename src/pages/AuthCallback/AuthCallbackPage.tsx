@@ -5,6 +5,7 @@ import { getOAuthError } from '@/lib/errorMessages'
 
 const FROM_KEY = 'grain.auth.from'
 const RESUME_KEY = 'grain.auth.resume'
+const OAUTH_ERROR_MESSAGE = 'Google sign-in failed.'
 
 function parseHashParams(hash: string): Record<string, string> {
   const params: Record<string, string> = {}
@@ -47,7 +48,7 @@ export const AuthCallbackPage = () => {
       if (hashParams.error) {
         navigate('/login', {
           replace: true,
-          state: { error: getOAuthError(hashParams.error_description) },
+          state: { error: getOAuthError(hashParams.error_description) ?? OAUTH_ERROR_MESSAGE },
         })
         return
       }
@@ -58,7 +59,7 @@ export const AuthCallbackPage = () => {
       if (code) {
         const { data, error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) {
-          navigate('/login', { replace: true, state: { error: getOAuthError() } })
+          navigate('/login', { replace: true, state: { error: OAUTH_ERROR_MESSAGE } })
           return
         }
         if (data.session) {
@@ -86,7 +87,7 @@ export const AuthCallbackPage = () => {
           refresh_token: refreshToken,
         })
         if (error) {
-          navigate('/login', { replace: true, state: { error: getOAuthError() } })
+          navigate('/login', { replace: true, state: { error: OAUTH_ERROR_MESSAGE } })
           return
         }
         window.history.replaceState({}, document.title, '/auth/callback')
@@ -104,7 +105,7 @@ export const AuthCallbackPage = () => {
         return
       }
 
-      navigate('/login', { replace: true, state: { error: getOAuthError() } })
+      navigate('/login', { replace: true, state: { error: OAUTH_ERROR_MESSAGE } })
     }
 
     run()
