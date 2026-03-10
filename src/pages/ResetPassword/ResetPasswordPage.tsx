@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type CSSProperties } from 'react'
+import { useState, useEffect, useCallback, useRef, type CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
@@ -22,24 +22,36 @@ function parseHashParams(hash: string): Record<string, string> {
 async function establishRecoverySession(): Promise<{ ok: true } | { ok: false; message: string }> {
   const { search, hash } = window.location
   const searchParams = new URLSearchParams(search)
+  const hashParams = parseHashParams(hash)
+
+  const hashError = hashParams.error || hashParams.error_description
+  if (hashError) {
+    console.debug('[ResetPassword] hash error:', hashError)
+    return { ok: false, message: errors.expiredLink }
+  }
 
   const code = searchParams.get('code')
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) return { ok: false, message: errors.expiredLink }
     if (data.session) {
-      window.history.replaceState({}, document.title, '/reset-password')
+      window.history.replaceState({}, document.title, `${window.location.origin}/reset-password`)
       return { ok: true }
     }
   }
 
-  const hashParams = parseHashParams(hash)
   const accessToken = hashParams.access_token
   const refreshToken = hashParams.refresh_token
   if (accessToken && refreshToken) {
     const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
     if (error) return { ok: false, message: errors.expiredLink }
-    window.history.replaceState({}, document.title, '/reset-password')
+    window.history.replaceState({}, document.title, `${window.location.origin}/reset-password`)
+    return { ok: true }
+  }
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session) {
+    window.history.replaceState({}, document.title, `${window.location.origin}/reset-password`)
     return { ok: true }
   }
 
@@ -192,6 +204,8 @@ export const ResetPasswordPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
+  const hasRunRef = useRef(false)
+
   const establishSession = useCallback(async () => {
     const result = await establishRecoverySession()
     if (result.ok) {
@@ -204,6 +218,9 @@ export const ResetPasswordPage = () => {
   }, [])
 
   useEffect(() => {
+    if (hasRunRef.current) return
+    hasRunRef.current = true
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY' && session) {
         setPageState('ready')
@@ -236,6 +253,7 @@ export const ResetPasswordPage = () => {
       return
     }
 
+    await supabase.auth.signOut()
     setIsSubmitting(false)
     navigate('/login?reset=1', { replace: true })
   }
