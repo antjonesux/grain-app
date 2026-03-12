@@ -67,6 +67,9 @@
   /* White */
   --grain-white: #FFFFFF;
 
+  /* Effect overlays */
+  --grain-noise-opacity: 0.08;
+
   /* Short-form aliases (used across the app) */
   --bg: var(--grain-bg);
   --bg-card: var(--grain-bg-card);
@@ -114,6 +117,8 @@
   --shadow-card: var(--grain-shadow-card);
   --shadow-elevated: var(--grain-shadow-elevated);
   --shadow-glow: var(--grain-shadow-glow);
+
+  --noise-opacity: var(--grain-noise-opacity);
 }
 
 /* ----------------------------- */
@@ -175,6 +180,9 @@
   /* White */
   --grain-white: #FFFFFF;
 
+  /* Effect overlays */
+  --grain-noise-opacity: 0.15;
+
   /* Short-form aliases */
   --bg: var(--grain-bg);
   --bg-card: var(--grain-bg-card);
@@ -222,4 +230,6 @@
   --shadow-card: var(--grain-shadow-card);
   --shadow-elevated: var(--grain-shadow-elevated);
   --shadow-input-focus: var(--grain-shadow-input-focus);
+
+  --noise-opacity: var(--grain-noise-opacity);
 }
