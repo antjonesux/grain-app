@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
 import { InlineLinkRow } from '@/components/onboarding/InlineLinkRow'
-import appIconCircle from '@/assets/app_icon_circle.svg'
+import LogoIcon from '@/assets/logo_icon.svg?react'
 
 interface WelcomeScreenProps {
   onNext: () => void
@@ -14,7 +14,6 @@ const screen: CSSProperties = {
   flexDirection: 'column',
   justifyContent: 'space-between',
   minHeight: '100dvh',
-  padding: '0 24px',
   background: 'var(--bg)',
   maxWidth: 480,
   marginLeft: 'auto',
@@ -33,17 +32,37 @@ const logoArea: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  paddingTop: '48px',
+  paddingTop: '64px',
+  gap: '16px',
 }
 
-const wordmark: CSSProperties = {
-  fontFamily: 'var(--grain-font-serif)',
-  fontSize: '32px',
-  fontWeight: 400,
-  color: 'var(--accent)',
-  letterSpacing: '0.16px',
-  margin: 0,
+const logoGroupStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '16px',
 }
+
+const logoTextStyle: CSSProperties = {
+  fontFamily: "var(--grain-font-serif)",
+  fontSize: '40px',
+  fontWeight: 400,
+  color: 'var(--text-primary)',
+  letterSpacing: '0.09px',
+  textShadow: '0 0 24px rgba(16, 185, 129, 0.3)',
+}
+
+const GrainLogo = () => (
+  <LogoIcon
+    width={40}
+    height={39}
+    aria-hidden="true"
+    style={{
+      color: 'var(--text-primary)',
+      filter: 'drop-shadow(0 0 24px rgba(16, 185, 129, 0.3))',
+    }}
+  />
+)
 
 const headline: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
@@ -52,8 +71,7 @@ const headline: CSSProperties = {
   lineHeight: '33.8px',
   color: 'var(--text-primary)',
   textAlign: 'center',
-  maxWidth: '222px',
-  paddingTop: '32px',
+  paddingTop: '112px',
   margin: 0,
 }
 
@@ -64,7 +82,7 @@ const tagline: CSSProperties = {
   lineHeight: '24px',
   color: 'var(--text-secondary)',
   textAlign: 'center',
-  paddingTop: '24px',
+  paddingTop: '8px',
   margin: 0,
 }
 
@@ -72,8 +90,8 @@ const ctaZone: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  paddingTop: '28px',
-  paddingBottom: '56px',
+  paddingTop: '48px',
+  paddingBottom: '40px',
   gap: '12px',
 }
 
@@ -81,8 +99,10 @@ export const WelcomeScreen = ({ onNext, onSignIn }: WelcomeScreenProps) => (
   <div style={screen}>
     <div style={topSection}>
       <div style={logoArea}>
-        <img src={appIconCircle} alt="Grain" width={150} height={150} />
-        <p style={wordmark}>Grain</p>
+        <div style={logoGroupStyle}>
+          <GrainLogo />
+          <span style={logoTextStyle}>Grain</span>
+        </div>
       </div>
       <h1 style={headline}>Your time tells the truth.</h1>
       <p style={tagline}>

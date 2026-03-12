@@ -533,7 +533,6 @@ const scrollContentStyle: CSSProperties = {
   paddingLeft: 24,
   paddingRight: 24,
   paddingTop: 24,
-  paddingBottom: 56,
 }
 
 const sectionsStackStyle: CSSProperties = {

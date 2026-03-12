@@ -31,6 +31,18 @@ const logoTextStyle: CSSProperties = {
   textShadow: '0 0 24px rgba(16, 185, 129, 0.3)',
 }
 
+const GrainLogo = () => (
+  <LogoIcon
+    width={20}
+    height={19}
+    aria-hidden="true"
+    style={{
+      color: 'var(--text-primary)',
+      filter: 'drop-shadow(0 0 24px rgba(16, 185, 129, 0.6))',
+    }}
+  />
+)
+
 const backButtonStyle: CSSProperties = {
   background: 'none',
   border: 'none',
@@ -48,18 +60,6 @@ const spacerStyle: CSSProperties = {
   width: '20px',
   flexShrink: 0,
 }
-
-const GrainLogo = () => (
-  <LogoIcon
-    width={20}
-    height={19}
-    aria-hidden="true"
-    style={{
-      color: 'var(--text-primary)',
-      filter: 'drop-shadow(0 0 24px rgba(16, 185, 129, 0.6))',
-    }}
-  />
-)
 
 const ArrowLeft = () => (
   <svg
