@@ -79,7 +79,7 @@ const GrainLogo = () => (
     aria-hidden="true"
     style={{
       color: 'var(--text-primary)',
-      filter: 'drop-shadow(0 0 24px rgba(16, 185, 129, 0.3))',
+      filter: 'drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 30%, transparent))',
     }}
   />
 )
@@ -111,7 +111,7 @@ const noiseLayer: CSSProperties = {
   height: '180%',
   backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
   backgroundSize: '180px 180px',
-  opacity: 0.045,
+  opacity: 0.08,
   pointerEvents: 'none',
   animation: 'grainShift 0.85s steps(1) infinite',
   zIndex: 0,
@@ -126,7 +126,7 @@ const glowTop: CSSProperties = {
   width: 560,
   height: 560,
   background:
-    'radial-gradient(circle, rgba(16,185,129,0.11) 0%, rgba(16,185,129,0.03) 45%, transparent 70%)',
+    'radial-gradient(circle, color-mix(in srgb, var(--accent) 11%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 45%, transparent 70%)',
   pointerEvents: 'none',
   animation: 'ws-glowPulse 4s ease-in-out infinite',
   zIndex: 0,
@@ -141,7 +141,7 @@ const glowBottom: CSSProperties = {
   width: 600,
   height: 320,
   background:
-    'radial-gradient(ellipse, rgba(16,185,129,0.05) 0%, transparent 65%)',
+    'radial-gradient(ellipse, color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 65%)',
   pointerEvents: 'none',
   zIndex: 0,
 }
@@ -175,7 +175,7 @@ const logoTextStyle: CSSProperties = {
   fontWeight: 400,
   color: 'var(--text-primary)',
   letterSpacing: '0.09px',
-  textShadow: '0 0 24px rgba(16, 185, 129, 0.3)',
+  textShadow: '0 0 24px color-mix(in srgb, var(--accent) 30%, transparent)',
 }
 
 // Eyebrow row: line + label
@@ -190,7 +190,7 @@ const eyebrowRow: CSSProperties = {
 const eyebrowLine: CSSProperties = {
   height: 1,
   width: 28,
-  background: '#10B981',
+  background: 'var(--accent)',
   transformOrigin: 'left center',
   ...anim('ws-lineGrow', '0.5s', '0.75s'),
 }
@@ -201,7 +201,7 @@ const eyebrowText: CSSProperties = {
   fontWeight: 700,
   letterSpacing: '0.12em',
   textTransform: 'uppercase' as const,
-  color: '#10B981',
+  color: 'var(--accent)',
 }
 
 // Headline — outer wrapper (no padding, words handle their own spacing)
@@ -222,7 +222,7 @@ function wordStyle(delay: string): CSSProperties {
   }
 }
 
-const wordAccent: CSSProperties = { color: '#10B981' }
+const wordAccent: CSSProperties = { color: 'var(--accent)' }
 
 const taglineStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
@@ -239,7 +239,7 @@ const dividerStyle: CSSProperties = {
   width: '100%',
   height: 1,
   background:
-    'linear-gradient(90deg, transparent, var(--border, #2A2D3A) 30%, var(--border, #2A2D3A) 70%, transparent)',
+    'linear-gradient(90deg, transparent, var(--border) 30%, var(--border) 70%, transparent)',
   margin: '28px 0 24px',
   ...anim('ws-fadeIn', '0.4s', '1.7s'),
 }
@@ -258,12 +258,12 @@ function pillStyle(delay: string): CSSProperties {
     gap: 8,
     padding: '7px 13px',
     borderRadius: 999,
-    background: 'var(--bg-elevated, #1E2130)',
-    border: '1px solid var(--border, #2A2D3A)',
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border)',
     fontFamily: 'var(--grain-font-sans)',
     fontSize: '12px',
     fontWeight: 500,
-    color: 'var(--text-secondary, #7D8093)',
+    color: 'var(--text-secondary)',
     whiteSpace: 'nowrap' as const,
     ...anim('ws-pillPop', '0.5s', delay),
   }
@@ -273,7 +273,7 @@ const pillDot: CSSProperties = {
   width: 5,
   height: 5,
   borderRadius: '50%',
-  background: '#10B981',
+  background: 'var(--accent)',
   flexShrink: 0,
 }
 
