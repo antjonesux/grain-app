@@ -60,7 +60,7 @@ const headerBlock: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   paddingTop: 20,
-  paddingBottom: 8,
+  paddingBottom: 16,
   gap: 12,
 }
 
@@ -94,9 +94,9 @@ const section: CSSProperties = {
 
 const sectionLabel: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '10px',
+  fontSize: '11px',
   fontWeight: 600,
-  lineHeight: '12px',
+  lineHeight: '14px',
   letterSpacing: '0.12px',
   textTransform: 'uppercase',
   color: 'var(--text-muted)',

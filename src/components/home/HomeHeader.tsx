@@ -38,11 +38,11 @@ export const HomeHeader = ({ weekStart, weekEnd }: HomeHeaderProps) => {
           aria-label="Settings"
           style={settingsBtnStyle}
         >
-          <Settings size={18} />
+          <Settings size={20} />
         </button>
       </div>
       <div style={weekRowStyle}>
-        <Calendar size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+        <Calendar size={14} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
         <span style={weekTextStyle}>{formatWeekRange(weekStart, weekEnd)}</span>
       </div>
     </div>
@@ -71,7 +71,7 @@ const greetingStyle: CSSProperties = {
 const settingsBtnStyle: CSSProperties = {
   background: 'none',
   border: 'none',
-  color: 'var(--text-muted)',
+  color: 'var(--text-secondary)',
   cursor: 'pointer',
   padding: 8,
   display: 'flex',
@@ -92,5 +92,5 @@ const weekTextStyle: CSSProperties = {
   fontSize: '13px',
   fontWeight: 400,
   lineHeight: '19.5px',
-  color: 'var(--text-muted)',
+  color: 'var(--text-secondary)',
 }

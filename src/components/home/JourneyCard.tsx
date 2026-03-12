@@ -104,7 +104,7 @@ export const JourneyCard = ({
       />
 
       {/* D) Progress section */}
-      <div style={{ paddingBottom: 16 }}>
+      <div>
         <div style={progressLabelRowStyle}>
           <span style={progressLabelStyle}>Progress</span>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -206,17 +206,17 @@ const progressLabelRowStyle: CSSProperties = {
 
 const progressLabelStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '11px',
+  fontSize: '13px',
   fontWeight: 400,
-  lineHeight: '16.5px',
+  lineHeight: '19.5px',
   color: 'var(--text-secondary)',
 }
 
 const bonusLabelStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '11px',
+  fontSize: '13px',
   fontWeight: 600,
-  lineHeight: '16.5px',
+  lineHeight: '19.5px',
   color: 'var(--accent-amber)',
 }
 
@@ -224,13 +224,14 @@ const commitmentCaptionRowStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'flex-end',
   paddingTop: 12,
+  paddingBottom: 12,
 }
 
 const commitmentCaptionStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: 11,
+  fontSize: 13,
   fontWeight: 400,
-  lineHeight: '16.5px',
+  lineHeight: '19.5px',
   color: 'var(--text-secondary)',
 }
 
@@ -246,7 +247,7 @@ const trophyBannerStyle: CSSProperties = {
 }
 
 const trophyIconCompleteStyle: CSSProperties = {
-  fontSize: 18,
+  fontSize: 24,
   fontFamily: 'var(--grain-font-sans)',
   fontWeight: 700,
   lineHeight: '23.4px',
@@ -262,18 +263,18 @@ const trophyIconBonusStyle: CSSProperties = {
 const trophyTitleStyle: CSSProperties = {
   display: 'block',
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '11px',
+  fontSize: '13px',
   fontWeight: 700,
-  lineHeight: '16.5px',
+  lineHeight: '19.5px',
   color: 'var(--text-primary)',
 }
 
 const trophyBodyStyle: CSSProperties = {
   display: 'block',
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '11px',
+  fontSize: '13px',
   fontWeight: 400,
-  lineHeight: '16.5px',
+  lineHeight: '19.5px',
   color: 'var(--text-primary)',
 }
 

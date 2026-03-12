@@ -244,7 +244,7 @@ export const LogPage = () => {
                 <h1 style={titleStyle}>Log your time</h1>
               </div>
               <div style={dateRowStyle}>
-                <Calendar size={20} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                <Calendar size={20} style={{ color: 'var(--text-primary)', flexShrink: 0 }} />
                 <span style={dateTextStyle}>{formatDateShort(new Date())}</span>
               </div>
               <div style={cardStyle}>
@@ -270,24 +270,47 @@ export const LogPage = () => {
   return (
     <>
       <div style={outerStyle}>
-        <div style={mainWrapper}>
-          <div style={innerContainer}>
-            <div>
-              <div style={headerStyle}>
-              <button type="button" style={backBtnStyle} onClick={() => navigate(-1)} aria-label="Go back">
-                <ArrowLeft />
-              </button>
-              <h1 style={titleStyle}>Log your time</h1>
+        <header style={stickyHeaderStyle}>
+          <div style={headerBackRowStyle}>
+            <button type="button" style={backBtnStyle} onClick={() => navigate(-1)} aria-label="Go back">
+              <ArrowLeft />
+            </button>
+          </div>
+          <h1 style={titleStyle}>Log your time</h1>
+          <div style={headerSecondRowStyle}>
+            <div style={dateRowStyle}>
+              <Calendar size={14} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+              <span style={dateTextStyle}>
+                {formatDateShort(new Date(logDate + 'T12:00:00'))}
+              </span>
             </div>
+            <button
+              type="button"
+              style={
+                saved
+                  ? { ...saveBtnHeaderStyle, background: 'var(--bg-elevated)', color: 'var(--accent)', border: '1px solid var(--accent-soft)', cursor: 'default' }
+                  : canSave && !isSaving
+                    ? { ...saveBtnHeaderStyle, background: 'var(--accent)', color: 'var(--bg)' }
+                    : { ...saveBtnHeaderStyle, background: 'var(--bg-input)', color: 'var(--text-muted)', cursor: 'not-allowed' }
+              }
+              disabled={(!canSave && !saved) || isSaving}
+              onClick={handleSaveEntry}
+            >
+              {saved && <SaveCheckmark />}
+              {isSaving ? 'Saving…' : saved ? transitionMessages.firstLogSaved : 'Save Entry'}
+            </button>
+          </div>
+        </header>
 
-              <div style={dateRowStyle}>
-                <Calendar size={20} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                <span style={dateTextStyle}>
-                  {formatDateShort(new Date(logDate + 'T12:00:00'))}
-                </span>
-              </div>
-
-              <div style={journeySelectWrap}>
+        <div style={scrollContentStyle}>
+          {saveError && (
+            <p style={errorStyle} role="alert">
+              {saveError}
+            </p>
+          )}
+          <div style={sectionsStackStyle}>
+            <div style={journeySelectInStack}>
+                <p style={sectionLabelStyle}>JOURNEY</p>
                 {singleJourney ? (
                   <div style={journeySelectCardStatic} aria-disabled="true">
                     <span style={journeyTitleStyle}>{displayJourney?.title ?? ''}</span>
@@ -328,7 +351,7 @@ export const LogPage = () => {
                 )}
               </div>
 
-              <div style={sectionWrap}>
+              <div style={sectionInStack}>
                 <p style={sectionLabelStyle}>ACTION</p>
                 <div style={chipWrap}>
                   {actions.map((action) => (
@@ -355,7 +378,7 @@ export const LogPage = () => {
                 )}
               </div>
 
-              <div style={sectionWrap}>
+              <div style={sectionInStack}>
                 <p style={sectionLabelStyle}>DURATION</p>
                 <div style={chipWrap}>
                   {DURATION_OPTIONS.map((opt) => (
@@ -386,7 +409,7 @@ export const LogPage = () => {
                 </div>
               </div>
 
-              <div style={sectionWrap}>
+              <div style={sectionInStack}>
                 <p style={sectionLabelStyle}>NOTE (OPTIONAL)</p>
                 <div style={noteInputWrap}>
                   <TextArea
@@ -397,32 +420,8 @@ export const LogPage = () => {
                 </div>
               </div>
             </div>
-
-            <div style={ctaZone}>
-              {saveError && (
-                <p style={errorStyle} role="alert">
-                  {saveError}
-                </p>
-              )}
-              <button
-                type="button"
-                style={
-                  saved
-                    ? { ...saveBtnBase, background: '#1A2421', color: 'var(--accent)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'default' }
-                    : canSave && !isSaving
-                      ? { ...saveBtnBase, background: 'var(--accent)', color: 'var(--bg)' }
-                      : { ...saveBtnBase, background: 'var(--bg-input)', color: 'var(--text-muted)', cursor: 'not-allowed' }
-                }
-                disabled={(!canSave && !saved) || isSaving}
-                onClick={handleSaveEntry}
-              >
-                {saved && <SaveCheckmark />}
-                {isSaving ? 'Saving…' : saved ? transitionMessages.firstLogSaved : 'Save'}
-              </button>
-            </div>
           </div>
         </div>
-      </div>
 
       <Drawer
         isOpen={customActionDrawerOpen}
@@ -499,6 +498,50 @@ const mainWrapper: CSSProperties = {
   flexDirection: 'column',
 }
 
+const stickyHeaderStyle: CSSProperties = {
+  position: 'sticky',
+  top: 0,
+  zIndex: 10,
+  flexShrink: 0,
+  paddingLeft: 24,
+  paddingRight: 24,
+  paddingTop: 20,
+  paddingBottom: 16,
+  background: 'var(--bg)',
+  borderBottom: '1px solid var(--border)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+}
+
+const headerBackRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+}
+
+const headerSecondRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 8,
+}
+
+const scrollContentStyle: CSSProperties = {
+  flex: 1,
+  minHeight: 0,
+  overflowY: 'auto',
+  paddingLeft: 24,
+  paddingRight: 24,
+  paddingTop: 24,
+  paddingBottom: 56,
+}
+
+const sectionsStackStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 24,
+}
+
 const innerContainer: CSSProperties = {
   flex: 1,
   display: 'flex',
@@ -536,7 +579,6 @@ const titleStyle: CSSProperties = {
 }
 
 const dateRowStyle: CSSProperties = {
-  paddingBottom: 20,
   display: 'inline-flex',
   alignItems: 'center',
   gap: 8,
@@ -553,6 +595,11 @@ const dateTextStyle: CSSProperties = {
 const journeySelectWrap: CSSProperties = {
   paddingBottom: 20,
   position: 'relative',
+}
+
+const journeySelectInStack: CSSProperties = {
+  ...journeySelectWrap,
+  paddingBottom: 0,
 }
 
 const journeySelectCard: CSSProperties = {
@@ -614,8 +661,9 @@ const pickerItemStyle: CSSProperties = {
 
 const sectionLabelStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
-  fontSize: '10px',
+  fontSize: '11px',
   fontWeight: 600,
+  lineHeight: '14px',
   textTransform: 'uppercase',
   letterSpacing: '0.12px',
   color: 'var(--text-muted)',
@@ -625,6 +673,11 @@ const sectionLabelStyle: CSSProperties = {
 
 const sectionWrap: CSSProperties = {
   paddingBottom: 20,
+}
+
+const sectionInStack: CSSProperties = {
+  ...sectionWrap,
+  paddingBottom: 0,
 }
 
 const helperTextStyle: CSSProperties = {
@@ -644,13 +697,6 @@ const chipWrap: CSSProperties = {
 
 const noteInputWrap: CSSProperties = {
   paddingTop: 0,
-}
-
-const ctaZone: CSSProperties = {
-  paddingBottom: 56,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 12,
 }
 
 const errorStyle: CSSProperties = {
@@ -733,10 +779,16 @@ const saveBtnBase: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   gap: 8,
-  padding: '14px 16px',
+  padding: '8px 16px',
   border: 'none',
   cursor: 'pointer',
   transition: 'background 250ms ease, color 200ms ease, border-color 250ms ease',
+}
+
+const saveBtnHeaderStyle: CSSProperties = {
+  ...saveBtnBase,
+  width: 'auto',
+  minWidth: 100,
 }
 
 const SaveCheckmark = () => (

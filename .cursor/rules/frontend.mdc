@@ -72,7 +72,7 @@ No fourth text level.
 - Body/subhead: 13px/19.5px Regular
 - Button: 13px/19.5px Medium (500)
 - Chip: 13px/19.5px Regular
-- Section label: 10px SemiBold (600) uppercase, letter-spacing 0.12px
+- Section label: 11px SemiBold (600) uppercase, letter-spacing 0.12px
 - Caption: 11px/16.5px Regular
 - Hour display: 64px/64px Bold
 - Commitment value: 16px/16px Bold

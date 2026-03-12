@@ -33,8 +33,7 @@ const logoArea: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  paddingTop: '88px',
-  gap: '12px',
+  paddingTop: '48px',
 }
 
 const wordmark: CSSProperties = {

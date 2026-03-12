@@ -65,8 +65,8 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
 
 const trackStyle: CSSProperties = {
   width: '100%',
-  height: 8,
-  borderRadius: 4,
+  height: 12,
+  borderRadius: 6,
   backgroundColor: 'var(--progress-track-bg, var(--bg-elevated))',
   overflow: 'hidden',
   display: 'flex',
@@ -74,7 +74,7 @@ const trackStyle: CSSProperties = {
 
 const fillStyle: CSSProperties = {
   height: '100%',
-  borderRadius: 4,
+  borderRadius: 6,
   backgroundColor: 'var(--accent-blue)',
   transition: 'width 240ms ease-out',
 }
