@@ -72,12 +72,15 @@ const disabledInputWrap: CSSProperties = {
 const toggleBtn: CSSProperties = {
   position: 'absolute',
   right: '16px',
+  top: '50%',
+  transform: 'translateY(-50%)',
   background: 'none',
   border: 'none',
   padding: 0,
   cursor: 'pointer',
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'center',
 }
 
 const btnBase: CSSProperties = {
@@ -126,9 +129,37 @@ const hintStyle = (met: boolean): CSSProperties => ({
   color: met ? 'var(--accent)' : 'var(--text-secondary)',
 })
 
-const EyeIcon = ({ muted }: { muted?: boolean }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <ellipse cx="8" cy="8" rx="6" ry="4" stroke={muted ? 'var(--text-muted)' : 'var(--text-muted)'} strokeWidth="1.2" fill="none" />
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z"
+      stroke="var(--text-muted)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="12" cy="12" r="3" stroke="var(--text-muted)" strokeWidth="1.8" />
+  </svg>
+)
+
+const EyeOffIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+      stroke="var(--text-muted)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <line
+      x1="1"
+      y1="1"
+      x2="23"
+      y2="23"
+      stroke="var(--text-muted)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
   </svg>
 )
 
@@ -160,6 +191,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
   const [showCurrent, setShowCurrent] = useState(false)
   const [newPw, setNewPw] = useState('')
   const [showNew, setShowNew] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [confirmPw, setConfirmPw] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -172,6 +204,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
       setShowCurrent(false)
       setNewPw('')
       setShowNew(false)
+      setShowConfirm(false)
       setConfirmPw('')
       setSaving(false)
       setSaved(false)
@@ -245,7 +278,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
               style={disabledPasswordStyle}
             />
             <button type="button" style={toggleBtn} onClick={() => setShowCurrent(v => !v)} aria-label={showCurrent ? 'Hide password' : 'Show password'}>
-              <EyeIcon muted />
+              {showCurrent ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </div>
         </div>
@@ -264,7 +297,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
                 style={inputStyle(newPw.length > 0)}
               />
               <button type="button" style={toggleBtn} onClick={() => setShowNew(v => !v)} aria-label={showNew ? 'Hide password' : 'Show password'}>
-                <EyeIcon />
+                {showNew ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
 
@@ -277,17 +310,23 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
 
             <div style={inputWrap as CSSProperties}>
               <input
-                type="password"
+                type={showConfirm ? 'text' : 'password'}
                 value={confirmPw}
                 onChange={e => setConfirmPw(e.target.value)}
                 placeholder="Confirm new password"
                 style={{
                   ...inputStyle(confirmPw.length > 0),
-                  paddingRight: confirmHasInput ? '44px' : '44px',
+                  paddingRight: confirmHasInput ? '60px' : '44px',
                 }}
               />
-              {confirmShowError && <span style={{ ...toggleBtn, cursor: 'default' } as CSSProperties}><ErrorCircle /></span>}
-              {confirmShowSuccess && <span style={{ ...toggleBtn, cursor: 'default' } as CSSProperties}><CheckCircle /></span>}
+              {confirmHasInput && (
+                <span style={{ ...toggleBtn, right: '44px', cursor: 'default' } as CSSProperties}>
+                  {confirmShowError ? <ErrorCircle /> : confirmShowSuccess ? <CheckCircle /> : null}
+                </span>
+              )}
+              <button type="button" style={toggleBtn} onClick={() => setShowConfirm(v => !v)} aria-label={showConfirm ? 'Hide password' : 'Show password'}>
+                {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
+              </button>
             </div>
           </div>
         </div>
