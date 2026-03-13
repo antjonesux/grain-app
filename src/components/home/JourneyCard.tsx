@@ -99,7 +99,7 @@ export const JourneyCard = ({
         style={{ paddingBottom: 16 }}
         items={[
           { icon: <ClockIcon />, label: 'Time Invested', value: `${fmt(invested)}h` },
-          { icon: <ActionsIcon />, label: 'Actions used', value: distinctActions },
+          { icon: <ActionsIcon />, label: 'Actions Used', value: distinctActions },
         ]}
       />
 
@@ -107,16 +107,11 @@ export const JourneyCard = ({
       <div>
         <div style={progressLabelRowStyle}>
           <span style={progressLabelStyle}>Progress</span>
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            <span style={progressLabelStyle}>{displayPercent}%</span>
-            {isBonus && (
-              <span style={bonusLabelStyle}>{fmt(bonusHours)}h over</span>
-            )}
-          </div>
+          <span style={progressLabelStyle}>{displayPercent}%</span>
         </div>
         <ProgressBar invested={invested} commitment={commitment} />
         <div style={commitmentCaptionRowStyle}>
-          <span style={commitmentCaptionStyle}>Commitment: {commitment}h</span>
+          <span style={commitmentCaptionStyle}>{commitment}h target</span>
         </div>
       </div>
 
@@ -171,7 +166,7 @@ const pillBadgeStyle: CSSProperties = {
   paddingRight: 12,
   paddingTop: 4,
   paddingBottom: 4,
-  background: 'var(--accent-blue-glow)',
+  background: 'var(--accent-blue-soft)',
   borderRadius: 22,
   display: 'flex',
   justifyContent: 'center',
@@ -182,9 +177,9 @@ const pillBadgeTextStyle: CSSProperties = {
   color: 'var(--accent-blue-text)',
   fontSize: '10px',
   fontFamily: 'var(--grain-font-sans)',
-  fontWeight: 600,
+  fontWeight: 700,
   textTransform: 'uppercase',
-  letterSpacing: '0.12px',
+  letterSpacing: '0.05em',
 }
 
 const destinationStyle: CSSProperties = {
@@ -194,7 +189,7 @@ const destinationStyle: CSSProperties = {
   lineHeight: '23.4px',
   color: 'var(--text-primary)',
   margin: 0,
-  paddingBottom: 16,
+  paddingBottom: 20,
 }
 
 const progressLabelRowStyle: CSSProperties = {
@@ -210,14 +205,6 @@ const progressLabelStyle: CSSProperties = {
   fontWeight: 400,
   lineHeight: '19.5px',
   color: 'var(--text-secondary)',
-}
-
-const bonusLabelStyle: CSSProperties = {
-  fontFamily: 'var(--grain-font-sans)',
-  fontSize: '13px',
-  fontWeight: 600,
-  lineHeight: '19.5px',
-  color: 'var(--accent-amber)',
 }
 
 const commitmentCaptionRowStyle: CSSProperties = {
@@ -237,8 +224,8 @@ const commitmentCaptionStyle: CSSProperties = {
 
 const trophyBannerStyle: CSSProperties = {
   padding: '10px 14px',
-  background: 'var(--bg-elevated)',
-  border: '1px solid var(--border)',
+  background: 'var(--accent-blue-soft)',
+  border: '1px solid var(--accent-blue-glow)',
   borderRadius: 14,
   display: 'flex',
   alignItems: 'center',
@@ -266,7 +253,7 @@ const trophyTitleStyle: CSSProperties = {
   fontSize: '13px',
   fontWeight: 700,
   lineHeight: '19.5px',
-  color: 'var(--text-primary)',
+  color: 'var(--accent-blue-text)',
 }
 
 const trophyBodyStyle: CSSProperties = {
@@ -275,7 +262,7 @@ const trophyBodyStyle: CSSProperties = {
   fontSize: '13px',
   fontWeight: 400,
   lineHeight: '19.5px',
-  color: 'var(--text-primary)',
+  color: 'var(--accent-blue-text)',
 }
 
 const inactiveTitleStyle: CSSProperties = {

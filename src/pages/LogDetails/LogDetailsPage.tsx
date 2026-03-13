@@ -9,6 +9,15 @@ import { LogEntrySkeleton } from '@/components/skeleton/LogEntrySkeleton'
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+/** Local date as YYYY-MM-DD for comparison. */
+const getTodayLocal = (): string => {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 const formatDateLabel = (dateStr: string): string => {
   const d = new Date(dateStr + 'T00:00:00')
   const day = DAYS[d.getDay()]
@@ -125,6 +134,7 @@ export const LogDetailsPage = () => {
 
   const isLoading = journeyLoading || (selectedDate && detailsLoading)
   const isEmpty = !isLoading && selectedDate && entries.length === 0 && !error
+  const isPastDay = selectedDate && selectedDate < getTodayLocal()
 
   if (!selectedDate) {
     navigate('/', { replace: true })
@@ -175,7 +185,9 @@ export const LogDetailsPage = () => {
                 <section style={activitySectionStyle}>
                   <div style={activityHeaderRowStyle}>
                     <h2 style={activityTitleStyle}>Entries</h2>
-                    <AddLogChipButton selectedDate={selectedDate} onNavigate={navigate} />
+                    {!isPastDay && (
+                      <AddLogChipButton selectedDate={selectedDate} onNavigate={navigate} />
+                    )}
                   </div>
 
                   {isEmpty && (
@@ -286,7 +298,7 @@ const activityTitleStyle: CSSProperties = {
 }
 
 const addLogPillStyle: CSSProperties = {
-  background: 'var(--accent-soft)',
+  background: 'var(--accent)',
   borderRadius: 22,
   paddingLeft: 12,
   paddingRight: 12,
@@ -296,7 +308,7 @@ const addLogPillStyle: CSSProperties = {
   fontSize: '13px',
   fontWeight: 500,
   lineHeight: '19.5px',
-  color: 'var(--accent)',
+  color: 'var(--bg)',
   border: 'none',
   cursor: 'pointer',
 }
@@ -344,8 +356,9 @@ const timeStyle: CSSProperties = {
 }
 
 const durationPillStyle: CSSProperties = {
-  background: 'var(--accent-blue-glow)',
-  color: 'var(--accent-blue-emphasis)',
+  background: 'var(--bg-elevated)',
+  border: '1px solid var(--border)',
+  color: 'var(--text-primary)',
   borderRadius: 22,
   paddingLeft: 12,
   paddingRight: 12,

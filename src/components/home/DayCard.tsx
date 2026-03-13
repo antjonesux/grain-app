@@ -27,14 +27,14 @@ const ChevronRight = () => (
 
 const ClockIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2"/>
-    <path d="M8 5v3l2 2" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="6" stroke="var(--text-primary)" strokeWidth="1.2"/>
+    <path d="M8 5v3l2 2" stroke="var(--text-primary)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
 
 const ActionsIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <path d="M4 5h8M4 8h8M4 11h5" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round"/>
+    <path d="M4 5h8M4 8h8M4 11h5" stroke="var(--text-primary)" strokeWidth="1.2" strokeLinecap="round"/>
   </svg>
 )
 
@@ -120,8 +120,9 @@ const topRowStyle: CSSProperties = {
 const labelBaseStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '15px',
-  fontWeight: 400,
+  fontWeight: 600,
   lineHeight: '24px',
+  color: 'var(--text-primary)',
 }
 
 const emptyRowStyle: CSSProperties = {
@@ -150,7 +151,7 @@ const pillsRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: 8,
-  marginTop: 8,
+  marginTop: 12,
 }
 
 const pillStyle: CSSProperties = {
@@ -159,6 +160,7 @@ const pillStyle: CSSProperties = {
   paddingTop: 4,
   paddingBottom: 4,
   background: 'var(--bg-elevated)',
+  border: '1px solid var(--border)',
   borderRadius: 22,
   display: 'flex',
   justifyContent: 'center',
@@ -167,9 +169,9 @@ const pillStyle: CSSProperties = {
 }
 
 const pillTextStyle: CSSProperties = {
-  color: 'var(--text-secondary)',
-  fontSize: '13px',
+  color: 'var(--text-primary)',
+  fontSize: '11px',
   fontFamily: 'var(--grain-font-sans)',
-  fontWeight: 400,
+  fontWeight: 500,
   lineHeight: '19.5px',
 }

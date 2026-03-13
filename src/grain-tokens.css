@@ -1,6 +1,8 @@
 /* Grain Design Tokens
    - Theme switching via: <html data-theme="dark"> or <html data-theme="light">
    - App code should reference short aliases: var(--bg), var(--text-primary), var(--accent), etc.
+   - Color system: Dark primary = Emerald (#10B981), Light primary = Indigo (#5063B8)
+   - Full palette reference: Grain_Color_System.pdf
 */
 
 :root {
@@ -12,65 +14,137 @@
 /* DARK THEME                     */
 /* ----------------------------- */
 [data-theme="dark"] {
-  /* Background */
+
+  /* ── Primary scale (Emerald) ──
+     Full 50–950 ramp derived from #10B981.
+     Use for custom one-off treatments; prefer semantic tokens for UI. */
+  --grain-primary-50: #ECFDF5;
+  --grain-primary-100: #D1FAE5;
+  --grain-primary-200: #A7F3D0;
+  --grain-primary-300: #6EE7B7;
+  --grain-primary-400: #34D399;
+  --grain-primary-500: #10B981;  /* ← brand accent */
+  --grain-primary-600: #059669;
+  --grain-primary-700: #047857;
+  --grain-primary-800: #065F46;
+  --grain-primary-900: #064E3B;
+  --grain-primary-950: #022C22;
+
+  /* ── Primary neutral (Emerald-tinted grays) ──
+     Warmer than pure gray; maintains cohesion with emerald accent. */
+  --grain-neutral-50: #F0FAF6;
+  --grain-neutral-100: #D8EDE6;
+  --grain-neutral-200: #B8D5CC;
+  --grain-neutral-300: #8FB8AC;
+  --grain-neutral-400: #6B9A8E;
+  --grain-neutral-500: #4F7D72;
+  --grain-neutral-600: #3B6358;
+  --grain-neutral-700: #2C4D43;
+  --grain-neutral-800: #1E3830;
+  --grain-neutral-900: #142822;
+  --grain-neutral-950: #0B1A16;
+
+  /* ── Background ── */
   --grain-bg: #0D0F14;
   --grain-bg-card: #161921;
   --grain-bg-input: #1C1F2A;
   --grain-bg-elevated: #1E2130;
 
-  /* Border */
+  /* ── Border ── */
   --grain-border: #2A2D3A;
   --grain-border-subtle: #222533;
 
-  /* Brand Accent */
-  --grain-accent: #10B981;
-  --grain-accent-soft: #1A2421;
-  --grain-accent-glow: #1F3D35;
+  /* ── Brand accent ──
+     Primary interactive color: buttons, active states, data emphasis.
+     -soft: subtle background tint (selected chips, highlights)
+     -glow: focus rings, loading states */
+  --grain-accent: #10B981;         /* primary-500 */
+  --grain-accent-soft: #1A2421;    /* deep emerald tint on dark bg */
+  --grain-accent-glow: #1F3D35;    /* slightly lifted for focus rings */
 
-  /* Text */
+  /* ── Text ── */
   --grain-text-primary: #F0F0F5;
   --grain-text-secondary: #8B8FA3;
   --grain-text-muted: #5C6078;
 
-  /* Status */
-  --grain-status-aligned: #6EDCB1;
-  --grain-status-aligned-soft: rgba(110, 220, 177, 0.12);
-  --grain-status-drift: #D9B86C;
-  --grain-status-drift-soft: rgba(217, 184, 108, 0.12);
-  --grain-status-misaligned: #D47B7B;
-  --grain-status-misaligned-soft: rgba(212, 123, 123, 0.12);
+  /* ── Status ──
+     Aligned = on track (green family, distinct from accent)
+     Drift = worth noticing (amber/gold)
+     Misaligned = needs attention (red)
+     -soft variants: background fills for badges/pills */
+  --grain-status-aligned: #34D399;          /* primary-400: brighter than accent for status visibility */
+  --grain-status-aligned-soft: #022C22;     /* primary-950: deep green tint */
+  --grain-status-drift: #FBBF24;            /* yellow-400: clear amber on dark surfaces */
+  --grain-status-drift-soft: #422006;       /* amber-950: dark amber tint */
+  --grain-status-misaligned: #F87171;       /* red-400: readable red on dark bg */
+  --grain-status-misaligned-soft: #450A0A;  /* red-950: deep red tint */
 
-  /* Extended Accents (semantic-only) */
-  --grain-accent-blue: #3B82F6;
-  --grain-accent-blue-soft: #0F1E38;
-  --grain-accent-blue-glow: #1E3A5F;
-  --grain-accent-blue-text: #60A5FA;
-  --grain-accent-blue-emphasis: #93C5FD;
+  /* ── Extended accents ──
+     Semantic-only colors for specific UI contexts.
+     Each has 5 stops: base, soft bg, glow/border, readable text, high-emphasis text.
 
-  --grain-accent-amber: #F59E0B;
-  --grain-accent-amber-soft: #1A1205;
-  --grain-accent-amber-glow: #3D2E10;
-  --grain-accent-amber-text: #FCD34D;
-  --grain-accent-amber-emphasis: #FDE68A;
+     Blue: informational states, links */
+  --grain-accent-blue: #3B82F6;        /* blue-500 */
+  --grain-accent-blue-soft: #172554;   /* blue-950: dark blue tint */
+  --grain-accent-blue-glow: #1E3A8A;  /* blue-900: border/focus on dark */
+  --grain-accent-blue-text: #60A5FA;   /* blue-400: readable on dark bg */
+  --grain-accent-blue-emphasis: #93C5FD; /* blue-300: high-emphasis on dark bg */
 
-  --grain-accent-violet: #8B5CF6;
-  --grain-accent-violet-soft: #120929;
-  --grain-accent-violet-glow: #2E1F5E;
-  --grain-accent-violet-text: #A78BFA;
-  --grain-accent-violet-emphasis: #C4B5FD;
+  /* Amber: bonus hours, gold overflow */
+  --grain-accent-amber: #F59E0B;        /* amber-500 */
+  --grain-accent-amber-soft: #451A03;   /* amber-950: dark amber tint */
+  --grain-accent-amber-glow: #78350F;   /* amber-900: border/focus on dark */
+  --grain-accent-amber-text: #FCD34D;   /* amber-300: readable on dark bg */
+  --grain-accent-amber-emphasis: #FDE68A; /* amber-200: high-emphasis on dark bg */
 
-  /* Shadows */
+  /* Violet: complete state accent */
+  --grain-accent-violet: #8B5CF6;        /* violet-500 */
+  --grain-accent-violet-soft: #2E1065;   /* violet-950: dark violet tint */
+  --grain-accent-violet-glow: #4C1D95;   /* violet-900: border/focus on dark */
+  --grain-accent-violet-text: #A78BFA;   /* violet-400: readable on dark bg */
+  --grain-accent-violet-emphasis: #C4B5FD; /* violet-300: high-emphasis on dark bg */
+
+  /* ── Red scale (for direct use alongside status) ── */
+  --grain-red: #EF4444;          /* red-500 */
+  --grain-red-soft: #450A0A;     /* red-950 */
+  --grain-red-text: #FCA5A5;     /* red-300 */
+
+  /* ── Green scale (for direct use alongside status) ── */
+  --grain-green: #10B981;        /* mirrors accent in dark mode */
+  --grain-green-soft: #022C22;   /* primary-950 */
+  --grain-green-text: #6EE7B7;   /* primary-300 */
+
+  /* ── Yellow scale ── */
+  --grain-yellow: #EAB308;       /* yellow-500 */
+  --grain-yellow-soft: #422006;  /* amber-950 */
+  --grain-yellow-text: #FDE047;  /* yellow-300 */
+
+  /* ── Shadows ── */
   --grain-shadow-card: none;
   --grain-shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.4);
   --grain-shadow-glow: 0 0 60px rgba(110, 128, 216, 0.06);
 
-  /* White */
+  /* ── Constants ── */
   --grain-white: #FFFFFF;
-
-  /* Effect overlays */
   --grain-noise-opacity: 0.08;
 
-  /* Short-form aliases (used across the app) */
+  /* ── Neutral scale (UI grays) ──
+     Mapped to bg/border/text tokens. Available for custom use. */
+  --grain-ui-50: #F0F0F5;   /* = text-primary */
+  --grain-ui-100: #E4E4EA;
+  --grain-ui-200: #C8C8D2;
+  --grain-ui-300: #A1A1B0;
+  --grain-ui-400: #8B8FA3;  /* = text-secondary */
+  --grain-ui-500: #7D8093;
+  --grain-ui-600: #5C6078;  /* = text-muted */
+  --grain-ui-700: #3A3D50;
+  --grain-ui-800: #2A2D3A;  /* = border */
+  --grain-ui-900: #161921;  /* = bg-card */
+  --grain-ui-950: #0D0F14;  /* = bg */
+
+  /* ═══════════════════════════════════════
+     Short-form aliases (used across the app)
+     ═══════════════════════════════════════ */
   --bg: var(--grain-bg);
   --bg-card: var(--grain-bg-card);
   --bg-input: var(--grain-bg-input);
@@ -94,7 +168,6 @@
   --status-misaligned: var(--grain-status-misaligned);
   --status-misaligned-soft: var(--grain-status-misaligned-soft);
 
-  /* Extended accents (aliases) */
   --accent-blue: var(--grain-accent-blue);
   --accent-blue-soft: var(--grain-accent-blue-soft);
   --accent-blue-glow: var(--grain-accent-blue-glow);
@@ -113,7 +186,6 @@
   --accent-violet-text: var(--grain-accent-violet-text);
   --accent-violet-emphasis: var(--grain-accent-violet-emphasis);
 
-  /* Shadows (aliases) */
   --shadow-card: var(--grain-shadow-card);
   --shadow-elevated: var(--grain-shadow-elevated);
   --shadow-glow: var(--grain-shadow-glow);
@@ -125,65 +197,134 @@
 /* LIGHT THEME                    */
 /* ----------------------------- */
 [data-theme="light"] {
-  /* Background */
+
+  /* ── Primary scale (Indigo) ──
+     Full 50–950 ramp derived from #5063B8.
+     Light mode uses a distinct hue from dark mode for brand differentiation. */
+  --grain-primary-50: #EEF0F9;
+  --grain-primary-100: #D5DAF0;
+  --grain-primary-200: #B8C0E6;
+  --grain-primary-300: #97A3D9;
+  --grain-primary-400: #7686CC;
+  --grain-primary-500: #5063B8;  /* ← brand accent */
+  --grain-primary-600: #4254A3;
+  --grain-primary-700: #34448A;
+  --grain-primary-800: #293670;
+  --grain-primary-900: #1F2958;
+  --grain-primary-950: #121838;
+
+  /* ── Primary neutral (Indigo-tinted grays) ──
+     Cool undertone to complement indigo accent. */
+  --grain-neutral-50: #F5F5F8;
+  --grain-neutral-100: #E8E8F0;
+  --grain-neutral-200: #D5D5DF;
+  --grain-neutral-300: #B5B5C5;
+  --grain-neutral-400: #9696AA;
+  --grain-neutral-500: #787892;
+  --grain-neutral-600: #5E5E76;
+  --grain-neutral-700: #48485C;
+  --grain-neutral-800: #343446;
+  --grain-neutral-900: #242432;
+  --grain-neutral-950: #141420;
+
+  /* ── Background ── */
   --grain-bg: #F7F7F5;
   --grain-bg-card: #FFFFFF;
   --grain-bg-input: #EEEEE9;
-  --grain-bg-elevated: #FFFFFF;
+  --grain-bg-elevated: #F7F7F7;
 
-  /* Border */
+  /* ── Border ── */
   --grain-border: #DDDDD6;
   --grain-border-subtle: #E8E8E2;
 
-  /* Brand Accent (Meridian - light) */
-  --grain-accent: #5063B8;
-  --grain-accent-soft: #E7E8EF;
-  --grain-accent-glow: #D6D9E9;
+  /* ── Brand accent ──
+     Indigo primary for light mode. Provides sufficient contrast on white surfaces.
+     -soft: light indigo tint for chip/pill backgrounds
+     -glow: focus rings, input highlights */
+  --grain-accent: #5063B8;         /* primary-500 */
+  --grain-accent-soft: #EEF0F9;   /* primary-50: light tint on white */
+  --grain-accent-glow: #D5DAF0;   /* primary-100: lifted for focus rings */
 
-  /* Text */
+  /* ── Text ── */
   --grain-text-primary: #1A1A1F;
-  --grain-text-secondary: #3E3E47;
-  --grain-text-muted: #71717B;
+  --grain-text-secondary: #6B6B78;  /* updated: was #3E3E47, now aligns with neutral scale */
+  --grain-text-muted: #9B9BA8;      /* updated: was #71717B, lighter for proper muted hierarchy */
 
-  /* Status */
-  --grain-status-aligned: #21805F;
-  --grain-status-aligned-soft: #E2EBE6;
-  --grain-status-drift: #896E23;
-  --grain-status-drift-soft: #ECE9E0;
-  --grain-status-misaligned: #B85151;
-  --grain-status-misaligned-soft: #ECE9E0;
+  /* ── Status ──
+     Darker values than dark mode for contrast on light backgrounds.
+     -soft variants: very light tinted backgrounds for badges/pills. */
+  --grain-status-aligned: #059669;          /* green-600: readable on white */
+  --grain-status-aligned-soft: #ECFDF5;     /* green-50: light green tint */
+  --grain-status-drift: #CA8A04;            /* yellow-600: readable amber on white */
+  --grain-status-drift-soft: #FEFCE8;       /* yellow-50: light yellow tint */
+  --grain-status-misaligned: #DC2626;       /* red-600: readable red on white */
+  --grain-status-misaligned-soft: #FEF2F2;  /* red-50: light red tint */
 
-  /* Extended Accents (semantic-only) */
-  --grain-accent-blue: #2563EB;
-  --grain-accent-blue-soft: #EEF2FF;
-  --grain-accent-blue-glow: #DBEAFE;
-  --grain-accent-blue-text: #1D4ED8;
-  --grain-accent-blue-emphasis: #1E40AF;
+  /* ── Extended accents ──
+     Light mode uses darker base values and lighter soft/glow for contrast.
 
-  --grain-accent-amber: #92400E;
-  --grain-accent-amber-soft: #FFFBEB;
-  --grain-accent-amber-glow: #FEF3C7;
-  --grain-accent-amber-text: #78350F;
-  --grain-accent-amber-emphasis: #451A03;
+     Blue: informational states, links */
+  --grain-accent-blue: #2563EB;        /* blue-600 */
+  --grain-accent-blue-soft: #EFF6FF;   /* blue-50: light blue tint */
+  --grain-accent-blue-glow: #DBEAFE;   /* blue-100: border/focus on light */
+  --grain-accent-blue-text: #1D4ED8;   /* blue-700: readable on light bg */
+  --grain-accent-blue-emphasis: #1E40AF; /* blue-800: high-emphasis on light bg */
 
-  --grain-accent-violet: #6D28D9;
-  --grain-accent-violet-soft: #F5F3FF;
-  --grain-accent-violet-glow: #EDE9FE;
-  --grain-accent-violet-text: #5B21B6;
-  --grain-accent-violet-emphasis: #4C1D95;
+  /* Amber: bonus hours, gold overflow */
+  --grain-accent-amber: #D97706;        /* amber-600 */
+  --grain-accent-amber-soft: #FFFBEB;   /* amber-50: light amber tint */
+  --grain-accent-amber-glow: #FEF3C7;   /* amber-100: border/focus on light */
+  --grain-accent-amber-text: #92400E;   /* amber-800: readable on light bg */
+  --grain-accent-amber-emphasis: #78350F; /* amber-900: high-emphasis on light bg */
 
-  /* Shadows */
+  /* Violet: complete state accent */
+  --grain-accent-violet: #7C3AED;        /* violet-600 */
+  --grain-accent-violet-soft: #F5F3FF;   /* violet-50: light violet tint */
+  --grain-accent-violet-glow: #EDE9FE;   /* violet-100: border/focus on light */
+  --grain-accent-violet-text: #5B21B6;   /* violet-800: readable on light bg */
+  --grain-accent-violet-emphasis: #4C1D95; /* violet-900: high-emphasis on light bg */
+
+  /* ── Red scale ── */
+  --grain-red: #DC2626;          /* red-600 */
+  --grain-red-soft: #FEF2F2;     /* red-50 */
+  --grain-red-text: #991B1B;     /* red-800 */
+
+  /* ── Green scale ── */
+  --grain-green: #059669;        /* green-600 */
+  --grain-green-soft: #ECFDF5;   /* green-50 */
+  --grain-green-text: #065F46;   /* green-800 */
+
+  /* ── Yellow scale ── */
+  --grain-yellow: #CA8A04;       /* yellow-600 */
+  --grain-yellow-soft: #FEFCE8;  /* yellow-50 */
+  --grain-yellow-text: #854D0E;  /* yellow-800 */
+
+  /* ── Shadows ── */
   --grain-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   --grain-shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.10);
   --grain-shadow-input-focus: 0 0 0 3px rgba(84, 104, 192, 0.20);
 
-  /* White */
+  /* ── Constants ── */
   --grain-white: #FFFFFF;
-
-  /* Effect overlays */
   --grain-noise-opacity: 0.15;
 
-  /* Short-form aliases */
+  /* ── Neutral scale (UI grays) ──
+     Mapped to bg/border/text tokens. Available for custom use. */
+  --grain-ui-50: #FAFAFA;
+  --grain-ui-100: #F5F5F5;
+  --grain-ui-200: #E8E8E2;  /* ≈ border-subtle */
+  --grain-ui-300: #DDDDD6;  /* = border */
+  --grain-ui-400: #B5B5B0;
+  --grain-ui-500: #9B9BA8;  /* ≈ text-muted */
+  --grain-ui-600: #6B6B78;  /* = text-secondary */
+  --grain-ui-700: #4A4A56;
+  --grain-ui-800: #34343E;
+  --grain-ui-900: #1F1F28;
+  --grain-ui-950: #1A1A1F;  /* = text-primary */
+
+  /* ═══════════════════════════════════════
+     Short-form aliases (used across the app)
+     ═══════════════════════════════════════ */
   --bg: var(--grain-bg);
   --bg-card: var(--grain-bg-card);
   --bg-input: var(--grain-bg-input);
@@ -207,7 +348,6 @@
   --status-misaligned: var(--grain-status-misaligned);
   --status-misaligned-soft: var(--grain-status-misaligned-soft);
 
-  /* Extended accents (aliases) */
   --accent-blue: var(--grain-accent-blue);
   --accent-blue-soft: var(--grain-accent-blue-soft);
   --accent-blue-glow: var(--grain-accent-blue-glow);
@@ -226,7 +366,6 @@
   --accent-violet-text: var(--grain-accent-violet-text);
   --accent-violet-emphasis: var(--grain-accent-violet-emphasis);
 
-  /* Shadows (aliases) */
   --shadow-card: var(--grain-shadow-card);
   --shadow-elevated: var(--grain-shadow-elevated);
   --shadow-input-focus: var(--grain-shadow-input-focus);

@@ -7,6 +7,22 @@ interface ProgressBarProps {
   commitment: number
 }
 
+function tickStyle(leftPct: number): CSSProperties {
+  return {
+    position: 'absolute',
+    top: '50%',
+    left: `${leftPct}%`,
+    transform: 'translateX(-50%) translateY(-50%)',
+    width: 3,
+    height: 18,
+    borderRadius: 2,
+    background: 'var(--grain-white)',
+    opacity: 0.75,
+    zIndex: 2,
+    pointerEvents: 'none',
+  }
+}
+
 export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
   if (commitment <= 0) {
     return <div style={trackStyle} />
@@ -30,7 +46,7 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
           style={{
             ...fillStyle,
             width: `${greenWidthPct}%`,
-            borderRadius: '4px 0 0 4px',
+            borderRadius: '8px 0 0 8px',
             boxShadow: fillGlowFull,
           }}
         />
@@ -38,11 +54,13 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
           style={{
             ...fillStyle,
             width: `${goldWidthPct}%`,
-            backgroundColor: 'var(--accent-amber)',
-            borderRadius: '0 4px 4px 0',
+            backgroundColor: '#088574',
+            borderRadius: '0 8px 8px 0',
+            boxShadow: fillGlowFull,
             transition: 'width 240ms ease-out',
           }}
         />
+        <div style={tickStyle(greenWidthPct)} />
       </div>
     )
   }
@@ -59,25 +77,27 @@ export const ProgressBar = ({ invested, commitment }: ProgressBarProps) => {
           boxShadow: atOrBeyondFull ? fillGlowFull : fillGlowSub,
         }}
       />
+      {widthPct > 4 && <div style={tickStyle(widthPct)} />}
     </div>
   )
 }
 
 const trackStyle: CSSProperties = {
+  position: 'relative',
   width: '100%',
   height: 12,
-  borderRadius: 6,
-  backgroundColor: 'var(--progress-track-bg, var(--bg-elevated))',
-  overflow: 'hidden',
+  borderRadius: 8,
+  backgroundColor: 'var(--bg)',
+  overflow: 'visible',
   display: 'flex',
 }
 
 const fillStyle: CSSProperties = {
   height: '100%',
-  borderRadius: 6,
-  backgroundColor: 'var(--accent-blue)',
+  borderRadius: 8,
+  backgroundColor: '#10B981',
   transition: 'width 240ms ease-out',
 }
 
-const fillGlowSub = '0px 0px 8px 1px rgba(59, 130, 246, 0.30)'
-const fillGlowFull = '0px 0px 8px 1px rgba(59, 130, 246, 0.70)'
+const fillGlowSub = '0px 0px 6px 1px rgba(35, 198, 101, 0.20)'
+const fillGlowFull = '0px 0px 6px 1px rgba(35, 198, 101, 0.20)'

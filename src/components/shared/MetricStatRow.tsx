@@ -40,7 +40,7 @@ const blockCard: CSSProperties = {
 
 const blockElevated: CSSProperties = {
   ...blockBase,
-  background: 'var(--bg-elevated)',
+  background: 'var(--bg-card)',
   border: '1px solid var(--border)',
   padding: '10px 14px',
   gap: 6,
@@ -50,15 +50,16 @@ const labelRowStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: 6,
+  paddingBottom: 4,
 }
 
 const labelTextStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '10px',
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.12px',
+  fontWeight: 500,
+  letterSpacing: '0.18px',
   color: 'var(--text-secondary)',
+  textTransform: 'uppercase',
 }
 
 const valueStyle: CSSProperties = {

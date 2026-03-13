@@ -74,7 +74,7 @@ const titleStyle: CSSProperties = {
 }
 
 const addLogButtonStyle: CSSProperties = {
-  background: 'var(--accent-soft)',
+  background: 'var(--accent)',
   borderRadius: 22,
   paddingLeft: 12,
   paddingRight: 12,
@@ -84,7 +84,7 @@ const addLogButtonStyle: CSSProperties = {
   fontSize: '13px',
   fontWeight: 500,
   lineHeight: '19.5px',
-  color: 'var(--accent)',
+  color: 'var(--bg)',
   border: 'none',
   cursor: 'pointer',
 }
