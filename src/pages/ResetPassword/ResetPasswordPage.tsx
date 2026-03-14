@@ -5,6 +5,7 @@ import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { supabase } from '@/lib/supabaseClient'
 import { meetsMinLength, PASSWORD_HINT } from '@/lib/passwordValidation'
 import { errors } from '@/lib/errorMessages'
+import { PasswordCheckCircle, PasswordErrorCircle, PasswordHintCircle } from '@/components/icons/PasswordValidationIcon'
 
 type PageState = 'loading' | 'error' | 'ready'
 
@@ -68,7 +69,7 @@ const hintStyle = (met: boolean): CSSProperties => ({
   fontSize: '11px',
   lineHeight: '16.5px',
   fontWeight: 400,
-  color: met ? 'var(--accent)' : 'var(--text-secondary)',
+  color: met ? 'var(--status-aligned)' : 'var(--status-misaligned)',
 })
 
 const inputWrap: CSSProperties = {
@@ -87,24 +88,6 @@ const iconPos: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
 }
-
-const HintCircle = ({ met }: { met: boolean }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke={met ? 'var(--accent)' : 'var(--text-secondary)'} strokeWidth="1" fill="none" />
-  </svg>
-)
-
-const ErrorCircle = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--status-misaligned)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
-
-const CheckCircle = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
 
 /* ----- Styles ----- */
 
@@ -288,12 +271,6 @@ export const ResetPasswordPage = () => {
 
   return (
     <div style={pageStyle}>
-      <style>{`
-  input::placeholder {
-    color: var(--text-muted);
-    opacity: 0.45;
-  }
-`}</style>
       <OnboardingHeader onBack={goToLogin} />
       <h1 style={headlineStyle}>Set a new password</h1>
       <p style={subtextStyle}>Choose a strong password you'll remember.</p>
@@ -317,7 +294,7 @@ export const ResetPasswordPage = () => {
             />
             {newPassword.length > 0 && (
               <span style={{ ...hintStyle(meetsLength), marginTop: 6, display: 'inline-flex' }}>
-                <HintCircle met={meetsLength} />
+                <PasswordHintCircle met={meetsLength} />
                 {PASSWORD_HINT}
               </span>
             )}
@@ -334,8 +311,8 @@ export const ResetPasswordPage = () => {
                 paddingRight: confirmPassword.length > 0 ? 44 : 16,
               }}
             />
-            {confirmPassword.length > 0 && newPassword !== confirmPassword && <span style={iconPos}><ErrorCircle /></span>}
-            {confirmPassword.length > 0 && newPassword === confirmPassword && <span style={iconPos}><CheckCircle /></span>}
+            {confirmPassword.length > 0 && newPassword !== confirmPassword && <span style={iconPos}><PasswordErrorCircle /></span>}
+            {confirmPassword.length > 0 && newPassword === confirmPassword && <span style={iconPos}><PasswordCheckCircle /></span>}
           </div>
         </div>
         <PrimaryButton type="submit" disabled={!canSubmit}>

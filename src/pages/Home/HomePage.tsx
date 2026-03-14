@@ -1,4 +1,6 @@
 import type { CSSProperties } from 'react'
+import { useEffect } from 'react'
+import { usePostHog } from '@posthog/react'
 import { useActiveJourney, useHomeWeekData } from '@/hooks'
 import { HomeHeader } from '@/components/home/HomeHeader'
 import { JourneyCard } from '@/components/home/JourneyCard'
@@ -7,6 +9,12 @@ import { JourneyCardSkeleton } from '@/components/skeleton/JourneyCardSkeleton'
 import { DayCardSkeleton } from '@/components/skeleton/DayCardSkeleton'
 
 export const HomePage = () => {
+  const posthog = usePostHog()
+
+  useEffect(() => {
+    posthog?.capture('home_viewed')
+  }, [posthog])
+
   const {
     activeJourney,
     hasJourney,

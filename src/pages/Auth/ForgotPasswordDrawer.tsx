@@ -43,7 +43,7 @@ const btnBase: CSSProperties = {
 
 const SaveCheckmark = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-    <path d="M2.5 7.5L5.5 10.5L11.5 4.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M2.5 7.5L5.5 10.5L11.5 4.5" stroke="var(--status-aligned)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
 

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
+import { usePostHog } from '@posthog/react'
 import { supabase } from '@/lib/supabaseClient'
 
 interface AuthContextValue {
@@ -29,11 +30,20 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const posthog = usePostHog()
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const user = session?.user ?? null
+
+  useEffect(() => {
+    if (!posthog || !user) return
+    posthog.identify(user.id, {
+      email: user.email ?? undefined,
+      first_name: (user.user_metadata?.first_name as string | undefined) ?? undefined,
+    })
+  }, [posthog, user])
 
   const clearError = useCallback(() => setError(null), [])
 
@@ -65,7 +75,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signOut = useCallback(async () => {
     setError(null)
     await supabase.auth.signOut()
-  }, [])
+    posthog?.reset()
+  }, [posthog])
 
   const resendConfirmationEmail = useCallback(async (email: string) => {
     setError(null)

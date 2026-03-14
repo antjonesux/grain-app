@@ -147,7 +147,7 @@ const submitEnabledStyle: CSSProperties = {
 
 const submitDisabledStyle: CSSProperties = {
   ...submitBaseStyle,
-  background: 'var(--bg-input)',
+  background: 'var(--bg-elevated)',
   color: 'var(--text-muted)',
   cursor: 'not-allowed',
 }

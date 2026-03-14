@@ -28,7 +28,6 @@ const logoTextStyle: CSSProperties = {
   fontWeight: 400,
   color: 'var(--text-primary)',
   letterSpacing: '0.09px',
-  textShadow: '0 0 24px rgba(16, 185, 129, 0.3)',
 }
 
 const GrainLogo = () => (
@@ -38,7 +37,6 @@ const GrainLogo = () => (
     aria-hidden="true"
     style={{
       color: 'var(--text-primary)',
-      filter: 'drop-shadow(0 0 24px rgba(16, 185, 129, 0.6))',
     }}
   />
 )

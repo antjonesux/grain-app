@@ -3,6 +3,7 @@ import { Drawer } from '@/components/onboarding/Drawer'
 import { supabase } from '@/lib/supabaseClient'
 import { errors } from '@/lib/errorMessages'
 import { meetsMinLength, PASSWORD_HINT } from '@/lib/passwordValidation'
+import { PasswordCheckCircle, PasswordErrorCircle, PasswordHintCircle } from '@/components/icons/PasswordValidationIcon'
 
 interface PasswordDrawerProps {
   isOpen: boolean
@@ -39,7 +40,6 @@ const inputStyle = (filled: boolean): CSSProperties => ({
 const readOnlyPasswordStyle: CSSProperties = {
   width: '100%',
   padding: '16px',
-  paddingRight: '44px',
   background: 'var(--bg-input)',
   borderRadius: '14px',
   border: '1px solid var(--border)',
@@ -62,11 +62,6 @@ const inputWrap: CSSProperties = {
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
-}
-
-const disabledInputWrap: CSSProperties = {
-  ...inputWrap,
-  cursor: 'default',
 }
 
 const toggleBtn: CSSProperties = {
@@ -126,7 +121,7 @@ const hintStyle = (met: boolean): CSSProperties => ({
   fontSize: '11px',
   lineHeight: '16.5px',
   fontWeight: 400,
-  color: met ? 'var(--accent)' : 'var(--text-secondary)',
+  color: met ? 'var(--status-aligned)' : 'var(--status-misaligned)',
 })
 
 const EyeIcon = () => (
@@ -163,32 +158,13 @@ const EyeOffIcon = () => (
   </svg>
 )
 
-const HintCircle = ({ met }: { met: boolean }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke={met ? 'var(--accent)' : 'var(--text-secondary)'} strokeWidth="1" fill="none" />
-  </svg>
-)
-
-const ErrorCircle = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--status-misaligned)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
-
-const CheckCircle = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
-
 const SaveCheckmark = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-    <path d="M2.5 7.5L5.5 10.5L11.5 4.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M2.5 7.5L5.5 10.5L11.5 4.5" stroke="var(--status-aligned)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
 
 export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
-  const [showCurrent, setShowCurrent] = useState(false)
   const [newPw, setNewPw] = useState('')
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -201,7 +177,6 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
 
   useEffect(() => {
     if (isOpen) {
-      setShowCurrent(false)
       setNewPw('')
       setShowNew(false)
       setShowConfirm(false)
@@ -268,19 +243,14 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
         {/* CURRENT */}
         <div style={{ paddingBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <p style={sectionLabel}>Current</p>
-          <div style={disabledInputWrap}>
-            <input
-              type={showCurrent ? 'text' : 'password'}
-              value="••••••"
-              readOnly
-              disabled
-              aria-label="Current password"
-              style={disabledPasswordStyle}
-            />
-            <button type="button" style={toggleBtn} onClick={() => setShowCurrent(v => !v)} aria-label={showCurrent ? 'Hide password' : 'Show password'}>
-              {showCurrent ? <EyeOffIcon /> : <EyeIcon />}
-            </button>
-          </div>
+          <input
+            type="password"
+            value="••••••"
+            readOnly
+            disabled
+            aria-label="Current password"
+            style={disabledPasswordStyle}
+          />
         </div>
 
         {/* UPDATE */}
@@ -303,7 +273,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
 
             {newPw.length > 0 && (
               <span style={hintStyle(meetsLength)}>
-                <HintCircle met={meetsLength} />
+                <PasswordHintCircle met={meetsLength} />
                 {PASSWORD_HINT}
               </span>
             )}
@@ -321,7 +291,7 @@ export const PasswordDrawer = ({ isOpen, onClose }: PasswordDrawerProps) => {
               />
               {confirmHasInput && (
                 <span style={{ ...toggleBtn, right: '44px', cursor: 'default' } as CSSProperties}>
-                  {confirmShowError ? <ErrorCircle /> : confirmShowSuccess ? <CheckCircle /> : null}
+                  {confirmShowError ? <PasswordErrorCircle /> : confirmShowSuccess ? <PasswordCheckCircle /> : null}
                 </span>
               )}
               <button type="button" style={toggleBtn} onClick={() => setShowConfirm(v => !v)} aria-label={showConfirm ? 'Hide password' : 'Show password'}>

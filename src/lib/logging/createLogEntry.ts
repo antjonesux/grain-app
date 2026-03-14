@@ -86,5 +86,16 @@ export async function createLogEntry(
     return { logId, error: errors.saveEntry }
   }
 
+  try {
+    const posthog = (await import('posthog-js')).default
+    posthog.capture('action_logged', {
+      journey_id: journeyId,
+      action_count: uniqueItems.length,
+      total_duration_minutes: uniqueItems.reduce((sum, i) => sum + i.duration, 0),
+    })
+  } catch {
+    // analytics failure must never block the log entry succeeding
+  }
+
   return { logId, error: null }
 }

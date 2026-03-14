@@ -87,7 +87,7 @@ const trackStyle: CSSProperties = {
   width: '100%',
   height: 12,
   borderRadius: 8,
-  backgroundColor: 'var(--bg)',
+  backgroundColor: 'var(--bg-elevated)',
   overflow: 'visible',
   display: 'flex',
 }

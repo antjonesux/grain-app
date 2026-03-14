@@ -29,7 +29,7 @@ const variantStyles: Record<ChipVariant, CSSProperties> = {
     border: '1px solid var(--border)',
     color: 'var(--text-secondary)',
     padding: '10px 16px',
-    gap: '8px',
+    gap: '4px',
   },
   selected: {
     background: 'var(--accent-soft)',

@@ -1,5 +1,6 @@
 import { type CSSProperties, useState, useEffect, useRef } from 'react'
 import { Drawer } from '@/components/onboarding/Drawer'
+import { PasswordCheckCircle, PasswordErrorCircle } from '@/components/icons/PasswordValidationIcon'
 import { errors } from '@/lib/errorMessages'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -80,21 +81,9 @@ const btnBase: CSSProperties = {
   transition: 'background 250ms ease, color 200ms ease, border-color 250ms ease',
 }
 
-const ErrorIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--status-misaligned)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
-
-const CheckIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
-
 const SaveCheckmark = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-    <path d="M2.5 7.5L5.5 10.5L11.5 4.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M2.5 7.5L5.5 10.5L11.5 4.5" stroke="var(--status-aligned)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
 
@@ -217,8 +206,8 @@ export const EmailDrawer = ({ isOpen, onClose, currentEmail }: EmailDrawerProps)
                   paddingRight: confirmHasInput ? '44px' : '16px',
                 }}
               />
-              {confirmShowError && <span style={iconWrap}><ErrorIcon /></span>}
-              {confirmShowSuccess && <span style={iconWrap}><CheckIcon /></span>}
+              {confirmShowError && <span style={iconWrap}><PasswordErrorCircle /></span>}
+              {confirmShowSuccess && <span style={iconWrap}><PasswordCheckCircle /></span>}
             </div>
           </div>
         </div>

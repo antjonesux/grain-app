@@ -166,9 +166,9 @@ export const ActionsScreen = ({
         <OnboardingHeader onBack={onBack} />
         <ProgressBar step={3} total={5} />
 
-        <h1 style={headingStyle}>What moves the needle?</h1>
+        <h1 style={headingStyle}>What does progress look like?</h1>
         <p style={subheadStyle}>
-          Pick what counts. You can always add more later.
+        Choose a focus area to get tailored suggestions, or add your own.
         </p>
 
         <div style={chipWrap}>

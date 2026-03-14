@@ -175,7 +175,6 @@ const logoTextStyle: CSSProperties = {
   fontWeight: 400,
   color: 'var(--text-primary)',
   letterSpacing: '0.09px',
-  textShadow: '0 0 24px color-mix(in srgb, var(--accent) 30%, transparent)',
 }
 
 // Eyebrow row: line + label

@@ -27,7 +27,7 @@ const trackStyle: CSSProperties = {
   left: 0,
   width: '100%',
   height: '6px',
-  background: 'var(--bg-input)',
+  background: 'var(--bg-elevated)',
   borderRadius: '2px',
 }
 
@@ -42,7 +42,7 @@ const labelTextStyle: CSSProperties = {
   fontSize: '11px',
   lineHeight: '16.5px',
   fontWeight: 400,
-  color: 'var(--text-muted)',
+  color: 'var(--text-secondary)',
 }
 
 const inputStyle: CSSProperties = {
@@ -76,6 +76,20 @@ export const Slider = ({
     borderRadius: '2px',
   }
 
+  const thumbStyle: CSSProperties = {
+    position: 'absolute',
+    top: '50%',
+    left: `${fillPercent}%`,
+    transform: 'translateX(-50%) translateY(-50%)',
+    width: 14,
+    height: 14,
+    borderRadius: '50%',
+    background: 'var(--grain-white)',
+    border: '2px solid var(--accent)',
+    zIndex: 1, // below input (zIndex 2) so drag still works
+    pointerEvents: 'none',
+  }
+
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(Number(e.target.value))
@@ -85,9 +99,10 @@ export const Slider = ({
 
   return (
     <div style={containerStyle}>
-      <div style={trackContainerStyle} ref={trackRef}>
+      <div style={{ ...trackContainerStyle, overflow: 'visible' }} ref={trackRef}>
         <div style={trackStyle} />
         <div style={fillStyle} />
+        <div style={thumbStyle} />
         <input
           type="range"
           min={min}

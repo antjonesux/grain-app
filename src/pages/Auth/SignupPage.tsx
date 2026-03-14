@@ -5,6 +5,7 @@ import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 import { InlineLinkButton } from '@/components/onboarding/InlineLinkButton'
 import { getSignUpError } from '@/lib/errorMessages'
 import { meetsMinLength, PASSWORD_HINT } from '@/lib/passwordValidation'
+import { PasswordCheckCircle, PasswordErrorCircle, PasswordHintCircle } from '@/components/icons/PasswordValidationIcon'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -119,7 +120,7 @@ const hintStyle = (met: boolean): CSSProperties => ({
   fontSize: '11px',
   lineHeight: '16.5px',
   fontWeight: 400,
-  color: met ? 'var(--accent)' : 'var(--text-secondary)',
+  color: met ? 'var(--status-aligned)' : 'var(--status-misaligned)',
 })
 
 const inputWrap: CSSProperties = {
@@ -138,24 +139,6 @@ const toggleBtn: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
 }
-
-const HintCircle = ({ met }: { met: boolean }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke={met ? 'var(--accent)' : 'var(--text-secondary)'} strokeWidth="1" fill="none" />
-  </svg>
-)
-
-const ErrorCircle = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--status-misaligned)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
-
-const CheckCircle = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <circle cx="8" cy="8" r="6" stroke="var(--accent)" strokeWidth="1.2" fill="none" />
-  </svg>
-)
 
 const bottomLinkStyle: CSSProperties = {
   paddingTop: '24px',
@@ -277,7 +260,7 @@ export const SignupPage = () => {
             />
             {password.length > 0 && (
               <span id="signup-password-hint" style={{ ...hintStyle(meetsLength), marginTop: 6, display: 'inline-flex' }}>
-                <HintCircle met={meetsLength} />
+                <PasswordHintCircle met={meetsLength} />
                 {PASSWORD_HINT}
               </span>
             )}
@@ -304,8 +287,8 @@ export const SignupPage = () => {
                 aria-invalid={confirmShowError}
                 aria-describedby={confirmHasInput && confirmShowError ? 'signup-confirm-status' : undefined}
               />
-              {confirmShowError && <span style={{ ...toggleBtn, cursor: 'default' }}><ErrorCircle /></span>}
-              {confirmShowSuccess && <span style={{ ...toggleBtn, cursor: 'default' }}><CheckCircle /></span>}
+              {confirmShowError && <span style={{ ...toggleBtn, cursor: 'default' }}><PasswordErrorCircle /></span>}
+              {confirmShowSuccess && <span style={{ ...toggleBtn, cursor: 'default' }}><PasswordCheckCircle /></span>}
             </div>
             {confirmHasInput && confirmShowError && (
               <p id="signup-confirm-status" style={fieldErrorStyle}>

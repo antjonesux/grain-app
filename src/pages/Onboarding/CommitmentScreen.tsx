@@ -79,7 +79,7 @@ const presetsRow: CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   flexWrap: 'wrap',
-  paddingBottom: '20px',
+  paddingBottom: '32px',
 }
 
 const warningContainer: CSSProperties = {
@@ -105,9 +105,9 @@ const warningIconBox: CSSProperties = {
 const warningTextStyle: CSSProperties = {
   fontFamily: 'var(--grain-font-sans)',
   fontSize: '11px',
-  fontWeight: 400,
+  fontWeight: 500,
   lineHeight: '16.5px',
-  color: 'var(--status-drift)',
+  color: 'var(--accent-amber-text)',
 }
 
 const ctaZone: CSSProperties = {
@@ -176,6 +176,13 @@ export const CommitmentScreen = ({
                   stroke="var(--status-drift)"
                   strokeWidth="1.2"
                 />
+                <path
+                  d="M6 2.6V5.4"
+                  stroke="var(--status-drift)"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                />
+                <circle cx="6" cy="7.2" r="0.5" fill="var(--status-drift)" />
               </svg>
             </div>
             <span style={warningTextStyle}>

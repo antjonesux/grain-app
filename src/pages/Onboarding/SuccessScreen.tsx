@@ -1,4 +1,5 @@
 import { type CSSProperties, useEffect, useState } from 'react'
+import { usePostHog } from '@posthog/react'
 import { PrimaryButton } from '@/components/onboarding/PrimaryButton'
 
 interface SuccessScreenProps {
@@ -66,7 +67,12 @@ const ctaZone: CSSProperties = {
 const AUTO_NAV_DELAY = 4000
 
 export const SuccessScreen = ({ onFinish }: SuccessScreenProps) => {
+  const posthog = usePostHog()
   const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    posthog?.capture('onboarding_completed')
+  }, [])
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))

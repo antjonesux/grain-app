@@ -147,7 +147,7 @@ const rowValue: CSSProperties = {
   fontSize: '13px',
   fontWeight: 400,
   lineHeight: '19.5px',
-  color: 'var(--text-muted)',
+  color: 'var(--text-secondary)',
 }
 
 const signOutBtn: CSSProperties = {
